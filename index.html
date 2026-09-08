@@ -1,15 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farol Capixaba da Educação</title>
+    <style>
+        :root {
+            --bg-top: #0b2545;
+            --bg-bottom: #13315c;
+            --accent: #ffb703;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --text: #eaf2ff;
+            --text-muted: #a9bcd8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 56px 20px 40px;
+            font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top, var(--bg-bottom), var(--bg-top) 70%);
+            color: var(--text);
+        }
+
+        .beacon {
+            font-size: 44px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 18px rgba(255, 183, 3, 0.55));
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        p.subtitle {
+            margin: 12px 0 40px;
+            color: var(--text-muted);
+            text-align: center;
+            max-width: 520px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        main {
+            width: 100%;
+            max-width: 640px;
+        }
+
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        li a {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.05rem;
+            font-weight: 500;
+            backdrop-filter: blur(6px);
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        li a::before {
+            content: "→";
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            transition: transform 0.18s ease;
+        }
+
+        li a:hover, li a:focus-visible {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            background: rgba(255, 183, 3, 0.1);
+        }
+
+        li a:hover::before, li a:focus-visible::before {
+            transform: translateX(4px);
+        }
+
+        footer {
+            margin-top: 48px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        footer a {
+            color: var(--text-muted);
+        }
+    </style>
 </head>
 <body>
+    <div class="beacon">🔦</div>
     <h1>Farol Capixaba da Educação</h1>
+    <p class="subtitle">Dados, mapas e ferramentas para iluminar decisões sobre educação no Espírito Santo.</p>
 
-    <ul>
-        <li><a href="https://josemarquesjunior.github.io/mapeamento_inundacao/">Mapeamento de inundação - Bom Jesus do Norte</a></li>
-        <li><a href="concorrência_EF_Anos_Iniciais.html">Eliminação da concorrência - Estados/municípios</a></li>
-        <li><a href="mapa_EM.html">Distância dos setores censitários às escolas</a></li>
-    </ul>
+    <main>
+        <ul>
+            <li><a href="https://josemarquesjunior.github.io/mapeamento_inundacao/">Mapeamento de inundação — Bom Jesus do Norte</a></li>
+            <li><a href="concorrência_EF_Anos_Iniciais.html">Eliminação da concorrência — Estados/municípios</a></li>
+            <li><a href="mapa_EM.html">Distância dos setores censitários às escolas</a></li>
+        </ul>
+    </main>
+
+    <footer>Farol Capixaba da Educação</footer>
 </body>
 </html>
