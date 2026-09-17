@@ -1,0 +1,193 @@
+# De-para das variáveis descontinuadas, para a camada stg.
+#
+# A stg mantém TODA variável já coletada como coluna própria, nula nos anos em
+# que não existiu. Este arquivo trata só dos dois casos em que isso não basta:
+#
+#   renomeadas  - mesmo conceito, nome novo. Sem o de-para, um conceito viraria
+#                 duas colunas meio preenchidas.
+#   derivadas   - o INEP parou de publicar o indicador, mas ele é reconstituível
+#                 a partir de outra coluna de 2025. Sem o de-para, a série se
+#                 interromperia no ano da descontinuação.
+#
+# Tudo o mais fica em sem_equivalente: a coluna existe na stg, preenchida nos
+# anos em que foi coletada e nula depois. Nada é descartado; o que não se pode
+# afirmar é equivalência.
+#
+# Regra de escrita: só entra aqui relação sustentada pela descrição das duas
+# variáveis no dicionário. Semelhança de nome não basta — IN_FUND ("a escola
+# oferece Ensino Fundamental") parece casar com IN_COMUM_FUND_AI, que na verdade
+# é "oferece matrícula de aluno com deficiência em classe comum".
+
+versao: 1
+ano_referencia: 2025
+
+# Expressão padrão das derivadas. O ::int intermediário é obrigatório: o
+# PostgreSQL não converte boolean direto para smallint. A conversão preserva o
+# nulo — origem nula dá indicador nulo, não zero, porque "não coletado" não é
+# a mesma coisa que "nenhuma matrícula".
+expressao_padrao: "({origem} > 0)::int::smallint"
+
+renomeadas:
+  # Curso técnico: "CT" (Ensino Médio Integrado) virou "IFTP_CT"
+  # (Itinerário Formativo Técnico e Profissional) no vocabulário de 2025.
+  QT_CURSO_TEC_CT: QT_CURSO_TEC_IFTP_CT
+  QT_MAT_CURSO_TEC_CT: QT_MAT_CURSO_TEC_IFTP_CT
+  QT_MAT_MED_CT: QT_MAT_MED_IFTP_CT
+  QT_MAT_MED_CT_1: QT_MAT_MED_IFTP_CT_1
+  QT_MAT_MED_CT_2: QT_MAT_MED_IFTP_CT_2
+  QT_MAT_MED_CT_3: QT_MAT_MED_IFTP_CT_3
+  QT_MAT_MED_CT_4: QT_MAT_MED_IFTP_CT_4
+  QT_MAT_MED_CT_NS: QT_MAT_MED_IFTP_CT_NS
+  # Ambas já viviam na tabela de curso técnico em 2024: mesmo grão.
+  QT_MAT_TEC_EJA: QT_MAT_CURSO_TEC_EJA
+  QT_MAT_TEC_SUBS: QT_MAT_CURSO_TEC_SUBS
+  # "Destinação do lixo - Joga em outra área" -> "... Descarta em outra área"
+  IN_LIXO_JOGA_OUTRA_AREA: IN_LIXO_DESCARTA_OUTRA_AREA
+
+derivadas:
+  # Etapa ofertada: o indicador "possui uma ou mais matrículas" saiu em 2024,
+  # mas equivale exatamente a contagem de matrículas maior que zero.
+  IN_BAS:      {origem: QT_MAT_BAS, tabela: matricula}
+  IN_INF:      {origem: QT_MAT_INF, tabela: matricula}
+  IN_INF_CRE:  {origem: QT_MAT_INF_CRE, tabela: matricula}
+  IN_INF_PRE:  {origem: QT_MAT_INF_PRE, tabela: matricula}
+  IN_FUND:     {origem: QT_MAT_FUND, tabela: matricula}
+  IN_FUND_AI:  {origem: QT_MAT_FUND_AI, tabela: matricula}
+  IN_FUND_AF:  {origem: QT_MAT_FUND_AF, tabela: matricula}
+  IN_MED:      {origem: QT_MAT_MED, tabela: matricula}
+  IN_EJA_FUND: {origem: QT_MAT_EJA_FUND, tabela: matricula}
+  IN_EJA_MED:  {origem: QT_MAT_EJA_MED, tabela: matricula}
+  IN_PROF:     {origem: QT_MAT_PROF, tabela: matricula}
+  IN_PROF_TEC: {origem: QT_MAT_PROF_TEC, tabela: matricula}
+  IN_ESP:      {origem: QT_MAT_ESP, tabela: matricula}
+  IN_ESP_CC:   {origem: QT_MAT_ESP_CC, tabela: matricula}
+  IN_ESP_CE:   {origem: QT_MAT_ESP_CE, tabela: matricula}
+  # "Turno não aplicável para turmas semipresenciais ou EAD".
+  IN_EAD:      {origem: QT_MAT_BAS_EAD, tabela: matricula}
+
+  # Profissionais que atuam na escola: o indicador de presença saiu em 2024 e a
+  # contagem correspondente permanece em 2025.
+  IN_PROF_ADMINISTRATIVOS: {origem: QT_PROF_ADMINISTRATIVOS, tabela: escola}
+  IN_PROF_AGRICOLA:        {origem: QT_PROF_AGRICOLA, tabela: escola}
+  IN_PROF_ALIMENTACAO:     {origem: QT_PROF_ALIMENTACAO, tabela: escola}
+  IN_PROF_ASSIST_SOCIAL:   {origem: QT_PROF_ASSIST_SOCIAL, tabela: escola}
+  IN_PROF_BIBLIOTECARIO:   {origem: QT_PROF_BIBLIOTECARIO, tabela: escola}
+  IN_PROF_COORDENADOR:     {origem: QT_PROF_COORDENADOR, tabela: escola}
+  IN_PROF_FONAUDIOLOGO:    {origem: QT_PROF_FONAUDIOLOGO, tabela: escola}
+  IN_PROF_GESTAO:          {origem: QT_PROF_GESTAO, tabela: escola}
+  IN_PROF_MONITORES:       {origem: QT_PROF_MONITORES, tabela: escola}
+  IN_PROF_NUTRICIONISTA:   {origem: QT_PROF_NUTRICIONISTA, tabela: escola}
+  IN_PROF_PEDAGOGIA:       {origem: QT_PROF_PEDAGOGIA, tabela: escola}
+  IN_PROF_PSICOLOGO:       {origem: QT_PROF_PSICOLOGO, tabela: escola}
+  IN_PROF_REVISOR_BRAILLE: {origem: QT_PROF_REVISOR_BRAILLE, tabela: escola}
+  IN_PROF_SAUDE:           {origem: QT_PROF_SAUDE, tabela: escola}
+  IN_PROF_SECRETARIO:      {origem: QT_PROF_SECRETARIO, tabela: escola}
+  IN_PROF_SEGURANCA:       {origem: QT_PROF_SEGURANCA, tabela: escola}
+  IN_PROF_SERVICOS_GERAIS: {origem: QT_PROF_SERVICOS_GERAIS, tabela: escola}
+  IN_PROF_TRAD_LIBRAS:     {origem: QT_PROF_TRAD_LIBRAS, tabela: escola}
+
+sem_equivalente:
+  - motivo: >-
+      2025 não publica turmas nem matrículas por turno diurno/noturno; só o
+      recorte EAD sobreviveu.
+    variaveis: [IN_DIURNO, IN_NOTURNO]
+
+  - motivo: >-
+      2025 pergunta a FONTE da água (IN_AGUA_REDE_PUBLICA, IN_AGUA_POCO_ARTESIANO,
+      IN_AGUA_CACIMBA...), não se a água consumida é filtrada. Conceitos distintos.
+    variaveis: [IN_AGUA_FILTRADA]
+
+  - motivo: >-
+      2025 reduziu a um único IN_BANHEIRO, sem separar dentro/fora do prédio.
+      Somar os dois antigos suporia que não há escola com ambos.
+    variaveis: [IN_BANHEIRO_DENTRO_PREDIO, IN_BANHEIRO_FORA_PREDIO]
+
+  - motivo: >-
+      As quantidades viraram indicadores de presença em 2023 (QT_COMPUTADOR ->
+      IN_COMPUTADOR). A contagem não é recuperável a partir do booleano.
+    variaveis:
+      [QT_COMPUTADOR, QT_COMP_ADMINISTRATIVO, QT_COMP_ALUNO, QT_EQUIP_COPIADORA,
+       QT_EQUIP_IMPRESSORA, QT_EQUIP_IMPRESSORA_MULT, QT_EQUIP_PARABOLICA]
+
+  - motivo: >-
+      Mídia analógica que o Censo deixou de perguntar.
+    variaveis:
+      [IN_EQUIP_FAX, IN_EQUIP_FOTO, IN_EQUIP_RETROPROJETOR, IN_EQUIP_VIDEOCASSETE,
+       QT_EQUIP_FAX, QT_EQUIP_FOTO, QT_EQUIP_RETROPROJETOR, QT_EQUIP_VIDEOCASSETE]
+
+  - motivo: >-
+      "Salas existentes" (2022) e "salas utilizadas, dentro e fora do prédio"
+      (2025) medem coisas diferentes.
+    variaveis: [QT_SALAS_EXISTENTES]
+
+  - motivo: >-
+      Dependências físicas que saíram do questionário.
+    variaveis: [IN_BERCARIO, IN_LAVANDERIA, IN_DEPENDENCIAS_PNE]
+
+  - motivo: >-
+      Formas de organização do ensino descontinuadas em bloco.
+    variaveis:
+      [IN_SERIE_ANO, IN_MODULOS, IN_PERIODOS_SEMESTRAIS, IN_FUNDAMENTAL_CICLOS,
+       IN_GRUPOS_NAO_SERIADOS, IN_FORMACAO_ALTERNANCIA]
+
+  - motivo: >-
+      Convênio com o poder público: bloco inteiro descontinuado.
+    variaveis:
+      [IN_CONVENIADA_PP, TP_CONVENIO_PODER_PUBLICO, IN_TIPO_ATEND_AC,
+       IN_TIPO_ATEND_AEE, IN_TIPO_ATEND_ESCOLARIZACAO]
+
+  - motivo: >-
+      Locais de funcionamento específicos, absorvidos por IN_LOCAL_FUNC_OUTROS
+      sem que se possa saber qual era.
+    variaveis:
+      [IN_LOCAL_FUNC_CASA_PROFESSOR, IN_LOCAL_FUNC_SALAS_EMPRESA,
+       IN_LOCAL_FUNC_TEMPLO_IGREJA]
+
+  - motivo: >-
+      Material didático específico e destinação/tratamento do lixo: itens
+      descontinuados sem substituto.
+    variaveis:
+      [IN_MATERIAL_ESP_INDIGENA, IN_MATERIAL_ESP_QUILOMBOLA,
+       IN_MATERIAL_ESP_NAO_UTILIZA, IN_LIXO_RECICLA, IN_LIXO_OUTROS]
+
+  - motivo: >-
+      Itens avulsos sem correspondente em 2025.
+    variaveis:
+      [IN_BRASIL_ALFABETIZADO, IN_FINAL_SEMANA, IN_ENERGIA_GERADOR,
+       IN_ENERGIA_OUTROS, QT_FUNCIONARIOS]
+
+# Variáveis cujo tipo muda entre anos. Em raw cada ano guarda o que o dicionário
+# declarou; é aqui que se decide o tipo único da stg e como chegar nele.
+# {col} é substituído pela coluna de origem em raw.
+tipos_harmonizados:
+  CO_ENTIDADE:
+    tipo: INTEGER
+    conversao: "{col}::integer"
+    motivo: >-
+      A aba de Curso Técnico declara o código da escola como Char(100) — o
+      dicionário do INEP troca CO_ENTIDADE com NO_ENTIDADE nessa aba. Sem o
+      cast, o join contra escola falha.
+  NO_ENTIDADE:
+    tipo: VARCHAR(100)
+    conversao: "{col}::varchar(100)"
+    motivo: >-
+      Mesmo defeito, lado inverso: declarada Num(8) na aba de Curso Técnico,
+      o que a verificação de tipos promoveu a TEXT.
+  NU_DDD:
+    tipo: SMALLINT
+    conversao: >-
+      case when {col}::text ~ '^[0-9]+$' then {col}::text::smallint end
+    motivo: >-
+      De 2015 a 2022 a coluna traz '.' (ausente do SAS), que vira nulo. O
+      ::text antes do regex é necessário porque nos demais anos a coluna já
+      chega inteira em raw, e ~ não se aplica a integer.
+  NU_TELEFONE:
+    tipo: BIGINT
+    conversao: >-
+      case when {col}::text ~ '^[0-9]+$' then {col}::text::bigint
+           when {col}::text ~ '^[0-9]+\.?[0-9]*E[0-9]+$'
+                then {col}::text::numeric::bigint end
+    motivo: >-
+      Mesma origem do '.', mais notação científica ('9.8467E8') que o SAS
+      gerou ao exportar, recuperada via numeric, e valores com espaço
+      ('627 1146') em 2007-2010, que viram nulo.

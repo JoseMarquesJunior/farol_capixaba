@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------
+# NEDUC — arquivos que nunca devem entrar no versionamento
+# ---------------------------------------------------------------
+
+# Ambiente virtual
+.venv/
+venv/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Segredos
+.env
+*.env
+!.env.example
+
+# Data lake do Censo Escolar (~13 GB: ZIPs originais + extraídos)
+educacao/data/
+
+# analises/: os scripts são versionados; os insumos e os mapas gerados, não.
+# São ~162 MB, e os HTML são saída reproduzível dos próprios scripts.
+analises/*.html
+analises/*.xlsx
+
+# docs/ é o site publicado pelo GitHub Pages (Settings -> Pages -> main /docs).
+# Nunca deve ser ignorado: os três arquivos aqui SÃO o Farol Capixaba no ar.
+
+# ZIP da entrega fechada, na raiz
+/eliminação_da_concorrência.zip
+
+# Lixo de editor de planilha (LibreOffice / Excel)
+.~lock.*#
+~$*
+
+# Sistema operacional
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---------------------------------------------------------------
+# Entregas fechadas: cada uma tem (ou terá) repositório próprio,
+# por isso não são versionadas aqui. ~1,2 GB no total.
+# (farol_capixaba saiu da lista: virou este próprio repositório.)
+# ---------------------------------------------------------------
+eliminação_da_concorrência/
+infra_Bom_Jesus_do_Norte/
+reordenamento_da_rede/

@@ -1,0 +1,255 @@
+{
+  "anos": [
+    {
+      "ano": 2007,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2007",
+          "variaveis": 370,
+          "ajustes_de_tipo": 1
+        }
+      ]
+    },
+    {
+      "ano": 2008,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2008",
+          "variaveis": 370,
+          "ajustes_de_tipo": 1
+        }
+      ]
+    },
+    {
+      "ano": 2009,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2009",
+          "variaveis": 370,
+          "ajustes_de_tipo": 1
+        }
+      ]
+    },
+    {
+      "ano": 2010,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2010",
+          "variaveis": 370,
+          "ajustes_de_tipo": 1
+        }
+      ]
+    },
+    {
+      "ano": 2011,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2011",
+          "variaveis": 370,
+          "ajustes_de_tipo": 0
+        }
+      ]
+    },
+    {
+      "ano": 2012,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2012",
+          "variaveis": 370,
+          "ajustes_de_tipo": 0
+        }
+      ]
+    },
+    {
+      "ano": 2013,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2013",
+          "variaveis": 370,
+          "ajustes_de_tipo": 0
+        }
+      ]
+    },
+    {
+      "ano": 2014,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2014",
+          "variaveis": 370,
+          "ajustes_de_tipo": 0
+        }
+      ]
+    },
+    {
+      "ano": 2015,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2015",
+          "variaveis": 370,
+          "ajustes_de_tipo": 2
+        }
+      ]
+    },
+    {
+      "ano": 2016,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2016",
+          "variaveis": 370,
+          "ajustes_de_tipo": 2
+        }
+      ]
+    },
+    {
+      "ano": 2017,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2017",
+          "variaveis": 370,
+          "ajustes_de_tipo": 2
+        }
+      ]
+    },
+    {
+      "ano": 2018,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2018",
+          "variaveis": 370,
+          "ajustes_de_tipo": 2
+        }
+      ]
+    },
+    {
+      "ano": 2019,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2019",
+          "variaveis": 370,
+          "ajustes_de_tipo": 2
+        }
+      ]
+    },
+    {
+      "ano": 2020,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2020",
+          "variaveis": 370,
+          "ajustes_de_tipo": 2
+        }
+      ]
+    },
+    {
+      "ano": 2021,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2021",
+          "variaveis": 370,
+          "ajustes_de_tipo": 2
+        }
+      ]
+    },
+    {
+      "ano": 2022,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2022",
+          "variaveis": 385,
+          "ajustes_de_tipo": 2
+        }
+      ]
+    },
+    {
+      "ano": 2023,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2023",
+          "variaveis": 408,
+          "ajustes_de_tipo": 0
+        },
+        {
+          "nome": "curso_tecnico",
+          "tabela_raw": "curso_tecnico_2023",
+          "variaveis": 29,
+          "ajustes_de_tipo": 1
+        }
+      ]
+    },
+    {
+      "ano": 2024,
+      "tabelas": [
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2024",
+          "variaveis": 426,
+          "ajustes_de_tipo": 0
+        },
+        {
+          "nome": "curso_tecnico",
+          "tabela_raw": "curso_tecnico_2024",
+          "variaveis": 29,
+          "ajustes_de_tipo": 1
+        }
+      ]
+    },
+    {
+      "ano": 2025,
+      "tabelas": [
+        {
+          "nome": "curso_tecnico",
+          "tabela_raw": "curso_tecnico_2025",
+          "variaveis": 20,
+          "ajustes_de_tipo": 0
+        },
+        {
+          "nome": "docente",
+          "tabela_raw": "docente_2025",
+          "variaveis": 156,
+          "ajustes_de_tipo": 0
+        },
+        {
+          "nome": "escola",
+          "tabela_raw": "escola_2025",
+          "variaveis": 302,
+          "ajustes_de_tipo": 2
+        },
+        {
+          "nome": "gestor",
+          "tabela_raw": "gestor_2025",
+          "variaveis": 65,
+          "ajustes_de_tipo": 0
+        },
+        {
+          "nome": "matricula",
+          "tabela_raw": "matricula_2025",
+          "variaveis": 237,
+          "ajustes_de_tipo": 0
+        },
+        {
+          "nome": "turma",
+          "tabela_raw": "turma_2025",
+          "variaveis": 190,
+          "ajustes_de_tipo": 0
+        }
+      ]
+    }
+  ]
+}
