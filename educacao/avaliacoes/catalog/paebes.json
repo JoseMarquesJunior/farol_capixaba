@@ -1,0 +1,1115 @@
+{
+  "fonte": "paebes",
+  "tabelas": [
+    {
+      "fonte": "paebes",
+      "nome": "aluno_2025",
+      "tabela_raw": "paebes_aluno_2025",
+      "arquivo": "data/avaliacoes/paebes/paebes_2025.zip",
+      "delimitador": ";",
+      "encoding": "latin-1",
+      "edicoes": [
+        2025
+      ],
+      "total_variaveis": 76,
+      "variaveis": [
+        {
+          "nome": "CD_DOCUMENTO",
+          "coluna": "cd_documento",
+          "ordem": 1,
+          "tipo_postgres": "BIGINT",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico de registro do documento de avaliação do estudante",
+          "ajuste_tipo": "a amostra chega a 18 dígitos, acima do que INTEGER comporta",
+          "dominio": []
+        },
+        {
+          "nome": "CD_AVALIACAO",
+          "coluna": "cd_avaliacao",
+          "ordem": 2,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico que identifica a edição específica da avaliação",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_TECNOLOGIA_PUBLICACAO",
+          "coluna": "dc_tecnologia_publicacao",
+          "ordem": 3,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição da tecnologia de aplicação para publicação",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "FL_EXTRA",
+          "coluna": "fl_extra",
+          "ordem": 4,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Flag indicativa de instrumento extra",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "Cartão nominal"
+            },
+            {
+              "codigo": "1",
+              "rotulo": "Cartão extra para turma"
+            },
+            {
+              "codigo": "2",
+              "rotulo": "Cartão de reserva tecnica"
+            },
+            {
+              "codigo": "3",
+              "rotulo": "O cartão resposta foi remanejado para o estudante atual, pela critica C2"
+            },
+            {
+              "codigo": "4",
+              "rotulo": "Cartão com imagem duplicada e persistido"
+            },
+            {
+              "codigo": "5",
+              "rotulo": "O cartão resposta foi remanejado para o estudante atual, pela critica C1"
+            },
+            {
+              "codigo": "6",
+              "rotulo": "Cartão generico de transcrição"
+            },
+            {
+              "codigo": "7",
+              "rotulo": "Sequencial inserido para garantir equilibrio entre disciplinas"
+            }
+          ]
+        },
+        {
+          "nome": "FL_PUBLICACAO",
+          "coluna": "fl_publicacao",
+          "ordem": 5,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Flag indicativa de controle da liberação do registro para publicação",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "O registro não foi publicado e portanto retirado dos resultados do estudante e das agregações"
+            },
+            {
+              "codigo": "1",
+              "rotulo": "O registro foi publicado Alunos sem identificação não são apresentados na plataforma mas são contabilizados no cálculo"
+            }
+          ]
+        },
+        {
+          "nome": "DC_PUBLICACAO",
+          "coluna": "dc_publicacao",
+          "ordem": 6,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição da flag indicativa de controle da liberação do registro para publicação",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_PAIS",
+          "coluna": "cd_pais",
+          "ordem": 7,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico do país",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "01058",
+              "rotulo": "BRASIL"
+            }
+          ]
+        },
+        {
+          "nome": "NM_PAIS",
+          "coluna": "nm_pais",
+          "ordem": 8,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Nome do país",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_ESTADO",
+          "coluna": "cd_estado",
+          "ordem": 9,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico do estado",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "32",
+              "rotulo": "ESPÍRITO SANTO"
+            }
+          ]
+        },
+        {
+          "nome": "NM_ESTADO",
+          "coluna": "nm_estado",
+          "ordem": 10,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Nome do estado",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_REGIONAL",
+          "coluna": "cd_regional",
+          "ordem": 11,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico da regional",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NM_REGIONAL",
+          "coluna": "nm_regional",
+          "ordem": 12,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Nome da regional",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_MUNICIPIO",
+          "coluna": "cd_municipio",
+          "ordem": 13,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico do município",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NM_MUNICIPIO",
+          "coluna": "nm_municipio",
+          "ordem": 14,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Nome do município",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_ESCOLA",
+          "coluna": "cd_escola",
+          "ordem": 15,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico da escola",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NM_ESCOLA",
+          "coluna": "nm_escola",
+          "ordem": 16,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Nome da escola",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_LOCALIZACAO",
+          "coluna": "cd_localizacao",
+          "ordem": 17,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico da localização da escola",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "1",
+              "rotulo": "URBANA"
+            },
+            {
+              "codigo": "2",
+              "rotulo": "RURAL"
+            }
+          ]
+        },
+        {
+          "nome": "DC_LOCALIZACAO",
+          "coluna": "dc_localizacao",
+          "ordem": 18,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição da localização da escola",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_TURMA",
+          "coluna": "cd_turma",
+          "ordem": 19,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico da turma conforme registrado pela escola",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NM_TURMA",
+          "coluna": "nm_turma",
+          "ordem": 20,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Nome da turma conforme registrado pela escola",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "FL_MULTI_SERIADO",
+          "coluna": "fl_multi_seriado",
+          "ordem": 21,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Flag indicativa se a turma é multisseriada ou não",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "A turma não é uma turma multi seriada"
+            },
+            {
+              "codigo": "1",
+              "rotulo": "A turma é multi seriada"
+            }
+          ]
+        },
+        {
+          "nome": "CD_TURNO",
+          "coluna": "cd_turno",
+          "ordem": 22,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico do turno em que o estudante está matriculado",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "1",
+              "rotulo": "MANHÃ"
+            },
+            {
+              "codigo": "10",
+              "rotulo": "INTERMEDIÁRIO"
+            },
+            {
+              "codigo": "16",
+              "rotulo": "VESPERTINO"
+            },
+            {
+              "codigo": "17",
+              "rotulo": "MATUTINO"
+            },
+            {
+              "codigo": "2",
+              "rotulo": "TARDE"
+            },
+            {
+              "codigo": "3",
+              "rotulo": "NOITE"
+            },
+            {
+              "codigo": "4",
+              "rotulo": "INTEGRAL"
+            }
+          ]
+        },
+        {
+          "nome": "DC_TURNO",
+          "coluna": "dc_turno",
+          "ordem": 23,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Turno em que o estudante está matriculado",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_TURNO_AGREGADO",
+          "coluna": "cd_turno_agregado",
+          "ordem": 24,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico da organização do período de permanência do estudante na escola",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "1",
+              "rotulo": "PARCIAL"
+            },
+            {
+              "codigo": "2",
+              "rotulo": "INTEGRAL"
+            },
+            {
+              "codigo": "3",
+              "rotulo": "INTERMEDIÁRIO"
+            }
+          ]
+        },
+        {
+          "nome": "DC_TURNO_AGREGADO",
+          "coluna": "dc_turno_agregado",
+          "ordem": 25,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Organização do período de permanência do estudante na escola",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "ICT_DC_ETAPA_TURMA",
+          "coluna": "ict_dc_etapa_turma",
+          "ordem": 26,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Informação complementar da Turma",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_REDE",
+          "coluna": "cd_rede",
+          "ordem": 27,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico do tipo de Rede de Ensino",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "1",
+              "rotulo": "ESTADUAL"
+            },
+            {
+              "codigo": "2",
+              "rotulo": "MUNICIPAL"
+            },
+            {
+              "codigo": "3",
+              "rotulo": "PARTICULAR"
+            },
+            {
+              "codigo": "5",
+              "rotulo": "INDEFINIDO"
+            }
+          ]
+        },
+        {
+          "nome": "DC_REDE",
+          "coluna": "dc_rede",
+          "ordem": 28,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Tipo de rede de ensino",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_ALUNO",
+          "coluna": "cd_aluno",
+          "ordem": 29,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico único de cada estudante na avaliação, criado pelo CAEd",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_ALUNO_INSTITUCIONAL",
+          "coluna": "cd_aluno_institucional",
+          "ordem": 30,
+          "tipo_postgres": "NUMERIC(38)",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico único de cada estudante na avaliação, informado pela instituição",
+          "ajuste_tipo": "a amostra chega a 19 dígitos, acima do que qualquer inteiro garante",
+          "dominio": []
+        },
+        {
+          "nome": "DC_ALUNO_NEC_ESPECIAL",
+          "coluna": "dc_aluno_nec_especial",
+          "ordem": 31,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição da necessidade especial do estudante",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_COR_RACA",
+          "coluna": "cd_cor_raca",
+          "ordem": 32,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico da variável cor/raça autodeclarada pelo respondente",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "ICA_DC_COR_RACA_ALUNO",
+          "coluna": "ica_dc_cor_raca_aluno",
+          "ordem": 33,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Informação complementar do aluno",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "ICA_DC_NACIONALIDADE_ALUNO",
+          "coluna": "ica_dc_nacionalidade_aluno",
+          "ordem": 34,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Informação complementar do aluno",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_CADERNO",
+          "coluna": "dc_caderno",
+          "ordem": 35,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Modelo do caderno de teste",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_INSTRUMENTO_CAED",
+          "coluna": "cd_instrumento_caed",
+          "ordem": 36,
+          "tipo_postgres": "BIGINT",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico do instrumento da avaliação aplicada, atribuído pelo CAEd",
+          "ajuste_tipo": "a amostra chega a 15 dígitos, acima do que INTEGER comporta",
+          "dominio": []
+        },
+        {
+          "nome": "CD_DISCIPLINA",
+          "coluna": "cd_disciplina",
+          "ordem": 37,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico do componente curricular avalidado",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "1",
+              "rotulo": "Língua Portuguesa"
+            },
+            {
+              "codigo": "11",
+              "rotulo": "Biologia"
+            },
+            {
+              "codigo": "12",
+              "rotulo": "Física"
+            },
+            {
+              "codigo": "13",
+              "rotulo": "Química"
+            },
+            {
+              "codigo": "2",
+              "rotulo": "Matemática"
+            },
+            {
+              "codigo": "29",
+              "rotulo": "Ciências da Natureza"
+            }
+          ]
+        },
+        {
+          "nome": "NM_DISCIPLINA",
+          "coluna": "nm_disciplina",
+          "ordem": 38,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Nome do componente curricular avaliado",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_ETAPA_APLICACAO",
+          "coluna": "cd_etapa_aplicacao",
+          "ordem": 39,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico do ano de escolaridade de aplicação",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "18",
+              "rotulo": "ENSINO FUNDAMENTAL DE 9 ANOS - 5º ANO"
+            },
+            {
+              "codigo": "27",
+              "rotulo": "ENSINO MÉDIO - 3ª SÉRIE"
+            },
+            {
+              "codigo": "41",
+              "rotulo": "ENSINO FUNDAMENTAL DE 9 ANOS - 9º ANO"
+            }
+          ]
+        },
+        {
+          "nome": "DC_ETAPA_APLICACAO",
+          "coluna": "dc_etapa_aplicacao",
+          "ordem": 40,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição do ano de escolaridade de aplicação",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_ETAPA_AVALIADA",
+          "coluna": "cd_etapa_avaliada",
+          "ordem": 41,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico do ano de escolaridade avaliado",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "18",
+              "rotulo": "ENSINO FUNDAMENTAL DE 9 ANOS - 5º ANO"
+            },
+            {
+              "codigo": "27",
+              "rotulo": "ENSINO MÉDIO - 3ª SÉRIE"
+            },
+            {
+              "codigo": "41",
+              "rotulo": "ENSINO FUNDAMENTAL DE 9 ANOS - 9º ANO"
+            }
+          ]
+        },
+        {
+          "nome": "DC_ETAPA_AVALIADA",
+          "coluna": "dc_etapa_avaliada",
+          "ordem": 42,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição do ano de escolaridade avaliado",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_ENSINO",
+          "coluna": "cd_ensino",
+          "ordem": 43,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Código numérico da modalidade de ensino",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "1",
+              "rotulo": "ENSINO REGULAR"
+            },
+            {
+              "codigo": "11",
+              "rotulo": "ENSINO MÉDIO"
+            },
+            {
+              "codigo": "24",
+              "rotulo": "ENSINO MÉDIO INTEGRADO"
+            },
+            {
+              "codigo": "5",
+              "rotulo": "INDEFINIDO"
+            },
+            {
+              "codigo": "9",
+              "rotulo": "ENSINO FUNDAMENTAL"
+            }
+          ]
+        },
+        {
+          "nome": "DC_ENSINO",
+          "coluna": "dc_ensino",
+          "ordem": 44,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição do nível ou modalidade de ensino",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_ORIGEM_LANCAMENTO",
+          "coluna": "dc_origem_lancamento",
+          "ordem": 45,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição indicando origem do lançamento",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "FL_PREVISTO",
+          "coluna": "fl_previsto",
+          "ordem": 46,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Flag indicativa se o estudante estava previsto ou não para a avaliação",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "O Registro não conta como previsto para o calculo de participação >=1 - O Registro é previsto e contabilizado na participação"
+            }
+          ]
+        },
+        {
+          "nome": "FL_PRESENTE",
+          "coluna": "fl_presente",
+          "ordem": 47,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Flag indicativa de estudante presente ou ausente na avaliação",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "FL_AVALIADO",
+          "coluna": "fl_avaliado",
+          "ordem": 48,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Flag indicativa de estudante avaliado",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "O estudante não foi avaliado para o componente curricular em questão"
+            },
+            {
+              "codigo": "1",
+              "rotulo": "O estudante foi avaliado para o componente curricular em questão"
+            }
+          ]
+        },
+        {
+          "nome": "FL_PUB_DEDUCAO",
+          "coluna": "fl_pub_deducao",
+          "ordem": 49,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Flag que faz parte do conjunto de marcadores para publicação",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "aluno não sinalizado"
+            },
+            {
+              "codigo": "1",
+              "rotulo": "aluno sinalizado"
+            }
+          ]
+        },
+        {
+          "nome": "FL_PUB_TRANSFERIDO",
+          "coluna": "fl_pub_transferido",
+          "ordem": 50,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Flag que faz parte do conjunto de marcadores para publicação",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "aluno não sinalizado"
+            },
+            {
+              "codigo": "1",
+              "rotulo": "aluno sinalizado"
+            }
+          ]
+        },
+        {
+          "nome": "DC_RESPOSTA",
+          "coluna": "dc_resposta",
+          "ordem": 51,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Relação entre quantidade de itens respondidos e total de itens apresentados no caderno de teste",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_RESPOSTA",
+          "coluna": "nu_resposta",
+          "ordem": 52,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Quantidade de itens respondidos pelo estudante",
+          "ajuste_tipo": "18,759 valores com vírgula decimal; convertida para número na stg",
+          "dominio": []
+        },
+        {
+          "nome": "NU_ACERTO",
+          "coluna": "nu_acerto",
+          "ordem": 53,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Quantidade de itens do teste respondidos corretamente",
+          "ajuste_tipo": "18,759 valores com vírgula decimal; convertida para número na stg",
+          "dominio": []
+        },
+        {
+          "nome": "NU_TOTAL",
+          "coluna": "nu_total",
+          "ordem": 54,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Somatório do total de aspectos apresentados por item",
+          "ajuste_tipo": "18,759 valores com vírgula decimal; convertida para número na stg",
+          "dominio": []
+        },
+        {
+          "nome": "TX_ACERTO",
+          "coluna": "tx_acerto",
+          "ordem": 55,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "decimal",
+          "tamanho": null,
+          "descricao": "Percentual médio de acerto no teste",
+          "ajuste_tipo": "18,759 valores com vírgula decimal; convertida para número na stg",
+          "dominio": []
+        },
+        {
+          "nome": "VL_PROFICIENCIA",
+          "coluna": "vl_proficiencia",
+          "ordem": 56,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "decimal",
+          "tamanho": null,
+          "descricao": "Valor da proficiência",
+          "ajuste_tipo": "18,759 valores com vírgula decimal; convertida para número na stg",
+          "dominio": []
+        },
+        {
+          "nome": "VL_PROFICIENCIA_ERRO",
+          "coluna": "vl_proficiencia_erro",
+          "ordem": 57,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "decimal",
+          "tamanho": null,
+          "descricao": "Erro da proficiência",
+          "ajuste_tipo": "18,759 valores com vírgula decimal; convertida para número na stg",
+          "dominio": []
+        },
+        {
+          "nome": "DC_PADRAO_DESEMPENHO",
+          "coluna": "dc_padrao_desempenho",
+          "ordem": 58,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição do padrão de desempenho do estudante, com base no valor de proficiência [VL_PROFICIENCIA] e na tabela de Faixas e Cortes do projeto",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_HABILIDADE",
+          "coluna": "cd_habilidade",
+          "ordem": 59,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico interno do CAEd para cada habilidade avaliada no caderno de teste do estudante [valores separados por pipe (|), mantendo a correlação com os demais campos de HABILIDADES]",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NM_HABILIDADE",
+          "coluna": "nm_habilidade",
+          "ordem": 60,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código de cada habilidade (descritor), de acordo com a Matriz de Referência, avaliada no caderno de teste do estudante [valores separados por pipe (|), mantendo a correlação com os demais campos de HABILIDADES]",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_HABILIDADE_ACERTO",
+          "coluna": "dc_habilidade_acerto",
+          "ordem": 61,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Quantidade de itens respondidos corretamente para cada uma das habilidades presentes no caderno de teste do estudante [valores separados por pipe (|) mantendo a ordem do NM_HABILIDADE]",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "o estudante não acertou nenhum dos itens referentes a habilidade >=1 - representa a quantidade de itens respondidos corretamente pelo estudante que são referentes a habilidade"
+            }
+          ]
+        },
+        {
+          "nome": "DC_HABILIDADE_TOTAL",
+          "coluna": "dc_habilidade_total",
+          "ordem": 62,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Quantidade de itens apresentados para cada uma das habilidades presentes no caderno de teste do estudante [valores separados por pipe (|) mantendo a ordem do NM_HABILIDADE]",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_ITENS",
+          "coluna": "dc_itens",
+          "ordem": 63,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código alfanumérico dos itens apresentados no caderno (valores separados por | mantendo a ordem do NM_HABILIDADE_POR_ITEM)",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_ITENS_ACERTO",
+          "coluna": "dc_itens_acerto",
+          "ordem": 64,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Relação entre as respostas do estudante e o gabarito do teste, indicando se o estudante acertou ou não cada um dos itens do teste (valores separados por | mantendo a ordem do DC_ITENS)",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "O estudante não acertou o item"
+            },
+            {
+              "codigo": "1",
+              "rotulo": "O estudante acerto o item"
+            },
+            {
+              "codigo": "9",
+              "rotulo": "O item foi anulado ou não apresentado"
+            }
+          ]
+        },
+        {
+          "nome": "NM_HABILIDADE_POR_ITEM",
+          "coluna": "nm_habilidade_por_item",
+          "ordem": 65,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Nome das habilidades apresentadas no caderno de testes do estudante para cada item [valores separados por pipe (|) mantendo a ordem do DC_ITENS]",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "RP_COMPONENTE_CURRICULAR",
+          "coluna": "rp_componente_curricular",
+          "ordem": 66,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Respostas do estudante para cada um dos itens de um determinado componente curricular, agrupadas , aceita os valores: A| B | C | D | E | . |*",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "RP_GABARITO",
+          "coluna": "rp_gabarito",
+          "ordem": 67,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Gabarito de todos os itens do caderno, aceita os valores: A| B | C | D | E. Ordem corresponde a DC_ITENS",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_DOCUMENTO_CTX",
+          "coluna": "cd_documento_ctx",
+          "ordem": 68,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico de registro do questionário contextual do respondente",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CD_INSTRUMENTO_CTX",
+          "coluna": "cd_instrumento_ctx",
+          "ordem": 69,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Código numérico do instrumento do questionário contextual",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "RQ",
+          "coluna": "rq",
+          "ordem": 70,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Respostas do estudante para todos os itens do caderno de questionario contextual, apresentadas de forma agrupada",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_NSE",
+          "coluna": "dc_nse",
+          "ordem": 71,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição do nível socioeconômico do estudante com base nas respostas dos itens do questionário",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_SEXO",
+          "coluna": "dc_sexo",
+          "ordem": 72,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição do gênero do estudante",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_COR_RACA",
+          "coluna": "dc_cor_raca",
+          "ordem": 73,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição da cor/raça autodeclarada pelo respondente",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "DC_COR_RACA_VAAR",
+          "coluna": "dc_cor_raca_vaar",
+          "ordem": 74,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "texto",
+          "tamanho": null,
+          "descricao": "Descrição da cor/raça autodeclarada pelo respondente agrupada segundo o VAAR",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "VL_ISE",
+          "coluna": "vl_ise",
+          "ordem": 75,
+          "tipo_postgres": "TEXT",
+          "tipo_original": "decimal",
+          "tamanho": null,
+          "descricao": "Valor estimado do índice socioeconômico do estudante com base nas respostas dos itens do questionário",
+          "ajuste_tipo": "16,903 valores com vírgula decimal; convertida para número na stg",
+          "dominio": []
+        },
+        {
+          "nome": "FL_AVALIADO_CONTEXTUAL",
+          "coluna": "fl_avaliado_contextual",
+          "ordem": 76,
+          "tipo_postgres": "INTEGER",
+          "tipo_original": "inteiro",
+          "tamanho": null,
+          "descricao": "Flag indicativa de estudante avaliado no questionário contextual",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "0",
+              "rotulo": "O estudante não foi avaliado no questionario contextual"
+            },
+            {
+              "codigo": "1",
+              "rotulo": "O estudante foi avaliado no questionario contextual"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

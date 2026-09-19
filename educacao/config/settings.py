@@ -13,3 +13,6 @@ DATABASE_DIR = ROOT / "database"
 DEFAULT_ENCODING = "latin1"
 DEFAULT_SEPARATOR = ";"
 DEFAULT_SAMPLE_ROWS = 500
+
+#: Resultados de avaliação (IDEB, ENEM por Escola, SAEB, PAEBES).
+AVALIACOES_DIR = DATA_ROOT / "avaliacoes"

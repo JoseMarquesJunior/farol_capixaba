@@ -33,6 +33,9 @@ class Medicao:
     preenchidos: int = 0
     inteiros: int = 0
     decimais: int = 0
+    #: Decimais escritos com vírgula. Sempre 0 no Censo, que usa ponto; o
+    #: PAEBES usa vírgula, e o COPY do PostgreSQL não aceita vírgula em NUMERIC.
+    decimais_virgula: int = 0
     outros: int = 0
     max_digitos: int = 0
     max_texto: int = 0
@@ -47,6 +50,49 @@ class Medicao:
         return self.decimais > 0
 
 
+def medir_texto(
+    texto,
+    delimitador: str,
+    linhas: int = LINHAS_AMOSTRA,
+) -> dict[str, Medicao]:
+    """Mede cada coluna de um fluxo de texto já aberto.
+
+    Existe separada de `medir_arquivo` porque nem toda fonte é um arquivo
+    solto: as avaliações medem CSV que vive dentro de um ZIP.
+    """
+
+    leitor = csv.reader(texto, delimiter=delimitador)
+    cabecalho = [c.strip().lstrip("﻿") for c in next(leitor)]
+    medicoes = {coluna: Medicao() for coluna in cabecalho}
+
+    for contador, linha in enumerate(leitor):
+        if linhas and contador >= linhas:
+            break
+        for coluna, bruto in zip(cabecalho, linha):
+            valor = bruto.strip()
+            if not valor:
+                continue
+            medicao = medicoes[coluna]
+            medicao.preenchidos += 1
+            medicao.max_texto = max(medicao.max_texto, len(valor))
+
+            if _INTEIRO.match(valor):
+                medicao.inteiros += 1
+                medicao.max_digitos = max(medicao.max_digitos, len(valor.lstrip("-")))
+            elif _DECIMAL.match(valor):
+                medicao.decimais += 1
+                if "," in valor:
+                    medicao.decimais_virgula += 1
+                inteira = valor.lstrip("-").split(".")[0].split(",")[0]
+                medicao.max_digitos = max(medicao.max_digitos, len(inteira))
+            else:
+                medicao.outros += 1
+                if medicao.exemplo_outro is None:
+                    medicao.exemplo_outro = valor[:40]
+
+    return medicoes
+
+
 def medir_arquivo(
     caminho: Path,
     delimitador: str,
@@ -56,36 +102,7 @@ def medir_arquivo(
     """Mede cada coluna do arquivo. `linhas=0` percorre o arquivo inteiro."""
 
     with caminho.open("r", encoding=encoding, newline="") as arquivo:
-        leitor = csv.reader(arquivo, delimiter=delimitador)
-        cabecalho = [c.strip().lstrip("﻿") for c in next(leitor)]
-        medicoes = {coluna: Medicao() for coluna in cabecalho}
-
-        for contador, linha in enumerate(leitor):
-            if linhas and contador >= linhas:
-                break
-            for coluna, bruto in zip(cabecalho, linha):
-                valor = bruto.strip()
-                if not valor:
-                    continue
-                medicao = medicoes[coluna]
-                medicao.preenchidos += 1
-                medicao.max_texto = max(medicao.max_texto, len(valor))
-
-                if _INTEIRO.match(valor):
-                    medicao.inteiros += 1
-                    medicao.max_digitos = max(
-                        medicao.max_digitos, len(valor.lstrip("-"))
-                    )
-                elif _DECIMAL.match(valor):
-                    medicao.decimais += 1
-                    inteira = valor.lstrip("-").split(".")[0].split(",")[0]
-                    medicao.max_digitos = max(medicao.max_digitos, len(inteira))
-                else:
-                    medicao.outros += 1
-                    if medicao.exemplo_outro is None:
-                        medicao.exemplo_outro = valor[:40]
-
-    return medicoes
+        return medir_texto(arquivo, delimitador, linhas)
 
 
 def ajustar_tipo(

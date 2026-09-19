@@ -4,7 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS etl.carga (
     id               BIGSERIAL   PRIMARY KEY,
-    ano              SMALLINT    NOT NULL,
+    ano              SMALLINT,
     tabela           TEXT        NOT NULL,
     tabela_raw       TEXT        NOT NULL,
     arquivo          TEXT        NOT NULL,
@@ -20,6 +20,13 @@ CREATE TABLE IF NOT EXISTS etl.carga (
         CHECK (status IN ('em_andamento', 'concluida', 'falhou'))
 );
 
+-- `ano` nasceu NOT NULL, quando só o Censo carregava aqui e todo arquivo era
+-- de um ano só. As avaliações quebraram isso: uma planilha do IDEB traz onze
+-- edições de uma vez, e não há ano único a registrar. Idempotente.
+ALTER TABLE etl.carga ALTER COLUMN ano DROP NOT NULL;
+
+COMMENT ON COLUMN etl.carga.ano IS
+    'Ano do arquivo, quando ele tem um só. Nulo nas cargas que cobrem várias edições, como o IDEB';
 COMMENT ON COLUMN etl.carga.sha256 IS
     'Hash do arquivo de origem: identifica a carga já feita e detecta republicação do INEP';
 COMMENT ON COLUMN etl.carga.filtro IS

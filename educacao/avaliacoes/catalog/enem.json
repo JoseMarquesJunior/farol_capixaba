@@ -1,0 +1,352 @@
+{
+  "fonte": "enem",
+  "tabelas": [
+    {
+      "fonte": "enem",
+      "nome": "por_escola",
+      "tabela_raw": "enem_por_escola",
+      "arquivo": "data/avaliacoes/enem/enem_por_escola_2005_2015.zip",
+      "delimitador": ";",
+      "encoding": "latin-1",
+      "edicoes": [
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015
+      ],
+      "total_variaveis": 27,
+      "variaveis": [
+        {
+          "nome": "NU_ANO",
+          "coluna": "nu_ano",
+          "ordem": 1,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Ano da edição do ENEM por Escola",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CO_UF_ESCOLA",
+          "coluna": "co_uf_escola",
+          "ordem": 2,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Código da Unidade da Federação da escola.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "SG_UF_ESCOLA",
+          "coluna": "sg_uf_escola",
+          "ordem": 3,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Sigla da Unidade da Federação da escola.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CO_MUNICIPIO_ESCOLA",
+          "coluna": "co_municipio_escola",
+          "ordem": 4,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Código do município da escola.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NO_MUNICIPIO_ESCOLA",
+          "coluna": "no_municipio_escola",
+          "ordem": 5,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Nome do município da escola.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "CO_ESCOLA_EDUCACENSO",
+          "coluna": "co_escola_educacenso",
+          "ordem": 6,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Código da Escola. Número gerado como identificador da escola no Educacenso.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NO_ESCOLA_EDUCACENSO",
+          "coluna": "no_escola_educacenso",
+          "ordem": 7,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Nome da Escola no Educacenso do ano anterior.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "TP_DEPENDENCIA_ADM_ESCOLA",
+          "coluna": "tp_dependencia_adm_escola",
+          "ordem": 8,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Tipo da dependência administrativa da entidade (Escola) do Educacenso.",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "1",
+              "rotulo": "Federal,"
+            },
+            {
+              "codigo": "2",
+              "rotulo": "Estadual,"
+            },
+            {
+              "codigo": "3",
+              "rotulo": "Municipal,"
+            },
+            {
+              "codigo": "4",
+              "rotulo": "Privada."
+            }
+          ]
+        },
+        {
+          "nome": "TP_LOCALIZACAO_ESCOLA",
+          "coluna": "tp_localizacao_escola",
+          "ordem": 9,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Tipo de Localização da escola.",
+          "ajuste_tipo": null,
+          "dominio": [
+            {
+              "codigo": "1",
+              "rotulo": "Urbana,"
+            },
+            {
+              "codigo": "2",
+              "rotulo": "Rural."
+            }
+          ]
+        },
+        {
+          "nome": "NU_MATRICULAS",
+          "coluna": "nu_matriculas",
+          "ordem": 10,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Número de alunos matriculados no Censo Escolar na 3ª e 4ª do Ensino Médio.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_PARTICIPANTES_NEC_ESP",
+          "coluna": "nu_participantes_nec_esp",
+          "ordem": 11,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Número de Participantes do Enem que cumprem os requisitos de participação no cálculo da média e possui necessidade especial.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_PARTICIPANTES",
+          "coluna": "nu_participantes",
+          "ordem": 12,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Número de Participantes do Enem que cumprem os requisitos de participação no cálculo da média.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_TAXA_PARTICIPACAO",
+          "coluna": "nu_taxa_participacao",
+          "ordem": 13,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "A taxa de participação é o número total de participantes no ENEM da escola dividido pelo número de matriculados nos anos finais do Ensino Médio da escola, informado no Censo Escolar.  2",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_MEDIA_CN",
+          "coluna": "nu_media_cn",
+          "ordem": 14,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Média das notas de Ciências da Natureza do Ensino Médio Regular.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_MEDIA_CH",
+          "coluna": "nu_media_ch",
+          "ordem": 15,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Média das notas de Ciências Humanas do Ensino Médio Regular.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_MEDIA_LP",
+          "coluna": "nu_media_lp",
+          "ordem": 16,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Média das notas de Linguagens e Códigos do Ensino Médio Regular.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_MEDIA_MT",
+          "coluna": "nu_media_mt",
+          "ordem": 17,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Média das notas de Matemática do Ensino Médio Regular.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_MEDIA_RED",
+          "coluna": "nu_media_red",
+          "ordem": 18,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Média das notas de Redação do Ensino Médio Regular.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_MEDIA_OBJ",
+          "coluna": "nu_media_obj",
+          "ordem": 19,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Média da prova objetiva do Ensino Médio Regular.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_MEDIA_TOT",
+          "coluna": "nu_media_tot",
+          "ordem": 20,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Média Total (Redação e Prova Objetiva) Ensino Médio Regular corrigida pelo número de participantes.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "INSE",
+          "coluna": "inse",
+          "ordem": 21,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Indicador de Nível Socioeconômico da escola - Para melhor descrever o nível socioeconômico das escolas, foram criados seis grupos, de forma que o Grupo 1 congrega as escolas com Inse médio mais baixo e o Grupo 6, com mais alto. (Edição 2015) 4",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "PC_FORMACAO_DOCENTE",
+          "coluna": "pc_formacao_docente",
+          "ordem": 22,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Indicador de Adequação da Formação Docente da escola para lecionar no Ensino Médio.",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_TAXA_PERMANENCIA",
+          "coluna": "nu_taxa_permanencia",
+          "ordem": 23,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Indicador de Permanência na Escola para o Ensino Médio",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_TAXA_APROVACAO",
+          "coluna": "nu_taxa_aprovacao",
+          "ordem": 24,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Taxa de aprovação dos alunos no Ensino Médio",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_TAXA_REPROVACAO",
+          "coluna": "nu_taxa_reprovacao",
+          "ordem": 25,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Taxa de reprovação dos alunos no Ensino Médio",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "NU_TAXA_ABANDONO",
+          "coluna": "nu_taxa_abandono",
+          "ordem": 26,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "Taxa de abandono dos alunos no Ensino Médio",
+          "ajuste_tipo": null,
+          "dominio": []
+        },
+        {
+          "nome": "PORTE_ESCOLA",
+          "coluna": "porte_escola",
+          "ordem": 27,
+          "tipo_postgres": "TEXT",
+          "tipo_original": null,
+          "tamanho": null,
+          "descricao": "O indicador de porte da escola defini o tamanho da escola pelo número de alunos matriculados no último ano do Ensino médio",
+          "ajuste_tipo": null,
+          "dominio": []
+        }
+      ]
+    }
+  ]
+}
