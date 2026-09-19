@@ -29,6 +29,7 @@ python -m educacao.avaliacoes.validar             # confere catálogo x arquivos
 python -m educacao.avaliacoes.ddl --aplicar       # cria as tabelas de raw
 python -m educacao.avaliacoes.carga               # carrega raw, filtrado no ES
 python -m educacao.avaliacoes.stg --aplicar --carregar
+python -m educacao.avaliacoes.conferir            # confere o dado carregado
 ```
 
 Tudo é idempotente. A carga só repete o que mudou: compara o sha256 do arquivo
@@ -92,6 +93,34 @@ O pacote de 2025 dos anos iniciais e finais já traz as onze edições desde 200
 e é **superconjunto** do pacote de 2015: 1.159 contra 937 escolas no ES, nenhuma
 perdida. Baixar o histórico à parte é trabalho jogado fora — e ainda traria
 planilhas sem linha de nomes de máquina.
+
+## Duas conferências, coisas diferentes
+
+`validar.py` confere o **catálogo** contra os arquivos: nomes e ordem de coluna.
+`conferir.py` confere o **dado carregado** contra o que ele tem de satisfazer:
+
+```
+ok  IDEB = nota_media x indicador_rendimento   15.860 de 15.860 linhas
+ok  séries do IDEB por etapa                   AI 1-5, AF 6-9, EM 1-4
+ok  máscara municipal do SAEB                  traduzida 0,9929; controle 0,1575
+ok  cobertura da máscara do SAEB               5 edições, 78 municípios cada
+ok  escolas avaliadas presentes na dimensão    5 sem dimensão, todas conhecidas
+ok  escalas de proficiência                    IDEB 403, SAEB 355, PAEBES 484
+ok  chaves sem duplicata                       4 tabelas
+```
+
+Cada uma existe porque havia uma forma plausível de errar em silêncio.
+
+### Meta não é medição
+
+Quatro escolas do IDEB não existem em `dw.dim_escola`, e aparecem em nove
+edições seguidas. São escolas que fecharam depois de 2005: de 2007 a 2021 elas
+carregam **apenas `ideb_projecao`**, porque o INEP projeta a meta uma vez, a
+partir da linha de base, e a publica para toda a trajetória — inclusive de
+escola encerrada.
+
+Vale além dessas quatro: qualquer contagem de "escolas com IDEB" que não
+distinga meta de medição infla o número.
 
 ## Escalas, medidas
 

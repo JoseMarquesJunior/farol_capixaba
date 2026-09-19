@@ -137,6 +137,17 @@ que aparecem no IDEB de 2005 e 2006 e fecharam antes de 2007 não têm linha em
 De 2007 em diante o casamento é **100% em todas as edições**. São 5 escolas
 que existiam em 2005 e fecharam antes do Censo de 2007.
 
+**Refinamento (2026-09-18).** Ao transformar isso em conferência automática, a
+contagem deu 37 pares escola-ano, não 5 — e a explicação importa. São só **4
+escolas** distintas, mas cada uma aparece em nove edições, porque de 2007 a 2021
+elas carregam exclusivamente `ideb_projecao`. O INEP projeta a meta uma vez, a
+partir da linha de base, e a publica para toda a trajetória — **inclusive de
+escola que já fechou**. Medição real, essas quatro só têm em 2005.
+
+A consequência prática vai além desta pendência: qualquer contagem de "escolas
+com IDEB" que não distinga meta de medição infla o número. `conferir.py` ignora
+as linhas que só têm projeção.
+
 **A decidir:** entre (a) acrescentá-las a `dim_escola` com `primeiro_ano=2005`
 e uma marca de procedência "IDEB", (b) deixar `fato_ideb` sem FK, ou (c) começar
 a série de avaliação em 2007. A (a) é a única que não descarta dado real, mas
