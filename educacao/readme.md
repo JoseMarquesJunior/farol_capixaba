@@ -17,13 +17,22 @@ educacao/
 ├─ metadata/        catálogo derivado do dicionário do INEP
 │  ├─ catalog/      o catálogo gerado (JSON, versionado)
 │  └─ de_para.yml   relações das variáveis descontinuadas
+├─ avaliacoes/      IDEB, ENEM por Escola, SAEB e PAEBES
+│  ├─ catalog/      o catálogo gerado (JSON, versionado)
+│  ├─ sql/          DDL da stg e visões de comparação com o Censo
+│  └─ pendencias.md decisões em aberto, registradas em vez de improvisadas
 ├─ etl/             extração e carga para raw
 ├─ database/        modelo do banco
 │  └─ sql/          DDL de schemas, meta, etl e dw
 └─ data/            data lake local (fora do git)
    ├─ raw/          ZIPs originais do INEP
-   └─ extracted/    arquivos extraídos
+   ├─ extracted/    arquivos extraídos
+   └─ avaliacoes/   pacotes de resultado de avaliação
 ```
+
+O subsistema de avaliações tem documentação própria em
+[`avaliacoes/readme.md`](avaliacoes/readme.md): ele reusa o catálogo e as
+camadas daqui, mas as fontes têm armadilhas suas.
 
 Fora deste diretório, na raiz do repositório:
 
