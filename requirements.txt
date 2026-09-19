@@ -1,18 +1,23 @@
 # ---------------------------------------------------------------
-# Pipeline do Censo Escolar — dependências em uso (versões do .venv)
+# Pipeline do Censo Escolar e das avaliações — dependências em uso
+# (versões do .venv)
 # ---------------------------------------------------------------
 psycopg[binary]==3.3.4     # conexão e COPY para o PostgreSQL
-openpyxl==3.1.5            # leitura dos dicionários de dados (ANEXO I, .xlsx)
+openpyxl==3.1.5            # dicionários .xlsx e planilhas do IDEB
 python-dotenv==1.2.2       # carga do educacao/.env
 PyYAML==6.0.3              # educacao/metadata/*.yml
 
 # ---------------------------------------------------------------
 # Stack geoespacial / visualização — IMPORTADA pelo código mas
 # AUSENTE do .venv atual. Sem ela, estes arquivos não executam:
-#   run_create_models.py, modulos/modulo_educacao.py,
-#   visualizar_escolas.py, visualizar_geodados.py,
-#   merge_setores_com_dados_demograficos.py
+#   modulos/modulo_educacao.py
+#   analises/merge_setores_com_dados_demograficos.py
+#   analises/tratamento_microdados_censo_educacao.py
+#   analises/visualizar_escolas.py
+#   analises/visualizar_geodados.py
 # Descomente quando for trabalhar nessas análises.
+# (run_create_models.py saiu da lista: hoje é só um invólucro do
+#  catálogo, e não importa nada de geo.)
 # ---------------------------------------------------------------
 # pandas
 # geopandas
