@@ -1,0 +1,183 @@
+/* ===========================================================================
+   Tokens de design do painel novo — identidade do Painel de Controle do TCE-ES,
+   ajustada para WCAG 2.2 AA
+   ===========================================================================
+
+   Parte dos tokens de `web/design-tokens.css` (a identidade extraída do Painel
+   de Controle, com a procedência de cada valor em docs/identidade_tcees/). A
+   diferença é uma só e foi decidida com o usuário: onde a cor do painel não
+   passa no contraste AA, ela é escurecida até passar, mesmo que isso afaste o
+   protótipo do visual do painel (decisão D2 da auditoria de UX).
+
+   Marcas usadas nos comentários:
+     [painel]  valor igual ao do Painel de Controle (ver web/design-tokens.css)
+     [AA]      escurecido para passar em 4,5:1 contra TODOS os fundos em que
+               aparece (branco, página, zebra, fundo de status e linha
+               selecionada); o número entre parênteses é o pior contraste medido
+     [nosso]   não existe no painel; o motivo vem ao lado
+   --------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* ------------------------------------------------------------ marca --- */
+  --tc-marinho:      #112b54;  /* [painel] títulos, trilha */
+  --tc-azul:         #1b5f9d;  /* [painel] links (4,67:1 no pior fundo) */
+  --tc-ardosia:      #364b60;  /* [painel] títulos de card */
+  --tc-primaria:     #2196f3;  /* [painel] --primary-color */
+  --tc-primaria-txt: #ffffff;  /* [painel] */
+  --tc-amarelo:      #f8d96a;  /* [painel] barra de título (decorativa) */
+
+  /* ------------------------------------------------------- superfícies --- */
+  --tc-fundo:        #f9f9f9;  /* [painel] */
+  --tc-superficie:   #ffffff;  /* [painel] */
+  --tc-cabecalho:    #f9f9f9;  /* [painel] */
+  --tc-painel-cab:   #f8f9fa;  /* [painel] */
+  --tc-hover:        #e9ecef;  /* [painel] */
+  --tc-realce:       #e3f2fd;  /* [painel] */
+  --tc-selecionado:  #cfdae3;  /* [painel] */
+  --tc-zebra:        #f6f6f6;  /* [nosso] o do painel (#f7f7f7c7) é translúcido; a
+                                  primeira coluna fixa precisa de fundo opaco */
+
+  /* ------------------------------------------------------------ bordas --- */
+  --tc-borda:        #e4e4e4;  /* [painel] */
+  --tc-borda-suave:  #eeeeee;  /* [nosso] o #f5f5f5 do painel some no branco */
+  --tc-borda-campo:  #7d848b;  /* [AA] borda de controle: 3:1 exigido para
+                                  componente de interface (3,60:1 na página) */
+
+  /* ------------------------------------------------------------- texto --- */
+  --tc-texto:        #495057;  /* [painel] (5,76:1) */
+  --tc-texto-2:      #56606a;  /* [AA] era #6c757d (3,30:1 na linha selecionada) (4,51:1) */
+  --tc-texto-fraco:  #7d848b;  /* [AA] só para marca de gráfico: 3:1 exigido de
+                                  objeto gráfico (3,79:1 no branco); nunca texto */
+  --tc-texto-forte:  #212121;  /* [painel] */
+  --tc-kpi:          #4a616d;  /* [AA] era #607d8b (4,37:1 no branco) (4,59:1) */
+
+  /* ----------------------------------------------------------- estados ---
+     Quatro estados com significado FIXO em todo o painel (decisão D6):
+       descumpre  regra legal descumprida (mínimo constitucional abaixo,
+                  obrigação com prazo vencido e não cumprida)       ✖ vermelho
+       sinal      a verificar: atraso, divergência entre fontes, obra
+                  parada — não é, por si, irregularidade             ⚑ âmbar
+       cumpre     a regra foi cumprida                               ✔ verde
+       semdado    a fonte não traz o dado (nunca é zero)             — cinza
+     As matizes são as do #alerta do painel; o texto foi escurecido. */
+  --st-descumpre-txt:  #9b3634;  /* [AA] era #a94442 (4,53:1 no próprio fundo) (4,98:1) */
+  --st-descumpre-bg:   #f2dede;  /* [painel] */
+  --st-descumpre-barra:#b8413e;  /* [nosso] barra lateral da linha: 3:1 contra o fundo */
+  --st-sinal-txt:      #7d520c;  /* [AA] era #ad741b (2,80:1) (4,80:1) */
+  --st-sinal-bg:       #fcf8e3;  /* [painel] */
+  --st-sinal-barra:    #b07a14;  /* [nosso] 3:1 contra o fundo claro */
+  --st-cumpre-txt:     #2e6630;  /* [AA] era #3c763d (3,84:1) (4,83:1) */
+  --st-cumpre-bg:      #dff0d8;  /* [painel] */
+  --st-semdado-txt:    #56606a;  /* = --tc-texto-2 */
+  --st-semdado-bg:     #e9ecef;  /* [painel] */
+  --st-info-txt:       #315f8f;  /* [painel] (4,67:1) */
+  --st-info-bg:        #ddeefa;  /* [painel] */
+  --st-info-barra:     #5b8db8;  /* [nosso] */
+
+  /* --------------------------------------------------------- tipografia ---
+     Base de 15px, não os 14px do painel: o público agora inclui o cidadão
+     (decisão D3) e o roteiro da apresentação já pedia zoom de 110–125% para
+     ler no projetor. Nenhum texto fica abaixo de 12px. */
+  --tc-fonte: "Open Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --tc-fonte-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --tc-base: 15px;
+  --tc-peso-corpo:  400;
+  --tc-peso-medio:  600;
+  --tc-peso-forte:  700;
+  --tc-txt-xs:   0.8rem;       /* 12px — piso: selo, nota de proveniência */
+  --tc-txt-sm:   0.867rem;     /* 13px */
+  --tc-txt-nota: 0.933rem;     /* 14px */
+  --tc-txt-base: 1rem;         /* 15px */
+  --tc-txt-md:   1.067rem;     /* 16px */
+  --tc-txt-lg:   1.2rem;       /* 18px */
+  --tc-txt-xl:   1.4rem;       /* 21px — valor de KPI */
+  --tc-txt-2xl:  1.6rem;       /* 24px */
+  --tc-txt-3xl:  1.87rem;      /* 28px — título da página */
+
+  /* -------------------------------------------------- forma e elevação --- */
+  --tc-raio:        5px;       /* [painel] */
+  --tc-raio-ctrl:   3px;       /* [painel] */
+  --tc-raio-alerta: 2px;       /* [painel] */
+  --tc-raio-pill: 999px;
+  --tc-sombra:      0 0 18px #aaacae55;
+  --tc-sombra-modal: 0 3px 3px -2px #0003, 0 3px 4px #00000024, 0 1px 8px #0000001f;
+  --tc-sombra-flut: 0 4px 8px #21212114;
+  --tc-foco:        0 0 0 3px #7fbef5;  /* [nosso] anel de 3px: o de 0.2rem do painel
+                                           quase some em borda clara */
+  --tc-veu:         rgba(0, 0, 0, 0.45);
+
+  /* ------------------------------------------------------- espaçamento --- */
+  --tc-cab-pad:     8px 12px;
+  --tc-corpo-pad:   12px;
+  --tc-th-pad:      8px 10px;
+  --tc-td-pad:      6px 10px;
+
+  /* ------------------------------------------------ séries de gráfico ---
+     A paleta categórica de referência da skill de visualização, com o 1º slot
+     no azul do painel. Validada (validate_palette.js) contra o branco: faixa de
+     luminosidade, croma, separação para daltonismo (pior par adjacente ΔE 9,1)
+     e visão normal (22,9) passam; aqua e amarelo ficam abaixo de 3:1 contra o
+     branco, o que obriga rótulo visível ou tabela — todo gráfico daqui tem os
+     dois. Nunca usadas para estado: estado tem as suas cores acima. */
+  --tc-s1: #1b5f9d;
+  --tc-s2: #eb6834;
+  --tc-s3: #1baf7a;
+  --tc-s4: #eda100;
+}
+
+/* ---------------------------------------------------------------- escuro ---
+   Tons escuros derivados dos da marca. As séries usam os degraus escuros da
+   paleta de referência — os claros de antes ficavam acima da faixa de
+   luminosidade do fundo escuro. Validado contra #171d27: tudo passa. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { color-scheme: dark;
+    --tc-marinho: #cddffa; --tc-azul: #6fa9e0; --tc-ardosia: #b6c4d4;
+    --tc-fundo: #0f141d; --tc-superficie: #171d27; --tc-cabecalho: #1c2430;
+    --tc-painel-cab: #1c2430; --tc-hover: #232c3a; --tc-realce: #1b2a40;
+    --tc-selecionado: #2a3a4d; --tc-zebra: #1b222d;
+    --tc-borda: #2c3542; --tc-borda-suave: #222b36; --tc-borda-campo: #6b7684;
+    --tc-texto: #e6e9ee; --tc-texto-2: #b3bcc8; --tc-texto-fraco: #8b94a1;
+    --tc-texto-forte: #ffffff; --tc-kpi: #a8bac6;
+    --st-descumpre-txt: #f3a6a3; --st-descumpre-bg: #3a1d1c; --st-descumpre-barra: #d26a66;
+    --st-sinal-txt: #f0c97a; --st-sinal-bg: #3a2e14; --st-sinal-barra: #c99a3a;
+    --st-cumpre-txt: #9ed3a0; --st-cumpre-bg: #1c3320;
+    --st-semdado-txt: #b3bcc8; --st-semdado-bg: #232c3a;
+    --st-info-txt: #9cc4ea; --st-info-bg: #16293c; --st-info-barra: #46718f;
+    --tc-sombra: none; --tc-foco: 0 0 0 3px #3d7dc2;
+    --tc-s1: #3987e5; --tc-s2: #d95926; --tc-s3: #199e70; --tc-s4: #c98500;
+  }
+}
+:root[data-theme="dark"] { color-scheme: dark;
+  --tc-marinho: #cddffa; --tc-azul: #6fa9e0; --tc-ardosia: #b6c4d4;
+  --tc-fundo: #0f141d; --tc-superficie: #171d27; --tc-cabecalho: #1c2430;
+  --tc-painel-cab: #1c2430; --tc-hover: #232c3a; --tc-realce: #1b2a40;
+  --tc-selecionado: #2a3a4d; --tc-zebra: #1b222d;
+  --tc-borda: #2c3542; --tc-borda-suave: #222b36; --tc-borda-campo: #6b7684;
+  --tc-texto: #e6e9ee; --tc-texto-2: #b3bcc8; --tc-texto-fraco: #8b94a1;
+  --tc-texto-forte: #ffffff; --tc-kpi: #a8bac6;
+  --st-descumpre-txt: #f3a6a3; --st-descumpre-bg: #3a1d1c; --st-descumpre-barra: #d26a66;
+  --st-sinal-txt: #f0c97a; --st-sinal-bg: #3a2e14; --st-sinal-barra: #c99a3a;
+  --st-cumpre-txt: #9ed3a0; --st-cumpre-bg: #1c3320;
+  --st-semdado-txt: #b3bcc8; --st-semdado-bg: #232c3a;
+  --st-info-txt: #9cc4ea; --st-info-bg: #16293c; --st-info-barra: #46718f;
+  --tc-sombra: none; --tc-foco: 0 0 0 3px #3d7dc2;
+  --tc-s1: #3987e5; --tc-s2: #d95926; --tc-s3: #199e70; --tc-s4: #c98500;
+}
+
+/* ====================================================================== ponte
+   Nomes curtos que o estilo consome. */
+:root {
+  --page: var(--tc-fundo);
+  --surface: var(--tc-superficie);
+  --ink: var(--tc-texto);
+  --ink-2: var(--tc-texto-2);
+  --grid: var(--tc-borda);
+  --axis: var(--tc-borda-campo);
+  --neutral-mark: var(--tc-texto-fraco);
+  --s1: var(--tc-s1); --s2: var(--tc-s2); --s3: var(--tc-s3); --s4: var(--tc-s4);
+  --accent: var(--tc-azul);
+  --accent-bg: var(--tc-realce);
+  --focus: var(--tc-primaria);
+}

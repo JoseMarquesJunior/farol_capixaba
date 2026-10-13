@@ -49,3 +49,10 @@ desktop.ini
 eliminação_da_concorrência/
 infra_Bom_Jesus_do_Norte/
 reordenamento_da_rede/
+
+# Painel de financiamento: dados coletados/processados (centenas de MB) e HTML gerados ficam fora;
+# a versao publica do painel e docs/financiamento_educacao.html
+financiamento/dados/
+financiamento/dashboard.html
+financiamento/novo_dashboard.html
+financiamento/novo_cnca_evidencias.html

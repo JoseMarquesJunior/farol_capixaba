@@ -1,0 +1,15 @@
+# Financiamento da educação (SICONFI + SIOPE + FNDE) — versões do .venv em que foi desenvolvido e testado
+requests==2.34.2
+pandas==3.0.6
+PyYAML==6.0.3
+pypdf==6.19.0        # SIOPE: Anexo 8 em PDF (o HTML do SIOPE exige reCAPTCHA; ver etl/siope.py)
+openpyxl==3.1.5      # INEP: planilha oficial do ICA (etl/ica.py) — leitura via pandas.read_excel
+pyarrow==22.0.0      # tabela de evidências do CNCA em parquet (etl/evidencias.py); o CSV
+                     # ao lado é o contrato — sem pyarrow o pipeline avisa e segue só com ele
+pytest==9.1.1        # só para os testes
+playwright==1.63.0   # só para docs/identidade_tcees/: extrai a identidade visual do Painel
+                     # de Controle e confere o dashboard gerado. Precisa de
+                     # `playwright install chromium`. Nada do pipeline depende dele.
+# BeautifulSoup NÃO é usado: o PROMPT o previa para raspar o HTML do SIOPE, mas todos os
+# relatórios HTML exigem reCAPTCHA (2026-09-22). A mesma informação vem do PDF que o FNDE
+# publica em FTP aberto, lido com pypdf.

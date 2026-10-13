@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financiamento da educação no ES</title>
+<meta name="description" content="De onde vem e onde é aplicado o dinheiro da educação nos 78 municípios do Espírito Santo, com a fonte exata de cada número.">
+<!--
+  Gerado por `python -m financiamento.build_novo_dashboard` a partir de
+  financiamento/web_novo/ e de dados/processado/dataset.json.
+  NÃO edite este arquivo: edite os fontes em web_novo/ e gere de novo.
+  A página não consulta nada na internet além da biblioteca de gráficos:
+  todos os dados estão embutidos abaixo.
+-->
+<style>__DESIGN_TOKENS_CSS__</style>
+<style>__ESTILO_CSS__</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+<!-- Um só cabeçalho de página (landmark banner): identificação, trilha e título. -->
+<header>
+  <div class="barra-tcees">
+    <div class="wrap linha">
+      <span class="marca">Painel de Controle <span class="orgao">· Tribunal de Contas do Estado do Espírito Santo</span></span>
+      <span class="proto">Protótipo — não integrado ao Painel de Controle</span>
+    </div>
+  </div>
+  <nav class="migalhas" aria-label="Você está em">
+    <ol class="wrap" id="trilha"></ol>
+  </nav>
+  <div class="wrap topo">
+    <h1>Financiamento da educação — municípios do Espírito Santo</h1>
+    <p class="lead">De onde vem e onde é aplicado o dinheiro da educação nos 78 municípios capixabas: se cumprem os mínimos da Constituição, no que gastam, quem recebe e o que chega às escolas — com a fonte oficial de cada número.</p>
+    <p class="carimbo" id="carimbo"></p>
+    <details class="como-ler"><summary>Como ler este painel</summary><div id="como-ler-topo"></div></details>
+  </div>
+</header>
+
+<nav class="visoes" aria-label="Visões do painel">
+  <div class="wrap"><ul id="nav-visoes"></ul></div>
+</nav>
+
+<div class="contexto" id="contexto" role="region" aria-label="Recorte e filtros">
+  <div class="wrap" id="contexto-wrap"></div>
+</div>
+
+<main class="wrap" id="conteudo" tabindex="-1">
+  <p class="carregando" role="status">Carregando os dados do painel… A página traz todos os dados embutidos e pode levar alguns segundos para abrir.</p>
+</main>
+
+<footer class="rodape">
+  <div class="wrap" id="rodape"></div>
+</footer>
+
+<dialog id="dialogo-fonte" class="dialogo-fonte" aria-labelledby="fonte-titulo"></dialog>
+<dialog id="dialogo-detalhe" class="dialogo-fonte" aria-labelledby="detalhe-titulo"></dialog>
+<dialog id="dialogo-termo" class="dialogo-fonte pequeno" aria-labelledby="termo-titulo"></dialog>
+
+<!-- Configuração da montagem: o arquivo do papel de trabalho do CNCA (ausente na versão
+     publicada no Farol Capixaba) e o link de volta ao site, quando há. -->
+<script id="config" type="application/json">__CONFIG_JSON__</script>
+<script id="dataset" type="application/json">__DATASET_JSON__</script>
+<!-- Os PDFs do RREO Anexo 8 (SIOPE) em base64 e um índice com o tamanho de cada um.
+     A fonte original é ftp://ftp.fnde.gov.br, que os navegadores não abrem mais.
+     O índice é lido no carregamento; o bloco de base64 só no primeiro "abrir PDF". -->
+<script id="pdfs-indice" type="application/json">__PDFS_INDICE_JSON__</script>
+<script id="pdfs" type="application/json">__PDFS_JSON__</script>
+<script src="__CHARTJS_URL__" integrity="__CHARTJS_SRI__" crossorigin="anonymous" defer></script>
+<script>__NUCLEO_JS__</script>
+<script>__GLOSSARIO_JS__</script>
+<script>__DADOS_JS__</script>
+<script>__FONTE_JS__</script>
+<script>__GRAFICOS_JS__</script>
+<script>__NIVEL3_JS__</script>
+<script>__CONFORMIDADE_JS__</script>
+<script>__PANORAMA_JS__</script>
+<script>__ESCOLAS_JS__</script>
+<script>__MUNICIPIO_JS__</script>
+<script>__PROGRAMAS_JS__</script>
+<script>__METODOLOGIA_JS__</script>
+<script>__PAINEL_JS__</script>
+</body>
+</html>

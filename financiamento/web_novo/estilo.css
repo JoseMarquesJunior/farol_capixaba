@@ -1,0 +1,475 @@
+/* ===========================================================================
+   Estilo do painel novo e do papel de trabalho do CNCA.
+   ===========================================================================
+
+   Todos os valores visuais vêm de `design-tokens.css` (concatenado antes): nenhum
+   hex, raio, sombra ou família de fonte solto aqui. Os dois arquivos gerados
+   (novo_dashboard.html e novo_cnca_evidencias.html) usam esta mesma folha, para
+   que o mesmo componente tenha a mesma cara nos dois.
+   --------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------- base */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; font-size: var(--tc-base); }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font-family: var(--tc-fonte); font-size: var(--tc-txt-base);
+  font-weight: var(--tc-peso-corpo); line-height: 1.5;
+  /* Nome de arquivo ou endereço longo quebra em vez de alargar a página a 320px. */
+  overflow-wrap: break-word;
+}
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+h1 { font-size: var(--tc-txt-3xl); line-height: 1.2; margin: 0 0 6px; font-weight: var(--tc-peso-forte); color: var(--tc-marinho); }
+h2 { font-size: var(--tc-txt-xl); line-height: 1.25; margin: 0 0 6px; font-weight: var(--tc-peso-forte); color: var(--tc-marinho); }
+h3 { font-size: var(--tc-txt-md); line-height: 1.3; margin: 0 0 4px; font-weight: var(--tc-peso-medio); color: var(--tc-ardosia); }
+h4 { font-size: var(--tc-txt-base); margin: 16px 0 6px; font-weight: var(--tc-peso-medio); color: var(--tc-ardosia); }
+p { margin: 0 0 8px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--tc-raio-ctrl); }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible,
+a:focus-visible, summary:focus-visible { box-shadow: var(--tc-foco); }
+main:focus, main:focus-visible { outline: none; box-shadow: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.muted { color: var(--ink-2); }
+.small { font-size: var(--tc-txt-nota); }
+.skip { position: absolute; left: -999px; top: 0; background: var(--surface); padding: 8px 12px; z-index: 60; }
+.skip:focus { left: 8px; top: 8px; }
+/* Nem a âncora de destino nem o elemento com foco de teclado ficam escondidos sob a
+   barra de contexto fixa (WCAG 2.2, 2.4.11). A altura real da barra é medida no JS e
+   gravada em --altura-contexto a cada montagem. */
+html { scroll-padding-top: calc(var(--altura-contexto, 72px) + 12px); }
+
+/* ------------------------------------------------- barra de identificação */
+.barra-tcees { background: var(--tc-superficie); border-bottom: 1px solid var(--tc-borda); }
+.barra-tcees .linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 6px 16px; min-height: 52px; padding-top: 6px; padding-bottom: 6px; }
+.barra-tcees .marca { color: var(--tc-marinho); font-weight: var(--tc-peso-forte); font-size: var(--tc-txt-base); }
+.barra-tcees .marca .orgao { color: var(--tc-ardosia); font-weight: var(--tc-peso-corpo); }
+/* O aviso de protótipo é informação de credibilidade, não enfeite: contraste
+   AA e quebra de linha permitida (antes: 2,27:1 e `nowrap`, que vazava a 320px). */
+.barra-tcees .proto { color: var(--st-sinal-txt); background: var(--st-sinal-bg); border: 1px solid var(--st-sinal-barra);
+  border-radius: var(--tc-raio-pill); padding: 1px 10px; font-size: var(--tc-txt-sm); font-weight: var(--tc-peso-medio); }
+
+/* ------------------------------------------------------------ trilha */
+.migalhas { background: var(--tc-cabecalho); border-bottom: 1px solid var(--tc-borda); }
+.migalhas ol { display: flex; flex-wrap: wrap; margin: 0 auto; padding: 0 16px; list-style: none; }
+.migalhas li { display: flex; align-items: center; border-right: 1px solid var(--tc-borda); padding: 0 10px;
+  font-size: var(--tc-txt-nota); font-weight: var(--tc-peso-medio); line-height: 38px; color: var(--ink-2); }
+.migalhas li:first-child { padding-left: 0; }
+.migalhas li[aria-current] { color: var(--tc-marinho); font-weight: var(--tc-peso-forte); }
+.migalhas a { color: var(--accent); }
+
+/* ------------------------------------------------------------- cabeçalho */
+.topo { padding-top: 18px; padding-bottom: 10px; }  /* só vertical: o recuo lateral é o do .wrap */
+.topo h1 { border-left: 5px solid var(--tc-amarelo); padding: 2px 0 2px 15px; }
+.topo .lead { max-width: 80ch; padding-left: 20px; font-size: var(--tc-txt-md); }
+.topo .carimbo { padding-left: 20px; color: var(--ink-2); font-size: var(--tc-txt-nota); }
+details.como-ler { margin: 6px 0 4px 20px; max-width: 110ch; }
+details.como-ler > summary { cursor: pointer; color: var(--accent); font-weight: var(--tc-peso-medio); padding: 4px 0; }
+details.como-ler[open] { background: var(--surface); border: 1px solid var(--grid); border-radius: var(--tc-raio); padding: 4px 14px 12px; }
+
+/* --------------------------------------------------------------- navegação
+   Links reais com aria-current (não role="tab"): o que se troca aqui é a página,
+   e o histórico do navegador tem de acompanhar. A lista quebra de linha em vez
+   de rolar de lado — a última aba não fica escondida. */
+nav.visoes { border-bottom: 1px solid var(--tc-borda); background: var(--tc-superficie); }
+nav.visoes ul { display: flex; flex-wrap: wrap; gap: 0 4px; margin: 0; padding: 0; list-style: none; }
+nav.visoes a { display: block; color: var(--tc-ardosia); text-decoration: none; font-weight: var(--tc-peso-medio);
+  padding: 10px 12px; border-bottom: 3px solid transparent; min-height: 44px; }
+nav.visoes a:hover { color: var(--tc-marinho); background: var(--tc-hover); }
+nav.visoes a[aria-current="page"] { color: var(--tc-marinho); border-bottom-color: var(--tc-ardosia); font-weight: var(--tc-peso-forte); }
+nav.visoes .externo { margin-left: auto; }
+nav.visoes .externo a { color: var(--accent); font-weight: var(--tc-peso-medio); }
+
+/* Navegação secundária (seções do dossiê, visões do CNCA): pílulas que quebram. */
+nav.secoes { margin: 10px 0 16px; }
+nav.secoes ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+nav.secoes a { display: inline-block; padding: 6px 12px; border: 1px solid var(--grid); border-radius: var(--tc-raio-pill);
+  background: var(--surface); color: var(--tc-ardosia); text-decoration: none; font-weight: var(--tc-peso-medio); font-size: var(--tc-txt-nota); }
+nav.secoes a:hover { border-color: var(--ink-2); }
+nav.secoes a[aria-current="page"] { background: var(--tc-marinho); border-color: var(--tc-marinho); color: var(--tc-superficie); }
+
+/* ------------------------------------------------- barra de contexto (fixa)
+   O recorte ativo — "o que estou vendo" — e os filtros da visão. Fica no topo
+   durante a rolagem; a trilha, que é só orientação, deixou de ficar. */
+.contexto { position: sticky; top: 0; z-index: 30; background: var(--tc-superficie);
+  border-bottom: 1px solid var(--grid); box-shadow: 0 2px 6px #0000000d; }
+.contexto .wrap { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 16px; padding-top: 8px; padding-bottom: 8px; }
+.contexto .recorte { flex: 1 1 320px; min-width: 0; font-size: var(--tc-txt-nota); color: var(--ink-2); align-self: center; }
+.contexto .recorte strong { color: var(--ink); font-weight: var(--tc-peso-medio); }
+.contexto .controles { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: flex-end; }
+.contexto .alternar-filtros { display: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex-basis: 100%; }
+.chips:empty { display: none; }
+
+/* ------------------------------------------------------------ controles */
+.campo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+/* Controles que valem só para um card (tipo de despesa e recorte do ranking): ficam
+   dentro dele, não na barra fixa, porque não mudam o resto da visão. */
+.filtros-card { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: flex-end; margin-top: 6px; }
+.filtros-card .campo { flex: 0 1 300px; }
+.campo label { font-size: var(--tc-txt-sm); color: var(--ink-2); font-weight: var(--tc-peso-medio); }
+select, button, input[type="search"], input[type="text"] {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis);
+  border-radius: var(--tc-raio-ctrl); padding: 6px 10px; min-height: 40px;
+}
+/* Caixa de marcação fora da regra acima: herdava min-height de 40px e ficava
+   desalinhada do rótulo (achado da auditoria no mapa do CNCA). */
+input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; margin: 0 6px 0 0; accent-color: var(--accent); vertical-align: -3px; }
+select { max-width: 100%; }
+button { cursor: pointer; }
+button:hover, select:hover { border-color: var(--ink); }
+button.leve { border-color: transparent; background: transparent; color: var(--accent); padding: 6px 8px; }
+button.leve:hover { background: var(--accent-bg); }
+button.primario { background: var(--tc-marinho); border-color: var(--tc-marinho); color: var(--tc-superficie); font-weight: var(--tc-peso-medio); }
+button.primario:hover { filter: brightness(1.15); }
+button.link { border: 0; background: none; padding: 0; min-height: 0; color: var(--accent); text-decoration: underline;
+  text-underline-offset: 2px; font: inherit; text-align: left; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--grid); background: var(--surface);
+  border-radius: var(--tc-raio-pill); padding: 1px 4px 1px 10px; font-size: var(--tc-txt-nota); }
+.chip .chave { width: 22px; height: 12px; flex: none; }
+.chip button { min-height: 28px; width: 28px; padding: 0; border-radius: var(--tc-raio-pill); border: 0; background: transparent; color: var(--ink-2); }
+.chip button:hover { background: var(--grid); color: var(--ink); }
+.dica { font-size: var(--tc-txt-sm); color: var(--ink-2); }
+
+/* ------------------------------------------------------ estados (D6)
+   Cor + símbolo + palavra, sempre os três. */
+.est { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: var(--tc-raio-pill);
+  font-size: var(--tc-txt-sm); font-weight: var(--tc-peso-medio); line-height: 1.4; border: 1px solid transparent; }
+/* Dentro de quadro estreito (KPI, lista de situação) o chip pode quebrar em vez de vazar. */
+td .est, td .cn-chip { white-space: nowrap; }
+.est-descumpre { background: var(--st-descumpre-bg); color: var(--st-descumpre-txt); border-color: var(--st-descumpre-barra); }
+.est-sinal     { background: var(--st-sinal-bg);     color: var(--st-sinal-txt);     border-color: var(--st-sinal-barra); }
+.est-cumpre    { background: var(--st-cumpre-bg);    color: var(--st-cumpre-txt); }
+.est-semdado   { background: var(--st-semdado-bg);   color: var(--st-semdado-txt); border-style: dashed; border-color: var(--axis); }
+.est-neutro    { background: var(--tc-hover);        color: var(--ink); }
+.est-info      { background: var(--st-info-bg);      color: var(--st-info-txt); }
+.legenda-estados { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: var(--tc-txt-nota); margin: 6px 0; }
+.legenda-estados dl { display: contents; }
+.legenda-estados .item { display: inline-flex; align-items: center; gap: 6px; }
+.legenda-estados .est { white-space: nowrap; flex: none; }
+.valor-sem-dado { color: var(--st-semdado-txt); font-style: italic; }
+
+/* ------------------------------------------------------------ KPIs */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 12px 0 16px; }
+/* A faixa da Conformidade tem seis quadros: 3 × 2 em tela larga, sem quadro órfão. */
+@media (min-width: 1000px) { .kpis.seis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.kpi { background: var(--surface); border: 1px solid var(--tc-borda-suave); border-radius: var(--tc-raio);
+  padding: 12px 14px; box-shadow: var(--tc-sombra); min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.kpi .rot { font-size: var(--tc-txt-nota); color: var(--tc-kpi); font-weight: var(--tc-peso-medio); }
+.kpi .val { font-size: var(--tc-txt-xl); color: var(--ink); font-weight: var(--tc-peso-forte); line-height: 1.2; overflow-wrap: anywhere; }
+.kpi .val.nd { font-size: var(--tc-txt-lg); color: var(--ink-2); font-weight: var(--tc-peso-medio); }
+.kpi .det { font-size: var(--tc-txt-sm); color: var(--ink-2); }
+.kpi .linha-val { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.kpi .linha-val .val { font-size: var(--tc-txt-lg); }
+.kpi.descumpre { border-top: 4px solid var(--st-descumpre-barra); }
+.kpi.sinal { border-top: 4px solid var(--st-sinal-barra); }
+.kpi.cumpre { border-top: 4px solid var(--st-cumpre-txt); }
+.kpi .acoes-kpi { display: flex; flex-wrap: wrap; gap: 2px 6px; margin-top: auto; padding-top: 6px; }
+.kpi .acoes-kpi button { font-size: var(--tc-txt-sm); min-height: 34px; padding: 4px 6px; }
+
+/* ------------------------------------------------------------ cards */
+section.bloco { margin: 16px 0 24px; }
+.cab-visao { margin: 18px 0 6px; }
+.cab-visao p { color: var(--ink-2); max-width: 90ch; }
+.grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grade > .largo { grid-column: 1 / -1; }
+.card { background: var(--surface); border: 1px solid var(--tc-borda-suave); border-radius: var(--tc-raio);
+  box-shadow: var(--tc-sombra); min-width: 0; padding: var(--tc-corpo-pad); }
+.card + .card { margin-top: 16px; }
+.grade > .card + .card { margin-top: 0; }
+.card > header { background: var(--tc-cabecalho); border-bottom: 1px solid var(--tc-borda);
+  padding: var(--tc-cab-pad); margin: calc(-1 * var(--tc-corpo-pad)) calc(-1 * var(--tc-corpo-pad)) var(--tc-corpo-pad);
+  border-radius: calc(var(--tc-raio) - 1px) calc(var(--tc-raio) - 1px) 0 0; }
+.cab-card { display: flex; gap: 8px 16px; align-items: flex-start; justify-content: space-between; }
+.cab-card > div { min-width: 0; }
+.cab-card h3 { margin: 0 0 2px; }
+.cab-card .simples { margin: 2px 0 4px; font-size: var(--tc-txt-nota); color: var(--ink); max-width: 95ch; }
+.cab-card .nota, .card .nota { font-size: var(--tc-txt-sm); color: var(--ink-2); }
+.cab-card details.tecnico > summary { cursor: pointer; color: var(--accent); font-size: var(--tc-txt-sm); font-weight: var(--tc-peso-medio); width: fit-content; }
+.cab-card details.tecnico p { margin: 4px 0 0; max-width: 110ch; }
+.cab-card .lim { font-size: var(--tc-txt-sm); margin-left: 8px; }
+.grafico { position: relative; height: 300px; margin-top: 8px; }
+.grafico.baixo { height: 240px; }
+.par-graficos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.par-graficos h4 { margin-top: 4px; }
+.legenda { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: var(--tc-txt-nota); }
+.legenda span { display: inline-flex; align-items: center; gap: 6px; }
+.legenda svg { width: 22px; height: 12px; flex: none; }
+.aviso-grafico { border: 1px dashed var(--axis); border-radius: var(--tc-raio); padding: 12px; color: var(--ink-2); font-size: var(--tc-txt-nota); }
+.callout { border-left: 5px solid var(--axis); background: var(--st-semdado-bg); color: var(--ink);
+  padding: 10px 12px; border-radius: var(--tc-raio-alerta); margin: 10px 0; font-size: var(--tc-txt-nota); }
+.callout.sinal { border-left-color: var(--st-sinal-barra); background: var(--st-sinal-bg); color: var(--st-sinal-txt); }
+.callout.descumpre { border-left-color: var(--st-descumpre-barra); background: var(--st-descumpre-bg); color: var(--st-descumpre-txt); }
+.callout.info { border-left-color: var(--st-info-barra); background: var(--st-info-bg); color: var(--st-info-txt); }
+.callout strong { font-weight: var(--tc-peso-forte); }
+.ressalva { display: inline-block; font-size: var(--tc-txt-sm); background: var(--st-info-bg); color: var(--st-info-txt);
+  border-radius: var(--tc-raio-pill); padding: 1px 10px; margin: 2px 0 6px; }
+details.tab { margin-top: 10px; border-top: 1px solid var(--grid); padding-top: 6px; }
+details.tab > summary { cursor: pointer; padding: 6px 0; color: var(--accent); font-weight: var(--tc-peso-medio); font-size: var(--tc-txt-nota); }
+.subbloco { border-top: 1px solid var(--grid); margin-top: 14px; padding-top: 4px; }
+.rodape-card { border-top: 1px solid var(--grid); margin-top: 12px; padding-top: 10px; font-size: var(--tc-txt-nota); color: var(--ink-2); }
+ul.lista { margin: 4px 0 8px 1.1em; padding: 0; }
+ul.lista li { margin: 3px 0; }
+.faixa { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 6px 0 10px; }
+.faixa .item { font-size: var(--tc-txt-sm); border: 1px solid var(--grid); background: var(--surface); border-radius: var(--tc-raio); padding: 2px 8px; color: var(--ink); }
+.em-resumo { font-size: var(--tc-txt-md); max-width: 95ch; }
+.situacao-lista { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.situacao-lista li { display: grid; grid-template-columns: minmax(150px, 230px) auto 1fr; gap: 6px 12px; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--grid); }
+.situacao-lista li:last-child { border-bottom: 0; }
+.situacao-lista .rot { font-weight: var(--tc-peso-medio); }
+.situacao-lista .det { font-size: var(--tc-txt-nota); color: var(--ink-2); }
+
+/* ------------------------------------------------------------ tabelas
+   Um componente só (tabela() em nucleo.js): ordenável, com busca, primeira
+   coluna fixa e "mostrar todas" — no lugar da rolagem aninhada de 420px. */
+.tabela-bloco { margin-top: 8px; }
+.tabela-ferramentas { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; margin-bottom: 6px; }
+.tabela-ferramentas input[type="search"] { min-width: 220px; flex: 0 1 300px; }
+.tabela-ferramentas .contagem { font-size: var(--tc-txt-sm); color: var(--ink-2); }
+.tabela-ferramentas .direita { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+/* position:relative prende ali dentro o texto só para leitor de tela (.sr-only, que é
+   absoluto): sem isso ele escapa da rolagem e alarga a página inteira. */
+.tabela-wrap { position: relative; overflow-x: auto; border: 1px solid var(--tc-borda); border-radius: var(--tc-raio-ctrl); background: var(--surface); }
+table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: var(--tc-txt-nota); }
+caption.visivel { text-align: left; font-weight: var(--tc-peso-medio); color: var(--tc-ardosia); padding: 6px 10px; caption-side: top; }
+th, td { text-align: left; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { padding: var(--tc-th-pad); background: var(--tc-painel-cab); color: var(--tc-ardosia); font-weight: var(--tc-peso-forte);
+  position: sticky; top: 0; z-index: 2; }
+thead th { white-space: nowrap; }
+th button.ordenar { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; font-weight: inherit; color: inherit; }
+th button.ordenar:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+th button.ordenar .seta { color: var(--ink-2); font-size: 0.9em; }
+th[aria-sort] button.ordenar .seta { color: var(--tc-marinho); }
+td { padding: var(--tc-td-pad); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.num { white-space: nowrap; }
+th.num button.ordenar { justify-content: flex-end; }
+tbody tr:nth-child(2n) { background: var(--tc-zebra); }
+tbody tr:last-child > td, tbody tr:last-child > th { border-bottom: 0; }
+tbody tr.destaque > td { background: var(--tc-selecionado); }
+tfoot td { font-weight: var(--tc-peso-medio); border-top: 2px solid var(--axis); background: var(--surface); }
+/* Linha com estado: fundo da matiz e barra lateral na primeira célula. O estado
+   é pintado na CÉLULA, por cima da zebra (que fica na linha) — a zebra nunca
+   apaga uma cor de estado (o bug do mapa do CNCA). */
+tbody tr.l-descumpre > td, tbody tr.l-descumpre > th { background: var(--st-descumpre-bg); }
+tbody tr.l-sinal > td, tbody tr.l-sinal > th { background: var(--st-sinal-bg); }
+tbody tr.l-descumpre > :first-child { box-shadow: inset 5px 0 0 var(--st-descumpre-barra); }
+tbody tr.l-sinal > :first-child { box-shadow: inset 5px 0 0 var(--st-sinal-barra); }
+/* Primeira coluna fixa na rolagem horizontal: o nome do município não sai de vista. */
+.fixa { position: sticky; left: 0; z-index: 1; background: var(--surface); }
+thead .fixa { z-index: 3; background: var(--tc-painel-cab); }
+tbody tr:nth-child(2n) > .fixa { background: var(--tc-zebra); }
+tbody tr.destaque > .fixa { background: var(--tc-selecionado); }
+tbody tr.l-descumpre > .fixa { background: var(--st-descumpre-bg); }
+tbody tr.l-sinal > .fixa { background: var(--st-sinal-bg); }
+.col-nome { min-width: 220px; }
+.motivo { font-size: var(--tc-txt-sm); min-width: 250px; }
+.acoes-tabela { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 6px; }
+button.ver-fonte { flex: none; font-size: var(--tc-txt-sm); white-space: nowrap; border: 1px solid var(--grid); }
+button.ver-fonte.compacto { min-height: 32px; min-width: 32px; padding: 2px 6px; border-color: transparent; }
+button.ver-fonte.compacto:hover { border-color: var(--grid); }
+button.link.detalhe { text-decoration-style: dotted; text-decoration-thickness: 1px; }
+button.link.detalhe::after { content: " ›"; text-decoration: none; }
+
+/* ------------------------------------------------------------ selos */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: var(--tc-txt-xs); font-weight: var(--tc-peso-medio); line-height: 1.35;
+  padding: 1px 8px; border-radius: var(--tc-raio-pill); }
+.badge.manual, .badge.info { background: var(--st-info-bg); color: var(--st-info-txt); }
+.badge.nada { background: var(--st-semdado-bg); color: var(--st-semdado-txt); }
+.badge.aviso { background: var(--st-sinal-bg); color: var(--st-sinal-txt); }
+.badge.api { background: var(--st-cumpre-bg); color: var(--st-cumpre-txt); }
+.badge.neutro { background: var(--tc-hover); color: var(--ink); }
+.badge.fonte-siconfi { background: var(--st-cumpre-bg); color: var(--st-cumpre-txt); }
+.badge.fonte-siope { background: var(--st-sinal-bg); color: var(--st-sinal-txt); }
+.badge.fonte-fnde, .badge.fonte-inep { background: var(--st-info-bg); color: var(--st-info-txt); }
+.badge.fonte-tce-es, .badge.fonte-censo, .badge.fonte-qd, .badge.fonte-sigefes { background: var(--tc-hover); color: var(--tc-ardosia); }
+.celula-reg + .celula-reg { margin-top: 6px; border-top: 1px dotted var(--grid); padding-top: 6px; }
+.celula-reg .fonte { display: block; font-size: var(--tc-txt-xs); color: var(--ink-2); }
+
+/* ------------------------------------------------------ termos e glossário */
+button.termo { all: unset; cursor: help; border-bottom: 1px dotted currentColor; }
+button.termo:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+dl.glossario { display: grid; grid-template-columns: minmax(140px, 220px) 1fr; gap: 8px 16px; margin: 8px 0; }
+dl.glossario dt { font-weight: var(--tc-peso-forte); color: var(--tc-marinho); }
+dl.glossario dd { margin: 0; }
+dl.glossario dd .extenso { display: block; color: var(--ink-2); font-size: var(--tc-txt-sm); }
+.limitacoes li { margin: 6px 0; }
+/* Destino de um link interno ("Ver limitação", termo do glossário): realçado ao chegar. */
+.alvo { background: var(--st-sinal-bg); outline: 2px solid var(--st-sinal-barra); border-radius: var(--tc-raio-ctrl); }
+
+/* ------------------------------------------------------------ diálogos */
+.dialogo-fonte { width: min(1100px, calc(100vw - 24px)); max-height: calc(100vh - 32px); border: 1px solid var(--axis);
+  border-radius: var(--tc-raio); padding: 0 18px 14px; background: var(--surface); color: var(--ink); box-shadow: var(--tc-sombra-modal); }
+.dialogo-fonte.pequeno { width: min(560px, calc(100vw - 24px)); }
+.dialogo-fonte::backdrop { background: var(--tc-veu); }
+.dialogo-fonte > header { position: sticky; top: 0; background: var(--surface); display: flex; justify-content: space-between;
+  align-items: center; gap: 12px; padding: 14px 0 8px; border-bottom: 1px solid var(--grid); z-index: 4; }
+.dialogo-fonte > header h2 { margin: 0; font-size: var(--tc-txt-lg); }
+.dialogo-fonte .fechar { font-size: var(--tc-txt-2xl); line-height: 1; min-width: 44px; }
+.dialogo-fonte > footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; border-top: 1px solid var(--grid); margin-top: 12px; padding-top: 12px; }
+.fonte-item { border: 1px solid var(--grid); border-radius: var(--tc-raio); padding: 10px 12px; margin: 12px 0; }
+.fonte-item h3 { margin-bottom: 6px; }
+.fonte-item dl { display: grid; grid-template-columns: minmax(110px, max-content) 1fr; gap: 4px 12px; margin: 0 0 8px; font-size: var(--tc-txt-nota); }
+.fonte-item dt { color: var(--ink-2); font-weight: var(--tc-peso-medio); }
+.fonte-item dd { margin: 0; overflow-wrap: anywhere; }
+table.consultas td { font-size: var(--tc-txt-sm); }
+table.consultas .url { overflow-wrap: anywhere; }
+ul.params { list-style: none; margin: 4px 0 0; padding: 0; }
+ul.params li { font-size: var(--tc-txt-xs); overflow-wrap: anywhere; }
+code { font-family: var(--tc-fonte-mono); font-size: .92em; overflow-wrap: anywhere; }
+
+/* ------------------------------------------------------------ gráficos SVG */
+.grafico-svg { margin-top: 8px; }
+svg.sankey text, svg.regua text { font-family: var(--tc-fonte); font-size: var(--tc-txt-sm); }
+svg.sankey .aresta { transition: fill-opacity .12s; }
+svg.sankey.foco .aresta { fill-opacity: .12; }
+svg.sankey.foco .aresta.ativa { fill-opacity: .7; }
+.tooltip-svg { position: fixed; display: none; z-index: 70; pointer-events: none; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--axis); border-radius: var(--tc-raio); padding: 8px 10px; font-size: var(--tc-txt-sm); max-width: 340px; box-shadow: var(--tc-sombra-flut); }
+.tooltip-svg .valor { font-weight: var(--tc-peso-medio); font-size: var(--tc-txt-base); }
+.tooltip-svg .rotulo { color: var(--ink-2); }
+.reguas h4 { margin-top: 12px; }
+.barra100 { display: flex; gap: 2px; height: 18px; border-radius: var(--tc-raio-ctrl); overflow: hidden; margin: 10px 0 4px; }
+.barra100 .seg { display: block; height: 100%; min-width: 2px; }
+.chave-ret { display: inline-block; width: 12px; height: 12px; border-radius: var(--tc-raio-alerta); flex: none; }
+/* Barras horizontais: grade única para o card inteiro, para que todos os trilhos
+   tenham a mesma largura e o comprimento seja comparável entre linhas (antes cada
+   linha tinha a sua grade e os trilhos variavam com o texto do valor). */
+.barras { display: grid; grid-template-columns: minmax(120px, 1.4fr) minmax(90px, 3fr) 9.5em; gap: 0 10px; }
+.barras > .barra-sub { display: contents; }
+.barra-sub > * { padding: 7px 0; border-bottom: 1px solid var(--grid); align-self: stretch; display: flex; align-items: center; }
+.barra-sub .nome { font-size: var(--tc-txt-nota); overflow-wrap: anywhere; }
+.barra-sub .nome .cod { color: var(--ink-2); font-size: var(--tc-txt-xs); font-variant-numeric: tabular-nums; margin-left: 6px; }
+.barra-sub .trilho-caixa { min-width: 0; }
+.barra-sub .trilho { background: var(--st-semdado-bg); border-radius: var(--tc-raio-ctrl); height: 14px; overflow: hidden; width: 100%; }
+.barra-sub .fill { background: var(--s1); height: 100%; border-radius: 0 var(--tc-raio-ctrl) var(--tc-raio-ctrl) 0; min-width: 2px; }
+.barra-sub .valor { font-size: var(--tc-txt-nota); font-variant-numeric: tabular-nums; white-space: nowrap; justify-content: flex-end; gap: 4px; }
+.barra-sub .valor b { font-weight: var(--tc-peso-medio); }
+.barra-sub .valor .pct { color: var(--ink-2); }
+.barra-sub.atencao .fill { background: repeating-linear-gradient(135deg, var(--s2) 0 4px, var(--surface) 4px 6px); }
+.cat-natureza { grid-column: 1 / -1; border-bottom: 1px solid var(--grid); padding: 10px 0 4px; }
+.cat-natureza h4 { margin: 0; }
+.comparacao-barras .linha-barra { display: grid; grid-template-columns: minmax(120px, 220px) 1fr; gap: 10px; align-items: center; }
+.comparacao-barras .linha-barra .barra100 { margin: 6px 0; }
+.comparacao-barras .nome { font-size: var(--tc-txt-nota); overflow-wrap: anywhere; }
+.mini-exec { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.mini-exec .trilho { display: inline-block; width: 64px; height: 8px; background: var(--st-semdado-bg); border-radius: var(--tc-raio-ctrl); overflow: hidden; }
+.mini-exec .fill { display: block; height: 100%; background: var(--s1); }
+.lista-obras { display: grid; gap: 6px; margin: 8px 0; }
+details.obra { border: 1px solid var(--grid); border-radius: var(--tc-raio); padding: 8px 10px; background: var(--surface); }
+details.obra.parada { border-left: 5px solid var(--st-sinal-barra); }
+details.obra summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+details.obra .obra-tit { flex: 1 1 280px; font-weight: var(--tc-peso-medio); overflow-wrap: anywhere; }
+details.obra .obra-valor { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.obra-dl { display: grid; grid-template-columns: minmax(96px, max-content) 1fr; gap: 4px 12px; margin: 8px 0; font-size: var(--tc-txt-nota); }
+.obra-dl dt { color: var(--ink-2); }
+.obra-dl dd { margin: 0; overflow-wrap: anywhere; }
+.destaque-escola { border-top: 4px solid var(--accent); }
+
+/* ---------------------------------------------------------------- rodapé */
+footer.rodape { padding: 24px 0 40px; font-size: var(--tc-txt-nota); color: var(--ink-2); border-top: 1px solid var(--grid); margin-top: 24px; }
+footer.rodape p { max-width: 110ch; }
+
+.carregando { padding: 40px 0; font-size: var(--tc-txt-md); color: var(--ink-2); }
+
+/* ============================================================ CNCA
+   Papel de trabalho da fiscalização (novo_cnca_evidencias.html). Status com
+   símbolo e texto; a cor vem das mesmas famílias de estado. */
+.st-risco   { background: var(--st-descumpre-bg); color: var(--st-descumpre-txt); }
+.st-inconc  { background: var(--st-sinal-bg);     color: var(--st-sinal-txt); }
+.st-semdado { background: var(--st-semdado-bg);   color: var(--st-semdado-txt); }
+.st-ok      { background: var(--st-cumpre-bg);    color: var(--st-cumpre-txt); }
+.cn-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border: 1px solid transparent;
+  border-radius: var(--tc-raio-pill); font-size: var(--tc-txt-sm); font-weight: var(--tc-peso-medio); }
+.cn-chip.st-semdado { border-style: dashed; border-color: var(--axis); }
+.cn-ev-direta      { background: var(--st-cumpre-bg);  color: var(--st-cumpre-txt); }
+.cn-ev-proxy       { background: var(--st-sinal-bg);   color: var(--st-sinal-txt); }
+.cn-ev-parcial     { background: var(--st-info-bg);   color: var(--st-info-txt); }
+.cn-ev-indisponivel{ background: var(--st-semdado-bg); color: var(--st-semdado-txt); }
+.cn-tipo { font-size: var(--tc-txt-sm); color: var(--ink-2); }
+.cn-nota { font-size: var(--tc-txt-sm); color: var(--ink-2); max-width: 60ch; }
+.cn-forte { font-weight: var(--tc-peso-forte); }
+.cn-riscado td { text-decoration: line-through; color: var(--ink-2); }
+.cn-barra { display: flex; gap: 1px; height: 14px; width: 100%; min-width: 120px; border-radius: var(--tc-raio-alerta); overflow: hidden; background: var(--grid); }
+.cn-fatia { display: block; height: 100%; }
+.cn-fatia.st-risco { background: var(--st-descumpre-barra); }
+.cn-fatia.st-inconc { background: var(--st-sinal-barra); }
+.cn-fatia.st-semdado { background: var(--axis); }
+.cn-fatia.st-ok { background: var(--st-cumpre-txt); }
+.cn-constatacao { border-left: 5px solid var(--st-info-barra); background: var(--st-info-bg); border-radius: var(--tc-raio-alerta); padding: 8px 12px; margin: 8px 0; }
+.cn-constatacao > summary { cursor: pointer; color: var(--st-info-txt); font-weight: var(--tc-peso-medio); }
+.cn-constatacao p { margin: 6px 0; max-width: 95ch; }
+.cn-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 10px; }
+.cn-kpi { border: 1px solid var(--tc-borda-suave); border-radius: var(--tc-raio); padding: 10px; background: var(--surface); }
+.cn-kpi-valor { display: block; font-size: var(--tc-txt-2xl); font-weight: var(--tc-peso-forte); color: var(--ink); font-variant-numeric: tabular-nums; }
+.cn-kpi-rotulo { display: block; font-size: var(--tc-txt-nota); color: var(--tc-kpi); }
+.cn-limite { border-left: 5px solid var(--st-sinal-barra); background: var(--st-sinal-bg); color: var(--st-sinal-txt);
+  border-radius: var(--tc-raio-alerta); padding: 10px; margin: 8px 0; max-width: 95ch; }
+.cn-filtros { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 8px; font-size: var(--tc-txt-nota); align-items: center; }
+/* Mapa município × achado. */
+.cn-rolagem { position: relative; overflow: auto; max-height: 75vh; border: 1px solid var(--tc-borda); border-radius: var(--tc-raio-ctrl); }
+table.cn-mapa { font-size: var(--tc-txt-sm); width: auto; }
+table.cn-mapa th.cn-mun { position: sticky; left: 0; z-index: 2; background: var(--surface); text-align: left; min-width: 170px; }
+table.cn-mapa tbody tr:nth-child(2n) th.cn-mun { background: var(--tc-zebra); }
+table.cn-mapa thead th { z-index: 3; text-align: center; padding: 4px 2px; }
+table.cn-mapa thead th.cn-mun { z-index: 4; }
+table.cn-mapa th.cn-col button { all: unset; cursor: pointer; display: block; min-width: 44px; padding: 4px 2px; border-radius: var(--tc-raio-ctrl); }
+table.cn-mapa th.cn-col button:hover { background: var(--tc-hover); }
+table.cn-mapa th.cn-col button:focus-visible { outline: 2px solid var(--focus); }
+table.cn-mapa td.cn-cel { text-align: center; padding: 5px 2px; font-size: var(--tc-txt-nota); min-width: 44px; }
+table.cn-mapa .cn-ativa { outline: 2px solid var(--tc-marinho); outline-offset: -2px; }
+table.cn-mapa th.cn-ativa button { background: var(--tc-marinho); color: var(--tc-superficie); }
+.cn-achado-foco { margin: 6px 0 10px; }
+.nota-ref { font-size: var(--tc-txt-xs); vertical-align: super; }
+ol.notas { font-size: var(--tc-txt-sm); color: var(--ink-2); margin: 8px 0 0 1.2em; padding: 0; }
+ol.notas li { margin: 4px 0; max-width: 110ch; }
+
+/* -------------------------------------------------------------- responsivo */
+@media (max-width: 1000px) {
+  .grade, .par-graficos { grid-template-columns: minmax(0, 1fr); }
+  .situacao-lista li { grid-template-columns: 1fr auto; }
+  .situacao-lista .det { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  html { font-size: 15px; }
+  h1 { font-size: var(--tc-txt-2xl); }
+  .topo .lead, .topo .carimbo { padding-left: 0; }
+  details.como-ler { margin-left: 0; }
+  .topo h1 { padding-left: 10px; }
+  /* No celular a barra de contexto mostra só o recorte e o botão "Filtros". */
+  .contexto .alternar-filtros { display: inline-flex; }
+  .contexto .recorte { flex-basis: 200px; }  /* o botão "Filtros" cabe na mesma linha */
+  .contexto .controles { flex-basis: 100%; }
+  .contexto:not(.aberta) .controles { display: none; }
+  .contexto .campo, .contexto .campo select { width: 100%; }
+  .kpis { grid-template-columns: 1fr 1fr; }
+  .grafico { height: 260px; }
+  /* No celular cada barra vira a sua própria grade (nome e valor em cima, trilho
+     embaixo, na largura toda): os trilhos continuam com a mesma largura. */
+  .barras { display: block; }
+  .barras > .barra-sub { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; border-bottom: 1px solid var(--grid); }
+  .barra-sub > * { border-bottom: 0; }
+  .barra-sub .nome, .barra-sub .valor { padding-bottom: 2px; }
+  .barra-sub .trilho-caixa { grid-column: 1 / -1; grid-row: 2; padding-top: 0; }
+  dl.glossario { grid-template-columns: 1fr; gap: 2px; }
+  dl.glossario dd { margin-bottom: 8px; }
+  .tabela-ferramentas input[type="search"] { min-width: 0; flex: 1 1 100%; }
+  nav.visoes .externo { margin-left: 0; }
+  .comparacao-barras .linha-barra { grid-template-columns: 1fr; gap: 0; }
+}
+@media (max-width: 420px) {
+  .kpis { grid-template-columns: 1fr; }
+  .wrap { padding: 0 12px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media print {
+  nav.visoes, .contexto, nav.secoes, .skip, .tabela-ferramentas, button.ver-fonte, .acoes-kpi { display: none !important; }
+  .contexto { position: static; }
+  .card { box-shadow: none; break-inside: avoid; }
+  .tabela-wrap { overflow: visible; }
+  th { position: static; }
+  .fixa { position: static; }
+}

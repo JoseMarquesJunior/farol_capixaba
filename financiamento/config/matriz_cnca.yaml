@@ -1,0 +1,1451 @@
+# ---------------------------------------------------------------------------
+# Matriz de evidências da fiscalização "Financiamento do CNCA" (TCE-ES)
+#
+# Liga cada achado da matriz de planejamento e cada pergunta do questionário ao
+# que o DADO PÚBLICO consegue dizer — e, quando não consegue, diz por quê e qual
+# é o caminho alternativo. O ETL lê este arquivo e monta a tabela de evidências;
+# o painel desenha as visões a partir dele. Nenhuma regra daqui gera "achado":
+# gera INDÍCIO, e o vocabulário da interface tem de refletir isso.
+#
+# Fontes literais da matriz e do questionário:
+#   docs/fiscalizacao-cnca/MATRIZ DE PLANEJAMENTO.txt
+#   docs/fiscalizacao-cnca/Questionário da fiscalização - Financiamento do CNCA.pdf
+# O que cada fonte de dado aguenta está medido em docs/fase0_reconhecimento.md.
+#
+# ---------------------------------------------------------------------------
+# Campos de um ACHADO
+#   id                    A<questão>.<n>, como na matriz
+#   enunciado             o texto da matriz, literal
+#   questao_matriz        Q1..Q6
+#   perguntas_questionario  ids de perguntas que tratam do mesmo assunto
+#   fase                  1..3 (fase do projeto que o implementa)
+#   tipo_evidencia        direta | proxy | indicio | documental | inferencia | indisponivel
+#   confianca             alta | media | baixa   (do melhor indicador disponível)
+#   indicadores           [{id, rotulo, formula, fonte, nivel, unidade}]
+#   regra_classificacao   como o status sai do valor; limiares vêm de `parametros`
+#   ressalvas             o que o número NÃO prova — vai junto do número na tela
+#   caminho_alternativo   o que fazer quando o dado não responde
+#
+# Campos de uma PERGUNTA
+#   id, bloco, enunciado, tipo, opcoes (quando fechada),
+#   achados               achados da matriz que ela ajuda a responder
+#   evidencia             direta | proxy | parcial | indisponivel
+#   responde_com          o que o dado público diz sobre ela (ou por que não diz)
+#   dados_pessoais        true quando a pergunta coleta dado pessoal (LGPD / Res. TC 358/2021)
+#
+# STATUS possíveis por município × achado (nunca "achado"):
+#   indicio_risco     os dados apontam na direção do possível achado
+#   sem_indicio       os dados apontam no sentido contrário
+#   inconclusivo      há dado, mas o proxy é fraco ou as fontes conflitam
+#   sem_dado_publico  depende de questionário, ofício ou análise documental
+# ---------------------------------------------------------------------------
+esquema: 1
+
+fiscalizacao:
+  nome: "Financiamento do Compromisso Nacional Criança Alfabetizada (CNCA)"
+  tribunal: "TCE-ES"
+  universo: 78
+  uf: ES
+  exercicios: [2021, 2022, 2023, 2024, 2025]
+  contato_questionario: "luiz.freire@tcees.tc.br"
+  prazo_questionario: "2026-09-11"
+
+# ---------------------------------------------------------------------------
+# Limiares. TODOS marcados "a calibrar com a equipe": os valores abaixo são
+# ponto de partida, e a Fase 1 os propõe a partir da distribuição REAL medida —
+# não de número redondo escolhido antes de olhar os dados. Mudar aqui muda o
+# painel inteiro, sem tocar em código.
+# ---------------------------------------------------------------------------
+parametros:
+  execucao_baixa_pct:
+    valor: 70.0
+    unidade: "%"
+    descricao: "Abaixo disto, a razão executado ÷ recebido vira indício de baixa execução."
+    calibrar: true
+  concentracao_acima_da_mediana_pp:
+    valor: 10.0
+    unidade: "p.p."
+    descricao: >-
+      A concentração em nov+dez é julgada CONTRA A MEDIANA DO PRÓPRIO EXERCÍCIO, não
+      contra um número fixo. Medido na subfunção 361, 78 municípios, base ≥ R$ 1 mi:
+      a mediana do Estado vai de 13,3% (2023) a 24,4% (2021), e um limiar fixo de 25%
+      marcaria 34 municípios em 2021 contra 2 em 2023 — diferença que é do ano, não da
+      gestão. Com mediana + 10 p.p. e o piso abaixo, marca 10, 5, 2, 4 e 4 por ano:
+      18 municípios distintos em cinco exercícios, 4 deles reincidentes.
+    calibrar: true
+  concentracao_piso_pct:
+    valor: 20.0
+    unidade: "%"
+    descricao: >-
+      Piso absoluto que acompanha o critério relativo: num exercício em que todos
+      concentram pouco, estar 10 p.p. acima da mediana ainda pode ser pouco. Só vira
+      indício quem passa dos dois testes.
+    calibrar: true
+  concentracao_minimo_base:
+    valor: 1000000.0
+    unidade: "R$"
+    descricao: "Abaixo deste empenho anual na subfunção, o percentual é instável demais para classificar."
+    calibrar: true
+  defasagem_dias:
+    valor: 90
+    unidade: "dias"
+    descricao: "Dias entre o repasse federal e o primeiro empenho na fonte correspondente."
+    calibrar: true
+  rp_processados_idade_anos:
+    valor: 2
+    unidade: "anos"
+    descricao: "Restos a pagar processados com esta idade ou mais contam como 'período prolongado' (P25)."
+    calibrar: true
+  rp_relevante_pct:
+    valor: 5.0
+    unidade: "%"
+    descricao: "RP processados acima deste percentual do empenhado do ano contam como 'relevantes' (P26)."
+    calibrar: true
+  pdde_cobertura_escolas_pct:
+    valor: 50.0
+    unidade: "%"
+    descricao: "Abaixo disto, a cobertura do PDDE-CNCA nas escolas com anos iniciais vira indício (P21)."
+    calibrar: true
+  indice_liquidacao_min_pct:
+    valor: 80.0
+    unidade: "%"
+    descricao: "Liquidado ÷ empenhado abaixo disto vira indício de execução travada (P24)."
+    calibrar: true
+  ica_queda_pp:
+    valor: 0.0
+    unidade: "p.p."
+    descricao: "Queda do ICA entre edições, em pontos percentuais, que aciona a leitura conjunta com o recurso."
+    calibrar: true
+
+# ---------------------------------------------------------------------------
+# O que a Fase 0 provou e que condiciona TUDO o que vem abaixo.
+# Estes textos vão para a tela, não ficam só aqui.
+# ---------------------------------------------------------------------------
+limitacoes_estruturais:
+  sem_codigo_proprio: >-
+    Não existe fonte de recursos, complemento de fonte, programa ou ação que identifique o
+    CNCA na contabilidade municipal do ES. Conferido em três medições independentes: a Tabela
+    de Fontes e Complementos do TCE-ES 2025 (3 abas, 147 + 54 linhas) não tem nenhuma
+    ocorrência de CNCA, alfabetização, PAR, FUNPAES ou Renalfa; nos 2.622.030 empenhos da
+    função 12 de 2021-2025 dos 78 municípios há UMA combinação programa/ação com "alfabetiz"
+    (Vila Velha, e é EJA); e o complemento de fonte, quando preenchido, só vale MDE (1001),
+    FUNDEB 70% (1070) ou o genérico AAAA. Consequência: NENHUM indicador deste painel mede
+    "execução do CNCA". Eles medem execução na fonte, na subfunção ou na ação — e é assim
+    que têm de ser lidos.
+  pdde_fora_do_orcamento: >-
+    O PDDE vai direto ao conselho escolar, que presta contas ao FNDE. Na fonte 551 (PDDE) os
+    78 municípios somam R$ 1,31 milhão empenhado em 2021-2025, contra R$ 193,7 milhões que a
+    CGU mostra pagos às unidades executoras do ES. Medir a execução do PDDE-CNCA pelo
+    orçamento municipal mediria menos de 1% do dinheiro.
+  colunas_por_exercicio: >-
+    Os arquivos de empenho do TCE-ES mudaram de leiaute em 2024. `DataEmissao` e
+    `CodigoComplementoFontesDestinacoesRecursos` NÃO EXISTEM em 2021-2023 e vêm preenchidos em
+    praticamente 100% das linhas de 2024-2025. Todo indicador que dependa deles só existe a
+    partir de 2024, e o painel diz isso em vez de mostrar zero.
+  sem_historico_de_empenho: >-
+    O empenho do TCE-ES não tem campo de histórico nem número de contrato (confirmado no
+    dicionário oficial do dataset, 58 campos). A classificação de despesa incompatível (A4.3)
+    só pode usar elemento, subelemento e o nome da ação — é indício fraco, e vai sempre para
+    revisão humana.
+  fontes_so_de_2023: >-
+    As fontes 551 e 569 só aparecem nos empenhos a partir de 2023: antes disso o ES usava
+    codificação local. Qualquer série por fonte começa em 2023, não em 2021.
+
+# ---------------------------------------------------------------------------
+# CONSTATAÇÕES — o que vale para o UNIVERSO, e não para cada município.
+#
+# Quando uma característica atinge os 78 municípios por igual, apontá-la 78 vezes
+# transforma um fato sobre a classificação orçamentária brasileira em 78 indícios
+# individuais, e o município que "aparece" no mapa de calor não fez nada diferente
+# de todos os outros. A constatação é dita UMA vez, com a medida que a sustenta, e
+# os indicadores por município continuam na tabela de evidências como contexto —
+# só que sem status de indício.
+#
+# Campos: id, questao_matriz, achados, enunciado, medida, fonte, abrangencia,
+#         consequencia (o que isso implica para a auditoria).
+# ---------------------------------------------------------------------------
+constatacoes:
+
+  - id: C3.1
+    questao_matriz: Q3
+    achados: [A3.1]
+    enunciado: >-
+      O CNCA não é identificável na classificação orçamentária de nenhum dos 78 municípios
+      do ES. Não há fonte de recursos, complemento de fonte, programa ou ação que o nomeie,
+      de modo que não é possível afirmar, a partir do dado público, se um município previu
+      ou deixou de prever recursos do CNCA no PPA, na LOA e no QDD.
+    medida: >-
+      Em 2023-2025 — período do CNCA —, nenhuma das ações orçamentárias da função 12 dos 78
+      municípios cita alfabetização, CNCA, Renalfa ou Cantinho da Leitura. As quatro ações
+      nomeadas encontradas em 2021-2025 são de EJA e do Brasil Alfabetizado, em três
+      municípios, e somam R$ 87,3 mil de dotação. Ao mesmo tempo, 70 dos 78 municípios têm
+      dotação na fonte 569 (outras transferências do FNDE) em 2025. A Tabela de Fontes e
+      Complementos do TCE-ES de 2025 não tem nenhuma entrada de CNCA, PAR ou alfabetização
+      em suas 147 fontes e 54 complementos.
+    fonte: "TCE-ES — Despesas e Empenhos dos municípios; Tabela de Fontes e Complementos do TCE-ES 2025"
+    abrangencia: "os 78 municípios, 2021-2025"
+    consequencia: >-
+      A3.1 não classifica município por município. A ausência de ação nomeada não é achado
+      individual: é característica do universo. O que o painel mostra por município é a
+      dotação na fonte 569 e a existência (ou não) de ação nomeada, como contexto para a
+      resposta ao questionário — e a pergunta que sobra para a auditoria é se o TCE-ES deve
+      recomendar a criação de um complemento de fonte que torne o CNCA rastreável.
+
+  - id: C4.5
+    questao_matriz: Q4
+    achados: [A4.5]
+    enunciado: >-
+      A conciliação bancária mensal e o controle de rendimentos não são verificáveis em dado
+      aberto para nenhum município: dependem das remessas CONCIBAN e BALANCORR do CidadES.
+    medida: >-
+      Nenhum dos 28 conjuntos de dados abertos do TCE-ES publica conciliação bancária por
+      conta-corrente. Os leiautes estão no Anexo IV da IN 68/2020, de acesso interno.
+    fonte: "dados.es.gov.br — organização TCE-ES (levantamento de 22/09/2026, revisto em 23/09/2026)"
+    abrangencia: "os 78 municípios, todos os exercícios"
+    consequencia: >-
+      A4.5 fica indisponível até que a extração interna do CidadES seja fornecida. A camada de
+      dados é plugável: com o CONCIBAN, o achado passa a direto sem mudança no painel.
+
+  - id: C4.3
+    questao_matriz: Q4
+    achados: [A4.3, A4.2]
+    enunciado: >-
+      A despesa da alfabetização (1º e 2º ano) não é separável na prestação de contas ao
+      TCE-ES em nenhum município: a subfunção 361 é o menor grão que chega ao Tribunal, e ela
+      cobre o ensino fundamental inteiro.
+    medida: >-
+      Os empenhos do TCE-ES descem até o subelemento de despesa, mas a classificação funcional
+      para na subfunção. Não há campo de etapa de ensino, turma ou ano escolar em nenhum dos
+      58 campos do dataset.
+    fonte: "TCE-ES — dicionário de dados do dataset tcees-empenho"
+    abrangencia: "os 78 municípios, todos os exercícios"
+    consequencia: >-
+      É a resposta direta de P33, e vale para os 78. Município que responder que seu sistema
+      gera relatórios individualizados da alfabetização está descrevendo um controle interno
+      que não chega ao CidadES — o que é informação útil, e não contradição.
+
+# ---------------------------------------------------------------------------
+# QUESTÕES E ACHADOS
+# ---------------------------------------------------------------------------
+questoes:
+
+  # =========================================================== Q1
+  - id: Q1
+    enunciado: >-
+      A governança municipal do CNCA está formalmente estruturada, com definição de
+      responsáveis, atribuições, articulação, comunicação e supervisão?
+    achados:
+
+      - id: A1.1
+        enunciado: "Inexistência de responsável formalmente designado - portaria ou ato de designação."
+        questao_matriz: Q1
+        perguntas_questionario: [P8, P9, P10, P11]
+        fase: 3
+        tipo_evidencia: documental
+        confianca: baixa
+        indicadores:
+          - id: ato_designacao_coordenador
+            rotulo: "Ato de designação do coordenador do CNCA publicado em diário oficial"
+            formula: >-
+              Busca textual em diário oficial municipal por ("Compromisso Nacional Criança
+              Alfabetizada" OU "CNCA") E ("designa" OU "designar" OU "portaria"), desde 2023.
+            fonte: "Querido Diário (3 municípios) e DOM-ES (demais, via navegador)"
+            nivel: municipio
+            unidade: "ocorrências"
+        regra_classificacao:
+          sem_indicio: "Ato encontrado e conferido por leitura humana."
+          inconclusivo: "Ocorrência encontrada mas não conferida, ou município sem diário indexado."
+          sem_dado_publico: "Município fora da cobertura de diário oficial automatizável."
+        ressalvas:
+          - >-
+            A ausência de resultado NÃO é evidência de ausência de ato. O Querido Diário cobre
+            3 dos 78 municípios (Vitória, Serra e Vila Velha) e, mesmo neles, a busca por
+            "Compromisso Nacional Criança Alfabetizada" desde 2023 devolve ZERO edições.
+          - >-
+            O ato pode ter sido publicado em portaria interna não levada ao diário, ou nomear a
+            pessoa sem citar o programa.
+          - "Nome e contato do coordenador são dado pessoal (P9-P11): não exibir, só agregar."
+        caminho_alternativo: "Questionário (P8-P11) ou ofício à SEDU-ES."
+
+      - id: A1.2
+        enunciado: "Falta ou insuficiência de atribuições formalmente definidas."
+        questao_matriz: Q1
+        perguntas_questionario: [P8]
+        fase: 3
+        tipo_evidencia: documental
+        confianca: baixa
+        indicadores:
+          - id: ato_atribuicoes_coordenador
+            rotulo: "Ato que define atribuições do coordenador"
+            formula: "Leitura humana dos atos encontrados em A1.1: o ato define atribuições ou só nomeia?"
+            fonte: "Querido Diário / DOM-ES"
+            nivel: municipio
+            unidade: "sim/não"
+        regra_classificacao:
+          sem_dado_publico: "Exige leitura do ato; sem ato localizado, não há o que classificar."
+        ressalvas:
+          - "Depende inteiramente de A1.1 ter encontrado o ato. Herda as mesmas limitações de cobertura."
+        caminho_alternativo: "Questionário, ou requisição do ato ao município."
+
+      - id: A1.3
+        enunciado: >-
+          Ausência de Articulador Municipal do CNCA designado e Articulação de Gestão, Formação e
+          Mobilização (Renalfa) CNCA.
+        questao_matriz: Q1
+        perguntas_questionario: [P13, P16]
+        fase: 3
+        tipo_evidencia: indisponivel
+        confianca: baixa
+        indicadores:
+          - id: bolsas_renalfa_municipio
+            rotulo: "Articuladores com bolsa da Renalfa por município"
+            formula: "Não calculável: sem base pública por município."
+            fonte: "—"
+            nivel: municipio
+            unidade: "quantidade"
+        regra_classificacao:
+          sem_dado_publico: "Sempre. Ver ressalvas."
+        ressalvas:
+          - >-
+            As bolsas da Renalfa são pagas pelo SGB/FNDE a PESSOA FÍSICA. A ação orçamentária
+            federal 00O0 (concessão de bolsas) não aparece nas transferências da CGU com
+            município favorecido — testado em março/2025 no ES: zero registros.
+          - "As designações saem em portarias SEB/MEC (47, 56 e 62/2023), sem base consultável por município."
+        caminho_alternativo: "Ofício ao FNDE/SGB ou à SEDU-ES; questionário (P13-P15)."
+
+      - id: A1.4
+        enunciado: "Ausência/falta Atribuições Formais dos Articuladores."
+        questao_matriz: Q1
+        perguntas_questionario: [P14, P15]
+        fase: 3
+        tipo_evidencia: documental
+        confianca: baixa
+        indicadores:
+          - id: ato_designacao_articulador
+            rotulo: "Ato de designação do articulador municipal publicado"
+            formula: 'Busca textual por "articulador" E ("alfabetiz" OU "CNCA" OU "Renalfa") em diário oficial.'
+            fonte: "Querido Diário / DOM-ES"
+            nivel: municipio
+            unidade: "ocorrências"
+        regra_classificacao:
+          inconclusivo: "Ocorrência encontrada mas não conferida."
+          sem_dado_publico: "Município fora da cobertura."
+        ressalvas:
+          - >-
+            "Articulador" é palavra de uso corrente na administração: no Querido Diário ela
+            devolve 866 edições nos três municípios cobertos, quase todas de outros assuntos.
+            Serve de triagem para leitura humana, nunca de contagem.
+        caminho_alternativo: "Questionário (P14, P15)."
+
+      - id: A1.5
+        enunciado: "Acúmulo de funções ou indefinição de atribuições dos articuladores."
+        questao_matriz: Q1
+        perguntas_questionario: [P14, P15]
+        fase: 3
+        tipo_evidencia: indisponivel
+        confianca: baixa
+        indicadores: []
+        regra_classificacao:
+          sem_dado_publico: "Sempre."
+        ressalvas:
+          - >-
+            Só o ato de designação ou a declaração do município dizem se a função é exclusiva.
+            O vínculo do servidor no TCE-ES traz cargo e unidade gestora, mas NÃO traz lotação
+            nem atribuição — não permite afirmar acúmulo.
+        caminho_alternativo: "Questionário (P15)."
+
+      - id: A1.6
+        enunciado: "Falta de canais de comunicação contínua entre gestores municipais e articuladores da Renalfa."
+        questao_matriz: Q1
+        perguntas_questionario: [P16]
+        fase: 3
+        tipo_evidencia: indisponivel
+        confianca: baixa
+        indicadores: []
+        regra_classificacao:
+          sem_dado_publico: "Sempre. É percepção e prática, não registro público."
+        ressalvas:
+          - "Não há fonte pública que registre comunicação entre município e Renalfa."
+        caminho_alternativo: "Questionário (P16); ofício à SEDU-ES."
+
+      - id: A1.7
+        enunciado: "Inexistência de rotinas estruturadas de implementação e supervisão."
+        questao_matriz: Q1
+        perguntas_questionario: [P7, P12]
+        fase: 3
+        tipo_evidencia: documental
+        confianca: baixa
+        indicadores:
+          - id: plano_municipal_publicado
+            rotulo: "Plano municipal ou instrumento equivalente do CNCA publicado"
+            formula: 'Busca por ("política municipal de alfabetização" OU "plano" E "alfabetiz") em diário oficial, desde 2023.'
+            fonte: "Querido Diário / DOM-ES"
+            nivel: municipio
+            unidade: "ocorrências"
+        regra_classificacao:
+          sem_indicio: "Lei ou decreto localizado e conferido."
+          inconclusivo: "Ocorrência não conferida."
+          sem_dado_publico: "Município fora da cobertura."
+        ressalvas:
+          - >-
+            O Decreto 11.556/2023 dá 90 dias, após a adesão, para publicar a Política Municipal
+            de Alfabetização — então a ausência do ato tem peso, mas só onde há diário indexado.
+        caminho_alternativo: "Questionário (P7); requisição do ato."
+
+  # =========================================================== Q2
+  - id: Q2
+    enunciado: >-
+      A Secretaria Municipal de Educação possui planejamento adequado dos recursos do CNCA,
+      baseado nas necessidades da rede e alinhado às diretrizes pedagógicas?
+    achados:
+
+      - id: A2.1
+        enunciado: "Falta de Conhecimento sobre os recursos necessários para a alfabetização."
+        questao_matriz: Q2
+        perguntas_questionario: [P27]
+        fase: 2
+        tipo_evidencia: proxy
+        confianca: baixa
+        indicadores:
+          - id: valor_referencia_cantinho
+            rotulo: "Valor de referência do Cantinho da Leitura para a rede"
+            formula: >-
+              salas de aula utilizadas nos anos iniciais da rede municipal (Censo Escolar)
+              × R$ 1.235 (Resolução CD/FNDE 22/2023)
+            fonte: "Censo Escolar (INEP) e Resolução CD/FNDE 22/2023"
+            nivel: municipio
+            unidade: "R$"
+        regra_classificacao:
+          inconclusivo: "Sempre: o valor de referência é uma ESTIMATIVA de necessidade, não diz se o município a conhece."
+        ressalvas:
+          - >-
+            É estimativa de ordem de grandeza, e só de UMA das ações do CNCA (o Cantinho da
+            Leitura). Não é a necessidade total do município, e não substitui o levantamento
+            que o próprio município deveria ter feito.
+          - "Idêntico em conteúdo a A6.1, que a matriz repete em Q6."
+        caminho_alternativo: "Questionário (P27)."
+
+      - id: A2.2
+        enunciado: >-
+          Ausência de mapeamento prévio das necessidades de infraestrutura, materiais e turmas
+          de alfabetização.
+        questao_matriz: Q2
+        perguntas_questionario: [P7, P21, P27]
+        fase: 2
+        tipo_evidencia: proxy
+        confianca: media
+        indicadores:
+          - id: turmas_1_2_ano
+            rotulo: "Turmas de 1º e 2º ano da rede municipal"
+            formula: "Contagem de turmas com etapa de 1º ou 2º ano do ensino fundamental, rede municipal."
+            fonte: "Censo Escolar (INEP), banco local do NEDUC"
+            nivel: municipio
+            unidade: "turmas"
+          - id: matriculas_1_2_ano
+            rotulo: "Matrículas de 1º e 2º ano da rede municipal"
+            formula: "Contagem de matrículas nas etapas de 1º e 2º ano, rede municipal."
+            fonte: "Censo Escolar (INEP)"
+            nivel: municipio
+            unidade: "matrículas"
+          - id: escolas_com_sala_leitura
+            rotulo: "Escolas com biblioteca ou sala de leitura"
+            formula: "Escolas municipais com anos iniciais e (biblioteca OU sala de leitura) ÷ escolas municipais com anos iniciais × 100"
+            fonte: "Censo Escolar (INEP)"
+            nivel: municipio
+            unidade: "%"
+        regra_classificacao:
+          inconclusivo: >-
+            Sempre quanto ao achado em si: o Censo descreve a REDE, não o mapeamento. Os números
+            servem de contraprova quando o município declarar necessidade incompatível com a rede.
+        ressalvas:
+          - >-
+            O Censo mede o que a rede TEM, não o que o município SABE sobre ela. Nenhum valor
+            daqui classifica o achado sozinho; eles entram como contraste com a resposta ao
+            questionário.
+        caminho_alternativo: "Questionário (P27) confrontado com estes números."
+
+      - id: A2.3
+        enunciado: "Inexistência de Plano de ações do CNCA."
+        questao_matriz: Q2
+        perguntas_questionario: [P7]
+        fase: 3
+        tipo_evidencia: documental
+        confianca: baixa
+        indicadores:
+          - id: plano_acoes_cnca_publicado
+            rotulo: "Lei, decreto ou plano de alfabetização publicado"
+            formula: "Mesmo indicador de A1.7 (plano_municipal_publicado), lido sob outra pergunta."
+            fonte: "Querido Diário / DOM-ES"
+            nivel: municipio
+            unidade: "ocorrências"
+        regra_classificacao:
+          sem_indicio: "Plano ou política localizada e conferida."
+          sem_dado_publico: "Município fora da cobertura."
+        ressalvas:
+          - "Plano de ações e Política Municipal de Alfabetização são instrumentos distintos; achar um não prova o outro."
+        caminho_alternativo: "Questionário (P7); requisição do plano."
+
+      - id: A2.4
+        enunciado: "Desalinhamento entre o plano operacional e as diretrizes pedagógicas do CNCA."
+        questao_matriz: Q2
+        perguntas_questionario: [P7]
+        fase: 3
+        tipo_evidencia: indisponivel
+        confianca: baixa
+        indicadores: []
+        regra_classificacao:
+          sem_dado_publico: "Sempre. Exige análise documental comparativa do plano com as diretrizes."
+        ressalvas:
+          - "Nenhum dado estruturado permite avaliar alinhamento pedagógico."
+        caminho_alternativo: "Análise documental do plano, depois de obtido."
+
+  # =========================================================== Q3
+  - id: Q3
+    enunciado: >-
+      A Secretaria Municipal de Educação planeja e assegura a disponibilidade dos recursos
+      financeiros do CNCA em conformidade com as necessidades identificadas, os instrumentos de
+      planejamento e o cronograma de execução das ações de alfabetização?
+    achados:
+
+      - id: A3.1
+        enunciado: "Ausência ou inadequação da previsão do CNCA no PPA, LOA e QDD."
+        questao_matriz: Q3
+        perguntas_questionario: [P17, P28]
+        fase: 1
+        tipo_evidencia: proxy
+        confianca: baixa
+        indicadores:
+          - id: acao_alfabetizacao_dotada
+            rotulo: "Ação orçamentária que nomeia alfabetização ou CNCA, com dotação"
+            formula: >-
+              Ações da função 12 cujo NomeAcao ou NomePrograma casa com
+              /alfabetiz|crian[çc]a alfabetizada|CNCA|renalfa|cantinho/i, com PrevisaoAtualizada > 0.
+            fonte: "TCE-ES — Despesas dos municípios (agregado, com dotação)"
+            nivel: municipio_ano
+            unidade: "R$"
+          - id: dotacao_fonte_569
+            rotulo: "Dotação atualizada na fonte 569 (outras transferências do FNDE)"
+            formula: "Soma de PrevisaoAtualizada na função 12, CodigoFonteReduzida = 569."
+            fonte: "TCE-ES — Despesas dos municípios"
+            nivel: municipio_ano
+            unidade: "R$"
+        constatacao: C3.1
+        regra_classificacao:
+          inconclusivo: >-
+            Sempre que houver dotação na fonte 569 ou ação nomeada: o recurso existe, a
+            rastreabilidade não. NÃO gera indício individual — a ausência de identificação do
+            CNCA vale para os 78 e está dita uma vez na constatação C3.1.
+          sem_dado_publico: "Nem dotação na fonte 569, nem ação nomeada no exercício."
+        ressalvas:
+          - >-
+            Este é o achado mais afetado pela Fase 0. Não há complemento de fonte do CNCA, então
+            não dá para medir "dotação do CNCA". A fonte 569 é TODA transferência do FNDE que não
+            seja salário-educação, PNAE, PNATE ou PDDE: o PAR cai ali junto com outras coisas.
+          - >-
+            A ausência de ação nomeada NÃO prova ausência de previsão: a maioria dos municípios
+            usa ação genérica ("MANUTENÇÃO DO ENSINO FUNDAMENTAL") para tudo.
+          - >-
+            A evidência DIRETA para este achado é o PPA/LOA/LOAPROG/PRATIVOE do CidadES, que não
+            está em dado aberto. Com essa extração interna, o achado sobe de proxy para direta.
+        caminho_alternativo: "Extração interna do CidadES (PPA, LOA, LOAPROG, PRATIVOE); questionário (P17, P28)."
+
+  # =========================================================== Q4
+  - id: Q4
+    enunciado: >-
+      A execução dos recursos do CNCA ocorre de forma regular, tempestiva, compatível com sua
+      finalidade e articulada ao cronograma pedagógico?
+    achados:
+
+      - id: A4.1
+        enunciado: "Baixa execução dos recursos vinculados ao CNCA."
+        questao_matriz: Q4
+        perguntas_questionario: [P29, P30, P31, P32]
+        fase: 1
+        tipo_evidencia: proxy
+        confianca: baixa
+        indicadores:
+          - id: execucao_fonte_569
+            rotulo: "Executado ÷ dotação na fonte 569"
+            formula: "Empenhado na fonte 569 (função 12) ÷ PrevisaoAtualizada na mesma fonte × 100."
+            fonte: "TCE-ES — Empenhos e Despesas dos municípios"
+            nivel: municipio_ano
+            unidade: "%"
+          - id: pdde_cnca_recebido
+            rotulo: "PDDE-CNCA recebido pelas escolas do município"
+            formula: "Soma dos pagamentos da ação 0515, plano orçamentário 000C, às unidades executoras do município."
+            fonte: "CGU — transferências do FNDE"
+            nivel: municipio_ano
+            unidade: "R$"
+        regra_classificacao:
+          indicio_risco: "execucao_fonte_569 < parametros.execucao_baixa_pct, com dotação relevante."
+          sem_indicio: "execucao_fonte_569 >= parametros.execucao_baixa_pct."
+          sem_dado_publico: "Sem dotação nem empenho na fonte 569 no exercício."
+        ressalvas:
+          - >-
+            Não mede execução do CNCA. Mede execução da fonte 569, que é proxy do PAR e mistura
+            outras transferências do FNDE.
+          - >-
+            O PDDE-CNCA (o dinheiro mais diretamente ligado ao programa) é gasto pela escola e
+            prestado ao FNDE: a execução dele NÃO está em dado aberto. O painel mostra o
+            recebido, não o executado.
+          - "A fonte 569 só existe nos empenhos a partir de 2023."
+        caminho_alternativo: "Questionário (P29-P32); ofício ao FNDE para a execução do PDDE."
+
+      - id: A4.2
+        enunciado: "Falta de sincronia entre as liberações de recursos do setor financeiro e o cronograma pedagógico."
+        questao_matriz: Q4
+        perguntas_questionario: []
+        fase: 1
+        tipo_evidencia: proxy
+        confianca: media
+        indicadores:
+          - id: defasagem_repasse_empenho
+            rotulo: "Dias entre o repasse federal e o primeiro empenho na fonte correspondente"
+            formula: >-
+              min(DataEmissao dos empenhos da função 12 na fonte 569 ou 551 posteriores ao repasse)
+              − data do repasse (mês de pagamento da CGU, tomado no primeiro dia do mês).
+            fonte: "CGU (repasse) e TCE-ES — Empenhos (data de emissão)"
+            nivel: municipio_ano
+            unidade: "dias"
+        regra_classificacao:
+          indicio_risco: "defasagem > parametros.defasagem_dias."
+          sem_indicio: "defasagem <= parametros.defasagem_dias."
+          sem_dado_publico: "Exercícios de 2021 a 2023 (sem DataEmissao no leiaute) ou sem empenho na fonte."
+        ressalvas:
+          - >-
+            `DataEmissao` só existe nos arquivos de 2024 em diante. Para 2021-2023 o indicador
+            não existe — e o painel diz isso, em vez de mostrar zero.
+          - >-
+            A data do repasse da CGU é o MÊS de pagamento, não o dia. A defasagem tem erro de até
+            30 dias e não deve ser lida com precisão de dia.
+          - >-
+            "Cronograma pedagógico" não está em dado nenhum: o indicador compara o repasse com o
+            empenho, não com o calendário da alfabetização.
+        caminho_alternativo: "Questionário; cronograma pedagógico por requisição ao município."
+
+      - id: A4.3
+        enunciado: "Aplicação dos recursos em despesas incompatíveis com as regras do CNCA."
+        questao_matriz: Q4
+        perguntas_questionario: []
+        fase: 1
+        tipo_evidencia: indicio
+        confianca: baixa
+        indicadores:
+          - id: empenho_elemento_atipico
+            rotulo: "Empenhos na fonte 569/551 com elemento de despesa atípico para o programa"
+            formula: >-
+              Empenhos da função 12 nas fontes 551 ou 569 cujo CodigoElemento esteja na lista
+              `elementos_atipicos`, com valor e nome da ação, para revisão humana.
+            fonte: "TCE-ES — Empenhos dos municípios"
+            nivel: municipio_ano
+            unidade: "R$"
+        elementos_atipicos:
+          "11": "Vencimentos e vantagens fixas — pessoal civil"
+          "13": "Obrigações patronais"
+          "51": "Obras e instalações"
+          "61": "Aquisição de imóveis"
+          "92": "Despesas de exercícios anteriores"
+        regra_classificacao:
+          indicio_risco: "Há empenho em elemento atípico — SEMPRE para revisão humana, nunca como achado."
+          sem_indicio: "Nenhum empenho em elemento atípico na fonte."
+          sem_dado_publico: "Sem empenho nas fontes no exercício."
+        ressalvas:
+          - >-
+            O empenho do TCE-ES NÃO tem histórico nem número de contrato. Sobram o elemento, o
+            subelemento e o nome da ação — insuficientes para afirmar incompatibilidade.
+          - >-
+            "Atípico" não é "irregular": pessoal pode ser legítimo em algumas linhas de apoio, e
+            obra pode integrar o PAR. Nenhuma linha daqui vai à tela sem o rótulo de indício.
+          - "A lista de elementos atípicos é parâmetro editável, não regra do programa."
+        caminho_alternativo: "Análise documental do empenho junto ao município."
+
+      - id: A4.4
+        enunciado: "Concentração da execução financeira no final do ciclo do programa."
+        questao_matriz: Q4
+        perguntas_questionario: []
+        fase: 1
+        tipo_evidencia: direta
+        confianca: alta
+        indicadores:
+          - id: concentracao_nov_dez_361
+            rotulo: "Parcela do empenho anual da subfunção 361 feita em nov+dez"
+            formula: "Empenhado em novembro + dezembro ÷ empenhado no ano, subfunção 361 (ensino fundamental)."
+            fonte: "TCE-ES — Empenhos dos municípios"
+            nivel: municipio_ano
+            unidade: "%"
+          - id: perfil_mensal_361
+            rotulo: "Perfil mensal do empenho na subfunção 361"
+            formula: "Empenhado por mês de referência, subfunção 361."
+            fonte: "TCE-ES — Empenhos dos municípios"
+            nivel: municipio_ano
+            unidade: "R$"
+        regra_classificacao:
+          indicio_risco: >-
+            concentração > mediana do exercício + parametros.concentracao_acima_da_mediana_pp
+            E concentração > parametros.concentracao_piso_pct
+            E base >= parametros.concentracao_minimo_base.
+          sem_indicio: "Passa por dentro de um dos dois testes acima."
+          inconclusivo: "Base anual abaixo do mínimo, ou percentual negativo (anulações maiores que empenhos no período)."
+        ressalvas:
+          - >-
+            DIRETA sobre a subfunção 361, não sobre o CNCA. Mede o comportamento da execução do
+            ensino fundamental inteiro — o que é o melhor disponível, e precisa ser dito.
+          - >-
+            O percentual pode ser NEGATIVO: são anulações de empenho maiores que os empenhos do
+            período. Em 2024, três municípios ficaram negativos (Vila Pavão, -12,5%). Isso é
+            classificado como inconclusivo, nunca como "boa execução".
+          - >-
+            A comparação é com a MEDIANA DO PRÓPRIO EXERCÍCIO, e o painel mostra a mediana ao lado
+            do valor: dizer que um município concentrou 26% em 2023 (mediana 13,3%) não é o mesmo
+            que dizer o mesmo de 2021 (mediana 24,4%). Um limiar fixo trataria os dois anos como
+            comparáveis, e eles não são.
+        caminho_alternativo: "—"
+
+      - id: A4.5
+        enunciado: "Inexistência de conciliação bancária mensal e falta de controle sobre rendimentos."
+        questao_matriz: Q4
+        perguntas_questionario: [P22]
+        fase: 1
+        tipo_evidencia: indisponivel
+        confianca: baixa
+        indicadores:
+          - id: conciliacao_bancaria_mensal
+            rotulo: "Remessa CONCIBAN entregue por mês"
+            formula: "Presença da remessa de conciliação bancária na prestação de contas mensal do município."
+            fonte: "CidadES — CONCIBAN (extração interna do TCE-ES)"
+            nivel: municipio_ano
+            unidade: "meses"
+        regra_classificacao:
+          sem_dado_publico: "Enquanto não houver extração interna do CidadES."
+        ressalvas:
+          - >-
+            O CONCIBAN e o BALANCORR não estão em dado aberto. A camada de dados foi feita
+            plugável: entregue a extração interna, o achado passa a DIRETA sem mudar o painel.
+          - >-
+            O exercício a partir do qual o CONCIBAN é obrigatório NÃO foi confirmado: está no
+            Anexo IV da IN 68/2020, em PDF, alterado pelas Portarias 88/2025, 100/2025, 13/2026,
+            20/2026 e 49/2026. Não adotar nenhuma das versões sem ler o leiaute.
+        caminho_alternativo: "Extração interna do CidadES (CONCIBAN, BALANCORR); questionário (P22)."
+
+  # =========================================================== Q5
+  - id: Q5
+    enunciado: >-
+      A Secretaria Municipal de Educação monitora a execução financeira e os resultados
+      pedagógicos, utilizando indicadores, reuniões e análises dos resultados?
+    achados:
+
+      - id: A5.1
+        enunciado: "Ausência de indicadores formais de desempenho."
+        questao_matriz: Q5
+        perguntas_questionario: [P23, P24]
+        fase: 1
+        tipo_evidencia: indisponivel
+        confianca: baixa
+        indicadores:
+          - id: indices_execucao_calculados
+            rotulo: "Os quatro índices do questionário, calculados pelo TCE-ES"
+            formula: "Ver indicadores de P24. Calculáveis pelo Tribunal; não dizem se o MUNICÍPIO os usa."
+            fonte: "TCE-ES — Empenhos e Despesas dos municípios"
+            nivel: municipio_ano
+            unidade: "%"
+        regra_classificacao:
+          sem_dado_publico: "Sempre. Calcular o índice não prova que o município o utiliza."
+        ressalvas:
+          - >-
+            O painel calcula os quatro índices para todos os municípios — isso serve para
+            CONFRONTAR a resposta de P24, não para classificar o achado.
+        caminho_alternativo: "Questionário (P23, P24)."
+
+      - id: A5.2
+        enunciado: "Os Indicadores apurados não são utilizados no processo de tomada de decisão."
+        questao_matriz: Q5
+        perguntas_questionario: [P24, P39]
+        fase: 1
+        tipo_evidencia: indisponivel
+        confianca: baixa
+        indicadores: []
+        regra_classificacao:
+          sem_dado_publico: "Sempre. Uso de indicador em decisão não deixa rastro em dado público."
+        ressalvas: []
+        caminho_alternativo: "Questionário (P24, P39); análise de atas."
+
+      - id: A5.3
+        enunciado: "Ausência de fóruns de análise crítica dos relatórios de avaliação de desempenho."
+        questao_matriz: Q5
+        perguntas_questionario: [P23]
+        fase: 3
+        tipo_evidencia: documental
+        confianca: baixa
+        indicadores:
+          - id: ato_comite_alfabetizacao
+            rotulo: "Ato de instituição de comitê ou fórum de alfabetização publicado"
+            formula: 'Busca por ("comitê" OU "comissão") E "alfabetiz" em diário oficial, desde 2023.'
+            fonte: "Querido Diário / DOM-ES"
+            nivel: municipio
+            unidade: "ocorrências"
+        regra_classificacao:
+          sem_indicio: "Ato localizado e conferido."
+          sem_dado_publico: "Município fora da cobertura."
+        ressalvas:
+          - "Instituir o comitê por ato não prova que ele se reúne. A ata é que provaria, e não é pública."
+        caminho_alternativo: "Questionário; requisição das atas."
+
+      - id: A5.4
+        enunciado: "Falta de integração entre a execução financeira e a aferição de resultados pedagógicos."
+        questao_matriz: Q5
+        perguntas_questionario: [P39]
+        fase: 2
+        tipo_evidencia: inferencia
+        confianca: baixa
+        indicadores:
+          - id: recurso_por_aluno_alfabetizacao
+            rotulo: "Recurso do CNCA por aluno de 1º e 2º ano"
+            formula: "PDDE-CNCA recebido no exercício ÷ matrículas de 1º e 2º ano da rede municipal."
+            fonte: "CGU e Censo Escolar (INEP)"
+            nivel: municipio_ano
+            unidade: "R$/aluno"
+          - id: ica_e_variacao
+            rotulo: "ICA e variação entre edições"
+            formula: "ICA do município na edição, e diferença em p.p. para a edição anterior."
+            fonte: "INEP — planilha oficial da Avaliação da Alfabetização (edição 2025)"
+            nivel: municipio_ano
+            unidade: "%"
+        regra_classificacao:
+          inconclusivo: >-
+            Sempre, quanto ao achado: a correlação é descritiva. Municípios com ICA em queda E
+            recurso por aluno abaixo da mediana são destacados como PRIORIDADE DE EXAME, não
+            como achado.
+        ressalvas:
+          - >-
+            LEITURA CAUSAL É PROIBIDA aqui. O recurso do CNCA é uma fração pequena do gasto por
+            aluno, e o resultado de alfabetização depende de muitas outras coisas.
+          - >-
+            O MEC não publica os pesos dos critérios de repasse (proporção de não alfabetizados,
+            perfil socioeconômico, deficiência), então não dá para dizer se o valor recebido é
+            adequado ao perfil do município — só comparar valor e resultado.
+          - >-
+            O ICA da rede municipal no ES subiu de 73,6% (2023) para 83,6% (2025); em 2025, só
+            2 municípios ficaram abaixo da meta pactuada. A dispersão é baixa, e um limiar
+            apertado produziria ruído.
+        caminho_alternativo: "Questionário (P39)."
+
+      - id: A5.5
+        enunciado: "Ausência de medidas corretivas diante das inconsistências financeiras detectadas."
+        questao_matriz: Q5
+        perguntas_questionario: [P38]
+        fase: 1
+        tipo_evidencia: indisponivel
+        confianca: baixa
+        indicadores: []
+        regra_classificacao:
+          sem_dado_publico: "Sempre."
+        ressalvas:
+          - >-
+            Anulações de empenho aparecem nos dados (e são a causa dos percentuais negativos de
+            A4.4), mas anular empenho não é "medida corretiva diante de inconsistência" — pode
+            ser qualquer coisa. Não serve de proxy.
+        caminho_alternativo: "Questionário (P38); análise processual."
+
+  # =========================================================== Q6
+  - id: Q6
+    enunciado: >-
+      Os recursos disponíveis e executados são suficientes para viabilizar as ações do CNCA e
+      contribuir para os resultados pretendidos de alfabetização?
+    nota: >-
+      A matriz de planejamento lista UM só achado para Q6, idêntico em conteúdo a A2.1. A
+      estrutura fica aberta para a equipe acrescentar os demais.
+    achados:
+
+      - id: A6.1
+        enunciado: "Falta de Conhecimento sobre os recursos necessários para a alfabetização."
+        questao_matriz: Q6
+        perguntas_questionario: [P19, P20, P27, P44, P45]
+        fase: 2
+        tipo_evidencia: proxy
+        confianca: baixa
+        indicadores:
+          - id: recurso_proprio_subfuncao_361
+            rotulo: "Despesa com recursos próprios na subfunção 361"
+            formula: >-
+              Empenhado na subfunção 361 com fonte 500 (impostos/MDE) ou 540 (FUNDEB),
+              ÷ empenhado total da subfunção 361 × 100.
+            fonte: "TCE-ES — Empenhos dos municípios"
+            nivel: municipio_ano
+            unidade: "%"
+          - id: transferencias_fnde_recebidas
+            rotulo: "Transferências do FNDE recebidas pelo município"
+            formula: "Soma dos pagamentos do FNDE (órgão 26298) ao município, por ação."
+            fonte: "CGU — transferências"
+            nivel: municipio_ano
+            unidade: "R$"
+        regra_classificacao:
+          inconclusivo: >-
+            Sempre quanto ao achado. A proporção de recurso próprio contrasta com a resposta de
+            P19/P20 (complementação com recurso próprio), mas não mede conhecimento.
+        ressalvas:
+          - >-
+            Quase toda a despesa da educação municipal é custeada com fonte 500 e 540 —
+            o indicador não distingue complementação ao CNCA de manutenção ordinária da rede.
+          - "Duplica A2.1 por construção da própria matriz."
+        caminho_alternativo: "Questionário (P19, P20, P27)."
+
+# ---------------------------------------------------------------------------
+# PERGUNTAS DO QUESTIONÁRIO (49), na ordem do formulário.
+# Todas entram, inclusive as de identificação e as indisponíveis — é isso que
+# torna o painel de cobertura completo e honesto.
+# ---------------------------------------------------------------------------
+perguntas:
+
+  # ------------------------------------------------- Bloco 1 — Identificação
+  - id: P1
+    bloco: 1
+    enunciado: "Município"
+    tipo: escolha_unica
+    achados: []
+    evidencia: direta
+    responde_com: "Os 78 municípios do ES são o universo do painel; a chave é o código IBGE de 7 dígitos."
+    dados_pessoais: false
+  - id: P2
+    bloco: 1
+    enunciado: "Nome do respondente"
+    tipo: texto
+    achados: []
+    evidencia: indisponivel
+    responde_com: "Dado pessoal do respondente. Fora do escopo do painel."
+    dados_pessoais: true
+  - id: P3
+    bloco: 1
+    enunciado: "Cargo/função do respondente"
+    tipo: texto
+    achados: []
+    evidencia: indisponivel
+    responde_com: "Só o questionário responde."
+    dados_pessoais: true
+  - id: P4
+    bloco: 1
+    enunciado: "E-mail para contato"
+    tipo: email
+    achados: []
+    evidencia: indisponivel
+    responde_com: "Dado pessoal. Nunca exibir."
+    dados_pessoais: true
+  - id: P5
+    bloco: 1
+    enunciado: "Tempo de atuação na função"
+    tipo: texto
+    achados: []
+    evidencia: indisponivel
+    responde_com: >-
+      O dado de pessoal do TCE-ES traz vínculo e cargo, mas sem lotação e sem ligação com a
+      coordenação do CNCA — não responde.
+    dados_pessoais: true
+  - id: P6
+    bloco: 1
+    enunciado: >-
+      Qual(ais) área/setor(es) da Secretaria Municipal de Educação/Prefeitura participou do
+      preenchimento das informações relativas ao financiamento e à execução dos recursos do CNCA?
+    tipo: escolha_multipla
+    opcoes: ["Planejamento", "Financeiro/Contabilidade", "Gestão da Educação",
+             "Coordenação do CNCA/Alfabetização", "Pedagógico", "Outro"]
+    achados: []
+    evidencia: indisponivel
+    responde_com: "Só o questionário responde."
+    dados_pessoais: false
+
+  # ------------------------------------- Bloco 2 — Governança e planejamento
+  - id: P7
+    bloco: 2
+    enunciado: "Existe plano municipal ou instrumento equivalente para organizar a implementação das ações do CNCA?"
+    tipo: escolha_unica
+    opcoes: ["Sim, formalizado", "Sim, mas não formalizado", "Está em elaboração", "Não existe"]
+    achados: [A1.7, A2.2, A2.3, A2.4]
+    evidencia: parcial
+    responde_com: >-
+      Busca do ato em diário oficial (A2.3), com cobertura de 3 dos 78 municípios. Achar o ato
+      corrobora "sim, formalizado"; não achar não prova nada.
+    dados_pessoais: false
+  - id: P8
+    bloco: 2
+    enunciado: "O município possui responsável formalmente designado para coordenar a implementação do CNCA?"
+    tipo: escolha_unica
+    opcoes: ["Sim", "Não"]
+    achados: [A1.1, A1.2]
+    evidencia: parcial
+    responde_com: "Busca da portaria de designação em diário oficial (A1.1), mesma limitação de cobertura."
+    dados_pessoais: false
+  - id: P9
+    bloco: 2
+    enunciado: "Nome do Coordenador de implementação do CNCA"
+    tipo: texto
+    achados: [A1.1]
+    evidencia: indisponivel
+    responde_com: "Dado pessoal. O painel nunca exibe nome de coordenador, mesmo se aparecer no diário."
+    dados_pessoais: true
+  - id: P10
+    bloco: 2
+    enunciado: "Cargo/função do Coordenador de implementação do CNCA"
+    tipo: texto
+    achados: [A1.1, A1.5]
+    evidencia: indisponivel
+    responde_com: "Só o questionário ou o ato de designação respondem."
+    dados_pessoais: true
+  - id: P11
+    bloco: 2
+    enunciado: "E-mail ou telefone de contato do Coordenador de implementação do CNCA"
+    tipo: texto
+    achados: [A1.1]
+    evidencia: indisponivel
+    responde_com: "Dado pessoal. Nunca exibir."
+    dados_pessoais: true
+  - id: P12
+    bloco: 2
+    enunciado: "Em que estágio de implementação das ações do CNCA o município se encontra?"
+    tipo: escolha_unica
+    opcoes: ["Inicial", "Em desenvolvimento", "Avançado", "Consolidado", "Não é possível avaliar"]
+    achados: [A1.7]
+    evidencia: indisponivel
+    responde_com: "É autoavaliação. Nenhum dado público a substitui."
+    dados_pessoais: false
+  - id: P13
+    bloco: 2
+    enunciado: "O município conta com Articulador Municipal do CNCA designado?"
+    tipo: escolha_unica
+    opcoes: ["Sim, com atuação regular", "Sim, mas com atuação irregular", "Sim, mas sem atuação",
+             "Não", "Não sabe informar"]
+    achados: [A1.3, A1.4]
+    evidencia: indisponivel
+    responde_com: >-
+      As bolsas da Renalfa são pagas a pessoa física pelo SGB/FNDE e não aparecem por município
+      na CGU (ação 00O0 ausente no ES em março/2025). Só ofício ou questionário respondem.
+    dados_pessoais: false
+  - id: P14
+    bloco: 2
+    enunciado: "Qual é a função/cargo ocupado pelo Articulador Municipal do CNCA no município?"
+    tipo: escolha_unica
+    opcoes: ["Secretário(a) Municipal de Educação", "Subsecretário(a)/Secretário(a)-adjunto(a)",
+             "Coordenador(a) da Secretaria Municipal de Educação", "Coordenador(a) pedagógico(a)",
+             "Professor(a)", "Outro"]
+    achados: [A1.4, A1.5]
+    evidencia: indisponivel
+    responde_com: "Só o ato de designação (quando publicado) ou o questionário."
+    dados_pessoais: false
+  - id: P15
+    bloco: 2
+    enunciado: >-
+      O profissional designado como Articulador Municipal do CNCA exerce suas atribuições de
+      forma exclusiva ou acumula outras funções?
+    tipo: escolha_unica
+    opcoes: ["Exclusiva", "Acumula outras funções", "Não há profissional formalmente designado"]
+    achados: [A1.5]
+    evidencia: indisponivel
+    responde_com: "O vínculo do TCE-ES não traz lotação nem atribuição: não permite afirmar acúmulo."
+    dados_pessoais: false
+  - id: P16
+    bloco: 2
+    enunciado: >-
+      O município recebe apoio técnico direto dos articuladores da Renalfa para a formulação de
+      planos municipais ou para a elaboração de sua Política de Alfabetização?
+    tipo: escolha_unica
+    opcoes: ["Sim, para ambas as frentes", "Parcialmente", "Não recebemos apoio técnico da Renalfa"]
+    achados: [A1.3, A1.6]
+    evidencia: indisponivel
+    responde_com: "Nenhuma fonte pública registra apoio técnico da Renalfa por município."
+    dados_pessoais: false
+  - id: P17
+    bloco: 2
+    enunciado: >-
+      As ações e metas pactuadas no Plano de Ações do Território Estadual (PATe) e no Plano de
+      Ações Articuladas (PAR) estão contempladas com dotação específica nos instrumentos de
+      planejamento do município?
+    tipo: escolha_unica
+    opcoes: ["Sim, no PPA, LDO e LOA", "Parcialmente", "Não há dotação orçamentária específica regulamentada"]
+    achados: [A3.1]
+    evidencia: proxy
+    responde_com: >-
+      Ação nomeada com alfabetização/CNCA e dotação na fonte 569 (A3.1). Proxy fraco: não há
+      complemento de fonte do CNCA, e o PATe não tem marcação orçamentária nenhuma.
+    dados_pessoais: false
+
+  # ------------------------------------------------ Bloco 3 — Financiamento
+  - id: P18
+    bloco: 3
+    enunciado: "Quais fontes de recursos atreladas ao CNCA foram recebidas ou estão ativas na rede?"
+    tipo: escolha_multipla
+    opcoes: ["Repasses via PAR", "PDDE Cantinho da Leitura / Material Didático Complementar",
+             "Bolsas RENALFA (Articuladores e Formadores)", "Formação Continuada de Professores",
+             "Recursos do Estado via Regime de Colaboração", "Recursos Próprios do Município"]
+    achados: [A3.1, A4.1, A6.1]
+    evidencia: parcial
+    responde_com: >-
+      Quatro das seis opções são verificáveis. PDDE: direto, por escola (CGU, PO 000C). Recursos
+      do Estado: quase direto, pelo SIGEFES (UG do FUNPAES + modalidade 40/41/42 + favorecido =
+      fundo municipal). PAR: só proxy, pela fonte 569. Recursos próprios: proxy, pelas fontes
+      500/540 na subfunção 361. Bolsas Renalfa: INDISPONÍVEL.
+    dados_pessoais: false
+  - id: P19
+    bloco: 3
+    enunciado: "Caso tenha ocorrido complementação com recurso próprio, qual percentual aplicado?"
+    tipo: escolha_unica
+    opcoes: ["Até 20%", "21 a 40%", "41 a 60%", "61 a 80%", "acima de 80%"]
+    achados: [A6.1]
+    evidencia: proxy
+    responde_com: >-
+      A proporção de fonte 500/540 na subfunção 361 dá a ordem de grandeza do custeio próprio,
+      mas não isola complementação ao CNCA de manutenção ordinária da rede.
+    dados_pessoais: false
+  - id: P20
+    bloco: 3
+    enunciado: "Caso tenha utilizado recursos próprios, qual foi o principal motivo da complementação?"
+    tipo: escolha_unica
+    opcoes: ["Recursos insuficientes", "Atraso na disponibilização/repasse", "Dificuldade de contratação",
+             "Dificuldade de aquisição", "Dificuldade de planejamento", "Falta de equipe",
+             "Dúvidas sobre a utilização", "Problemas administrativos", "Outro"]
+    achados: [A6.1]
+    evidencia: indisponivel
+    responde_com: >-
+      Motivo é declaração. O painel pode CONTRASTAR "atraso na disponibilização" com a defasagem
+      medida em A4.2 (só 2024-2025), mas não responde a pergunta.
+    dados_pessoais: false
+  - id: P21
+    bloco: 3
+    enunciado: >-
+      Qual percentual das escolas da rede municipal foi beneficiado com recursos do PDDE
+      relacionados às ações do CNCA?
+    tipo: escolha_unica
+    opcoes: ["até 20%", "21 a 40%", "41 a 60%", "61 a 80%", "acima de 80%"]
+    achados: [A2.2]
+    evidencia: direta
+    responde_com: >-
+      Unidades executoras que receberam PDDE no plano orçamentário 000C, ligadas à escola do
+      Censo, ÷ escolas municipais com anos iniciais. Calculável para os 78 municípios.
+    dados_pessoais: false
+  - id: P22
+    bloco: 3
+    enunciado: "O município possui mecanismo de segregação e acompanhamento dos recursos relacionados ao CNCA?"
+    tipo: escolha_unica
+    opcoes: ["Sim, conta específica para todas as verbas", "Sim, por centro de custos/classificação contábil",
+             "Parcialmente (só verbas diretas do FNDE/PDDE)", "Não"]
+    achados: [A4.5]
+    evidencia: proxy
+    responde_com: >-
+      A resposta "sim, por classificação contábil" é CONTRADITA pelos dados: não existe fonte,
+      complemento, programa ou ação que identifique o CNCA em nenhum dos 78 municípios. Esse
+      contraste é, em si, a evidência mais forte deste painel para Q4.
+    dados_pessoais: false
+  - id: P23
+    bloco: 3
+    enunciado: "O município realiza acompanhamento periódico da execução dos recursos relacionados ao CNCA?"
+    tipo: escolha_unica
+    opcoes: ["Quinzenal", "Mensal", "Bimestral", "Trimestral", "Eventual", "Não existe"]
+    achados: [A5.1, A5.3]
+    evidencia: indisponivel
+    responde_com: "Periodicidade de rotina interna não deixa rastro público."
+    dados_pessoais: false
+  - id: P24
+    bloco: 3
+    enunciado: >-
+      Quais indicadores de acompanhamento da execução financeira é/são utilizado especificamente
+      para recursos provenientes do CNCA?
+    tipo: escolha_multipla
+    opcoes: ["Índice de execução orçamentária (Empenhado ÷ Dotação atualizada × 100)",
+             "Índice de execução financeira (Pago ÷ Dotação atualizada × 100)",
+             "Índice de liquidação (Liquidado ÷ Empenhado × 100)",
+             "Índice de pagamento (Pago ÷ Liquidado × 100)",
+             "Não utiliza indicadores"]
+    achados: [A5.1, A5.2]
+    evidencia: direta
+    responde_com: >-
+      Os quatro índices são calculados pelo painel para todo município-ano, por fonte e por ação
+      — mas não "especificamente para recursos do CNCA", porque o CNCA não é isolável. Servem
+      para confrontar a resposta, não para classificar o achado.
+    dados_pessoais: false
+  - id: P25
+    bloco: 3
+    enunciado: "Existem valores empenhados e liquidados (Restos a Pagar Processados) há períodos prolongados?"
+    tipo: escolha_unica
+    opcoes: ["Sim", "Não", "Não sabe informar"]
+    achados: [A4.1]
+    evidencia: direta
+    responde_com: >-
+      As 13 colunas de restos a pagar do empenho do TCE-ES (RPPExercicio, RPPTransferido,
+      RPPPago, RPPCancelado…) dão o estoque e a idade, por fonte, em todos os exercícios.
+    dados_pessoais: false
+  - id: P26
+    bloco: 3
+    enunciado: "Existem restos a pagar processados relevantes relacionados às ações do CNCA?"
+    tipo: escolha_unica
+    opcoes: ["Sim", "Não", "Não sabe informar"]
+    achados: [A4.1]
+    evidencia: proxy
+    responde_com: >-
+      Medível sobre as fontes 551 e 569, não sobre o CNCA. "Relevante" usa
+      parametros.rp_relevante_pct sobre o empenhado do ano.
+    dados_pessoais: false
+  - id: P27
+    bloco: 3
+    enunciado: "O município consegue estimar os recursos necessários para executar as ações previstas do CNCA?"
+    tipo: escolha_unica
+    opcoes: ["Sim", "Parcialmente", "Não"]
+    achados: [A2.1, A2.2, A6.1]
+    evidencia: proxy
+    responde_com: >-
+      O painel calcula o valor de referência do Cantinho da Leitura (salas × R$ 1.235) como
+      ordem de grandeza — que é contraste, não resposta.
+    dados_pessoais: false
+  - id: P28
+    bloco: 3
+    enunciado: "O município incorporou as ações do CNCA ao seu planejamento orçamentário?"
+    tipo: escolha_unica
+    opcoes: ["Sim", "Parcialmente", "Não", "Não sabe informar"]
+    achados: [A3.1]
+    evidencia: proxy
+    responde_com: "Mesmo indicador de P17 e A3.1: ação nomeada e dotação na fonte 569."
+    dados_pessoais: false
+  - id: P29
+    bloco: 3
+    enunciado: "Qual foi o valor dos recursos orçados e executados para as ações relacionadas ao CNCA em 2023?"
+    tipo: numero_par
+    achados: [A4.1]
+    evidencia: proxy
+    responde_com: >-
+      Não há valor "do CNCA" no orçamento municipal. O painel oferece dotação e empenho na fonte
+      569 e o PDDE-CNCA recebido — três números diferentes, cada um rotulado com o que mede.
+      A comparação com a resposta do município é justamente o ponto de exame.
+    dados_pessoais: false
+  - id: P30
+    bloco: 3
+    enunciado: "Qual foi o valor dos recursos orçados e executados para as ações relacionadas ao CNCA em 2024?"
+    tipo: numero_par
+    achados: [A4.1]
+    evidencia: proxy
+    responde_com: "Idem P29, para 2024."
+    dados_pessoais: false
+  - id: P31
+    bloco: 3
+    enunciado: "Qual foi o valor dos recursos orçados e executados para as ações relacionadas ao CNCA em 2025?"
+    tipo: numero_par
+    achados: [A4.1]
+    evidencia: proxy
+    responde_com: "Idem P29, para 2025."
+    dados_pessoais: false
+  - id: P32
+    bloco: 3
+    enunciado: "Qual foi o valor dos recursos orçados e executados para as ações relacionadas ao CNCA em 2026?"
+    tipo: numero_par
+    achados: [A4.1]
+    evidencia: indisponivel
+    responde_com: >-
+      2026 está fora da janela do painel: o arquivo de empenhos de 2026 no TCE-ES tem só as duas
+      primeiras partes publicadas (as partes 3 a 5 vêm vazias, 572 bytes).
+    dados_pessoais: false
+  - id: P33
+    bloco: 3
+    enunciado: >-
+      Existe um sistema ou mecanismo de gestão financeira que permite filtrar, em tempo real, as
+      despesas relacionadas às ações de alfabetização (1º e 2º anos)?
+    tipo: escolha_unica
+    opcoes: ["Sim, o sistema contábil gera relatórios individualizados",
+             "Parcialmente, consolidação manual no fim do exercício",
+             "Não, as despesas do 1º e 2º ano são agregadas ao Ensino Fundamental"]
+    achados: [A4.5, A5.1]
+    evidencia: direta
+    responde_com: >-
+      A resposta é DIRETA e vale para os 78: a despesa do 1º e 2º ano NÃO é separável na remessa
+      ao TCE-ES. A subfunção 361 é o menor grão que existe, e ela cobre o ensino fundamental
+      inteiro. Município que responder "sim" está descrevendo um sistema interno que não chega
+      ao CidadES.
+    dados_pessoais: false
+  - id: P34
+    bloco: 3
+    enunciado: "Como é feito o controle do pagamento das Bolsas RENALFA (articuladores locais/municipais e formadores)?"
+    tipo: escolha_unica
+    opcoes: ["Acompanhamento via módulo RENALFA/MEC e validação da Secretaria",
+             "Controle exclusivo do Governo Federal/FNDE, sem monitoramento contábil do município", "Outro"]
+    achados: [A1.3]
+    evidencia: indisponivel
+    responde_com: "Sem base pública das bolsas por município. Ver A1.3."
+    dados_pessoais: false
+
+  # ------------------------------------------------- Bloco 4 — Monitoramento
+  - id: P35
+    bloco: 4
+    enunciado: >-
+      Considerando as ações previstas para o período atual (2026) no âmbito do CNCA, como o
+      município avalia o estágio geral de implementação?
+    tipo: escolha_unica
+    opcoes: ["Todas ou quase todas concluídas", "Maior parte em execução, no cronograma",
+             "Maior parte em execução, com atrasos", "Ações relevantes não iniciadas",
+             "Ações relevantes paralisadas ou atrasadas", "Não é possível avaliar"]
+    achados: [A5.5]
+    evidencia: indisponivel
+    responde_com: "Autoavaliação de 2026, exercício fora da janela do painel."
+    dados_pessoais: false
+  - id: P36
+    bloco: 4
+    enunciado: "Se existem ações que estão atrasadas ou paralisadas cite duas (02) causas do atraso/paralisação."
+    tipo: texto
+    achados: [A5.5]
+    evidencia: indisponivel
+    responde_com: "Causa é declaração."
+    dados_pessoais: false
+  - id: P37
+    bloco: 4
+    enunciado: "Quais são hoje os três principais obstáculos à implementação?"
+    tipo: escolha_multipla
+    opcoes: ["Recursos financeiros", "Recursos humanos", "Capacitação", "Orientação da SEDU",
+             "Processos de contratação", "Aquisição de materiais", "Planejamento",
+             "Monitoramento", "Articulação com escolas", "Outro"]
+    achados: [A5.5]
+    evidencia: indisponivel
+    responde_com: "Percepção. Sem dado público equivalente."
+    dados_pessoais: false
+  - id: P38
+    bloco: 4
+    enunciado: "Existem ações previstas para o CNCA que não foram executadas ou estão em risco de não serem executadas?"
+    tipo: escolha_unica
+    opcoes: ["Sim", "Não", "Não sabe informar"]
+    achados: [A5.5]
+    evidencia: indisponivel
+    responde_com: "Exigiria o plano de ações do município, que não é público."
+    dados_pessoais: false
+  - id: P39
+    bloco: 4
+    enunciado: >-
+      O município cruza os indicadores de gastos com os resultados das avaliações de alfabetização
+      (Nacionais e Estaduais) para avaliar o custo-efetividade dos recursos investidos?
+    tipo: escolha_unica
+    opcoes: ["Sim, avalia o custo por aluno alfabetizado", "Apenas acompanha a execução orçamentária",
+             "Pretende implementar nos próximos ciclos"]
+    achados: [A5.2, A5.4]
+    evidencia: indisponivel
+    responde_com: >-
+      O painel FAZ esse cruzamento (recurso por aluno × ICA, A5.4), o que não diz se o município
+      o faz. Serve de contraste e de ponto de partida para a entrevista.
+    dados_pessoais: false
+  - id: P40
+    bloco: 4
+    enunciado: >-
+      Na percepção da Secretaria de Educação, o trabalho de monitoramento e apoio técnico prestado
+      pelos articuladores da Renalfa tem contribuído para a melhoria dos índices de alfabetização?
+    tipo: escolha_unica
+    opcoes: ["Sim, de forma muito expressiva", "Sim, mas de forma residual", "Não"]
+    achados: [A1.6]
+    evidencia: indisponivel
+    responde_com: "Percepção declarada."
+    dados_pessoais: false
+  - id: P41
+    bloco: 4
+    enunciado: >-
+      Os recursos destinados à aquisição de materiais didáticos/pedagógicos e cantinhos de leitura
+      têm acompanhamento de inventário e tombamento físico nas escolas?
+    tipo: escolha_unica
+    opcoes: ["Sim, com controle patrimonial e recibo por unidade escolar",
+             "Controle descentralizado pela UEx/Conselho Escolar",
+             "Não há registro centralizado"]
+    achados: [A4.3, A4.5]
+    evidencia: parcial
+    responde_com: >-
+      O PDDE Info traria saldo em conta e situação da prestação de contas por escola, mas a
+      consulta é montada em JavaScript e não foi possível extrair; o SiGPC está atrás de
+      reCAPTCHA. Fica para ofício ao FNDE.
+    dados_pessoais: false
+  - id: P42
+    bloco: 4
+    enunciado: >-
+      O município destina recursos orçamentários específicos para ações de identificação,
+      reconhecimento, premiação ou divulgação de boas práticas pedagógicas e de gestão escolar no
+      campo da alfabetização (art. 12 do Decreto nº 11.556/2023)?
+    tipo: escolha_unica
+    opcoes: ["Sim, com dotação e ações em execução", "Sim, mas sem dotação orçamentária direta",
+             "Não há dotação nem estratégia estruturada"]
+    achados: [A3.1]
+    evidencia: proxy
+    responde_com: >-
+      Busca por ação orçamentária com "prêmio", "premiação" ou "boas práticas" na função 12
+      (dotação do TCE-ES). A lista do Selo Nacional Compromisso com a Alfabetização está no
+      SIMEC com login: indisponível.
+    dados_pessoais: false
+  - id: P43
+    bloco: 4
+    enunciado: >-
+      Quais canais institucionais o município utiliza ativamente para dar transparência e
+      compartilhar as práticas pedagógicas e de gestão exitosas identificadas na rede?
+    tipo: escolha_multipla
+    opcoes: ["Site oficial da Prefeitura ou da Secretaria", "Informativos e canais de notícias do município",
+             "Portal ou repositório específico de Boas Práticas", "Publicações físicas ou cartilhas",
+             "Redes Sociais", "Não há canal institucional ativo"]
+    achados: []
+    evidencia: indisponivel
+    responde_com: >-
+      A fiscalização de transparência do TCE-ES traz NOTA do portal municipal, sem URL e sem
+      recorte de alfabetização. Não responde.
+    dados_pessoais: false
+
+  # -------------------------------------- Bloco 5 — Riscos e oportunidades
+  - id: P44
+    bloco: 5
+    enunciado: "Existe risco de descontinuidade da política CNCA por insuficiência financeira?"
+    tipo: escolha_unica
+    opcoes: ["Sim", "Não"]
+    achados: [A6.1, A5.4]
+    evidencia: proxy
+    responde_com: >-
+      O painel mostra a série do repasse recebido: no ES, o PDDE-CNCA às escolas caiu de
+      R$ 4,11 mi (2023) para R$ 0,31 mi (2024) e R$ 0,32 mi (2025), enquanto o repasse ao Estado
+      subiu de R$ 0,62 mi para R$ 6,47 mi. Isso é contexto para a resposta, não prova de risco.
+    dados_pessoais: false
+  - id: P45
+    bloco: 5
+    enunciado: "Justificativa (do risco de descontinuidade)"
+    tipo: texto
+    achados: [A6.1]
+    evidencia: indisponivel
+    responde_com: "Texto aberto."
+    dados_pessoais: false
+  - id: P46
+    bloco: 5
+    enunciado: >-
+      O município utilizou a plataforma AVAMEC para a realização de cursos de formação e
+      capacitação dos professores alfabetizadores e gestores escolares no último exercício?
+    tipo: escolha_unica
+    opcoes: ["Sim, de forma prioritária e integrada ao plano de formação", "Sim, mas de forma complementar",
+             "Não"]
+    achados: []
+    evidencia: indisponivel
+    responde_com: "Não há base pública de uso do AVAMEC por município."
+    dados_pessoais: false
+  - id: P47
+    bloco: 5
+    enunciado: >-
+      O município realizou contratações de consultorias privadas, institutos ou empresas para a
+      prestação de serviços de formação continuada em alfabetização?
+    tipo: escolha_unica
+    opcoes: ["Sim, foram contratados terceiros", "Não, formação interna ou via PAES/AVAMEC"]
+    achados: [A4.3]
+    evidencia: direta
+    responde_com: >-
+      Contratações da Educação com objeto casando /forma[çc][aã]o continuada|alfabetiz|assessoria
+      pedag[óo]gica|material estruturado|apostilad/i, em `tcees-contratacoes` (campo
+      ObjetoContratacao) e no PNCP (objetoContrato). Classificação por palavra-chave, revisável.
+    dados_pessoais: false
+  - id: P48
+    bloco: 5
+    enunciado: "Valor total despendido com contratações de formação terceirizada no exercício"
+    tipo: numero
+    achados: [A4.3]
+    evidencia: direta
+    responde_com: >-
+      ValorTotalContratacao das contratações classificadas em P47, com o valor dos itens quando
+      houver. Cobertura desigual: `SetorBeneficiado` vem vazio em 90% das contratações e só 22
+      municípios têm unidade gestora própria de educação.
+    dados_pessoais: false
+  - id: P49
+    bloco: 5
+    enunciado: >-
+      Existe alguma situação relacionada ao financiamento ou à implementação do CNCA que a equipe
+      do TCE-ES deveria conhecer e que não foi abordada neste questionário?
+    tipo: texto
+    achados: []
+    evidencia: indisponivel
+    responde_com: "Campo aberto."
+    dados_pessoais: false

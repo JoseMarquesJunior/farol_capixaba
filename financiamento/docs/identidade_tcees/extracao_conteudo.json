@@ -1,0 +1,251 @@
+{
+  "educacao_2024": {
+    "etiqueta": [],
+    "painel": [
+      {
+        "tag": "div",
+        "classe": "p-panel p-component p-panel-toggleable",
+        "texto": "Dados sobre escolas públicas, matrículas, índices e profissionais da educação no",
+        "color": "rgb(51, 51, 51)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(51, 51, 51)",
+        "border-bottom": "0px none rgb(51, 51, 51)",
+        "height": "159.391px",
+        "text-align": "start"
+      },
+      {
+        "tag": "div",
+        "classe": "p-panel-header",
+        "texto": "Dados sobre escolas públicas, matrículas, índices e profissionais da educação no",
+        "color": "rgb(73, 80, 87)",
+        "background-color": "rgb(248, 249, 250)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border-radius": "3px 3px 0px 0px",
+        "border": "1px solid rgb(222, 226, 230)",
+        "border-bottom": "1px solid rgb(222, 226, 230)",
+        "padding": "7px 14px",
+        "height": "44px",
+        "text-align": "start"
+      },
+      {
+        "tag": "div",
+        "classe": "p-panel-content",
+        "texto": "Visão inicial sobre matrículas e escolas nas redes municipais e estadual: quanti",
+        "color": "rgb(73, 80, 87)",
+        "background-color": "rgb(255, 255, 255)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border-radius": "0px 0px 3px 3px",
+        "border-bottom": "1px solid rgb(222, 226, 230)",
+        "padding": "14px",
+        "height": "115.391px",
+        "text-align": "start"
+      }
+    ],
+    "datatable": [],
+    "botao": [],
+    "aba": [],
+    "nota": [],
+    "grafico": [],
+    "indicador": [],
+    "alerta": [
+      {
+        "tag": "img",
+        "classe": "imagem-alerta normal",
+        "texto": "",
+        "color": "rgb(73, 80, 87)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(73, 80, 87)",
+        "border-bottom": "0px none rgb(73, 80, 87)",
+        "height": "86.3906px",
+        "text-align": "start"
+      }
+    ],
+    "legenda": [
+      {
+        "tag": "div",
+        "classe": "legenda text-center",
+        "texto": "K = MilharesM = MilhõesB = Bilhões",
+        "color": "rgb(51, 51, 51)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(51, 51, 51)",
+        "border-bottom": "0px none rgb(51, 51, 51)",
+        "height": "20px",
+        "text-align": "center"
+      }
+    ],
+    "textoPagina": "2026.9.7.1.8\nMunicípios\nEstado\nObrigações\nPrestações de contas\nFiscalizações\nÁreas temáticas\nBoletins\n Pesquisar\nÁreas temáticas\nEducação\nVisão geral\nAssistência social\nAtos de pessoal\nContratações públicas\nDesestatizações\nEducação\nEmendas parlamentares\nEstrutura de cargos e empregos\nGeo-obras (legado)\nInformações patrimoniais\nInvestimentos dos institutos de previdência\nPessoal\nProjeções de gastos com pessoal\nSaneamento básico\nSaúde\nDados sobre escolas públicas, matrículas, índices e profissionais da educação no Estado e nos municípios\nVisão inicial sobre matrículas e escolas nas redes municipais e estadual: quantidade, distribuição nos municípios e localização (urbana e rural).\nOs dados exibidos são do Censo Escolar realizado anualmente pelo Inep (Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira), ligado ao MEC (Ministério da Educação).\nK = MilharesM = MilhõesB = Bilhões\nAtualização dos dadosDados abertos\nFontes dos dadosGlossárioSobre"
+  },
+  "educacao_2026": {
+    "etiqueta": [],
+    "painel": [
+      {
+        "tag": "div",
+        "classe": "p-panel p-component p-panel-toggleable",
+        "texto": "Dados sobre escolas públicas, matrículas, índices e profissionais da educação no",
+        "color": "rgb(51, 51, 51)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(51, 51, 51)",
+        "border-bottom": "0px none rgb(51, 51, 51)",
+        "height": "159.391px",
+        "text-align": "start"
+      },
+      {
+        "tag": "div",
+        "classe": "p-panel-header",
+        "texto": "Dados sobre escolas públicas, matrículas, índices e profissionais da educação no",
+        "color": "rgb(73, 80, 87)",
+        "background-color": "rgb(248, 249, 250)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border-radius": "3px 3px 0px 0px",
+        "border": "1px solid rgb(222, 226, 230)",
+        "border-bottom": "1px solid rgb(222, 226, 230)",
+        "padding": "7px 14px",
+        "height": "44px",
+        "text-align": "start"
+      },
+      {
+        "tag": "div",
+        "classe": "p-panel-content",
+        "texto": "Visão inicial sobre matrículas e escolas nas redes municipais e estadual: quanti",
+        "color": "rgb(73, 80, 87)",
+        "background-color": "rgb(255, 255, 255)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border-radius": "0px 0px 3px 3px",
+        "border-bottom": "1px solid rgb(222, 226, 230)",
+        "padding": "14px",
+        "height": "115.391px",
+        "text-align": "start"
+      }
+    ],
+    "datatable": [],
+    "botao": [],
+    "aba": [],
+    "nota": [],
+    "grafico": [],
+    "indicador": [],
+    "alerta": [
+      {
+        "tag": "img",
+        "classe": "imagem-alerta normal",
+        "texto": "",
+        "color": "rgb(73, 80, 87)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(73, 80, 87)",
+        "border-bottom": "0px none rgb(73, 80, 87)",
+        "height": "86.3906px",
+        "text-align": "start"
+      }
+    ],
+    "legenda": [
+      {
+        "tag": "div",
+        "classe": "legenda text-center",
+        "texto": "K = MilharesM = MilhõesB = Bilhões",
+        "color": "rgb(51, 51, 51)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(51, 51, 51)",
+        "border-bottom": "0px none rgb(51, 51, 51)",
+        "height": "20px",
+        "text-align": "center"
+      }
+    ],
+    "textoPagina": "2026.9.7.1.8\nMunicípios\nEstado\nObrigações\nPrestações de contas\nFiscalizações\nÁreas temáticas\nBoletins\n Pesquisar\nÁreas temáticas\nEducação\nVisão geral\nAssistência social\nAtos de pessoal\nContratações públicas\nDesestatizações\nEducação\nEmendas parlamentares\nEstrutura de cargos e empregos\nGeo-obras (legado)\nInformações patrimoniais\nInvestimentos dos institutos de previdência\nPessoal\nProjeções de gastos com pessoal\nSaneamento básico\nSaúde\nDados sobre escolas públicas, matrículas, índices e profissionais da educação no Estado e nos municípios\nVisão inicial sobre matrículas e escolas nas redes municipais e estadual: quantidade, distribuição nos municípios e localização (urbana e rural).\nOs dados exibidos são do Censo Escolar realizado anualmente pelo Inep (Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira), ligado ao MEC (Ministério da Educação).\nK = MilharesM = MilhõesB = Bilhões\nAtualização dos dadosDados abertos\nFontes dos dadosGlossárioSobre"
+  },
+  "estado": {
+    "etiqueta": [],
+    "painel": [],
+    "datatable": [],
+    "botao": [],
+    "aba": [],
+    "nota": [
+      {
+        "tag": "div",
+        "classe": "fusioncharts-smartlabel-container",
+        "texto": "",
+        "color": "rgb(51, 51, 51)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(51, 51, 51)",
+        "border-bottom": "0px none rgb(51, 51, 51)",
+        "height": "1px",
+        "text-align": "start"
+      }
+    ],
+    "grafico": [],
+    "indicador": [],
+    "alerta": [],
+    "legenda": [
+      {
+        "tag": "div",
+        "classe": "legenda text-center",
+        "texto": "K = MilharesM = MilhõesB = Bilhões",
+        "color": "rgb(51, 51, 51)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(51, 51, 51)",
+        "border-bottom": "0px none rgb(51, 51, 51)",
+        "height": "20px",
+        "text-align": "center"
+      }
+    ],
+    "textoPagina": "2026.9.7.1.8\nMunicípios\nEstado\nObrigações\nPrestações de contas\nFiscalizações\nÁreas temáticas\nBoletins\n Pesquisar\nReceita X Despesa\nObtendo os dados...\nObrigações junto ao TCE-ES\nObtendo os dados...\nSaúde\n0,00%\nChart type not supported.\nLimite Constitucional\nEducação\n0,00%\nChart type not supported.\nLimite Constitucional\nPessoal - Consolidado\nObtendo os dados...\nPessoal - Executivo\nObtendo os dados...\nPessoal - Judiciário\nObtendo os dados...\nPessoal - Assembleia Legislativa\nObtendo os dados...\nPessoal - Ministério Público\nObtendo os dados...\nPessoal - Tribunal de Contas\nObtendo os dados...\nK = MilharesM = MilhõesB = Bilhões\nAtualização dos dadosDados abertos\nFontes dos dadosGlossárioSobre"
+  },
+  "home": {
+    "etiqueta": [],
+    "painel": [],
+    "datatable": [],
+    "botao": [],
+    "aba": [],
+    "nota": [
+      {
+        "tag": "div",
+        "classe": "fusioncharts-smartlabel-container",
+        "texto": "",
+        "color": "rgb(51, 51, 51)",
+        "background-color": "rgba(0, 0, 0, 0)",
+        "font-family": "\"Open Sans\", sans-serif",
+        "font-size": "14px",
+        "font-weight": "400",
+        "border": "0px none rgb(51, 51, 51)",
+        "border-bottom": "0px none rgb(51, 51, 51)",
+        "height": "1px",
+        "text-align": "start"
+      }
+    ],
+    "grafico": [],
+    "indicador": [],
+    "alerta": [],
+    "legenda": [],
+    "textoPagina": " Pesquisar\n\nPainel de Controle: a sua ferramenta de fiscalização dos órgãos públicos capixabas\n\nMais de 200 painéis interativos com indicadores e gráficos atualizados\n\nMUNICÍPIOS\nVitória\nVitória\n\nDiversas informações para você fiscalizar o município\n\nTodos os municípios\nMunicípios\n\nSelecione o município que deseja fiscalizar\n\nComparador e indicadores\nComparador e indicadores\n\nSituação geral, similaridades e diferenças entre municípios\n\nExecução orçamentária\nExecução orçamentária\n\nPlanejamento e realização de receitas e despesas\n\nRankings\nRankings\n\nEscolha um tema e veja a situação de cada município\n\nESTADO\nPoderes e órgãos\nEstado\n\nExecutivo, Legislativo, Judiciário e órgãos do Estado\n\nÁREAS TEMÁTICAS\nAssistência Social\nAssistência Social\n\nEstrutura dos Centros de Referência da Assistência Social\n\nContratações públicas\nContratações públicas\n\nAcompanhe as contratações realizadas pela Administração Pública\n\nDesestatizações\nDesestatizações\n\nConcessões comuns, parcerias público-privadas e privatizações\n\nEducação\nEducação\n\nDados sobre escolas, matrículas, profissionais e índices\n\nEmendas e patrimônio\nEmendas e patrimônio\n\nEmendas parlamentares e informações patrimoniais\n\nPessoal e previdência\nPessoal e previdência\n\nFolha, projeções de gastos, atos, cargos, e investimentos de previdência\n\nSaneamento básico\nSaneamento básico\n\nÁgua, esgoto, limpeza urbana e manejo de resíduos sólidos\n\nSaúde\nSaúde\n\nEstabelecimentos, leitos, equipamentos, gastos e planos municipais\n\nOUTRAS OPÇÕES\nBoletins e fiscalizações\nBoletins e fiscalizações\n\nTrabalhos de avaliação e fiscalização dos recursos públicos\n\nObrigações\nObrigações\n\nÓrgãos que cumpriram a obrigação de enviar dados ao TCE-ES\n\nPrestações de contas\nPrestações de contas\n\nResultados de prestações dos órgãos públicos\n\nDados abertos\nDados abertos\n\nAcesse os dados abertos disponibilizados pelo TCE-ES\n\nO TCE-ES recebe dados dos órgãos públicos capixabas e os disponibiliza aqui, em formato simples e acessível, para você fiscalizar o uso do recurso público.\n\nÚltimas novidades\n\n●\n●\n●\n●\nEducação\nConheça a distribuição de escolas públicas, matrículas e profissionais da educação no Estado e nos municípios.\n\nConheça o destino dos impostos (EP: 2)\n\n●\n●\n●\n●\n●\n●\n●\n●\nDestino do dinheiro\nAcompanhe como o dinheiro proveniente de determinadas fontes de recursos tem sido aplicado em seu município.\nCargos e empregos\nAcompanhe os cargos, empregos e funções públicas existentes no Estado e nos municípios.\n\tEstado\tMunicípios\nReceitas\t32.0B\t28.9B\nDes"
+  }
+}

@@ -1,0 +1,209 @@
+# ---------------------------------------------------------------------------
+# Programas específicos (compliance / adesão a políticas federais)
+#
+# Cada programa é um bloco declarativo. O ETL valida este arquivo e o embute no
+# dataset; o dashboard desenha o card do programa SÓ a partir dele. Para
+# acrescentar o Novo Mais Educação, o Time de Leitores etc. basta um novo bloco
+# em `programas:` e os registros correspondentes em dados_manuais.yaml — sem
+# tocar no código de exibição.
+#
+# Chaves de um programa:
+#   id, nome, descricao
+#   fundo_repasse   fundo/sistema por onde o recurso transita
+#   acesso          api | manual | hibrido   (há API? ou só dado manual?)
+#   granularidade   municipio | escola | estado   (o nível em que o dado existe)
+#   referencias     [{rotulo, url, nota?}]
+#   indicador_meta  o indicador de resultado e sua fonte (ver CNCA)
+#   criterios_repasse  critérios DECLARADOS; sem pesos, sem fórmula
+#   campos          o que se exibe por município (ver abaixo)
+#   checklist_governanca  itens que o AUDITOR marca em campo (não é dado importado);
+#                   cada um cita a referência metodológica de onde veio
+#
+# Chaves de um campo:
+#   id, rotulo
+#   tipo            categorico | moeda | percentual | quantidade
+#   origem          api | manual         (de onde o valor VEM)
+#   disponibilidade situação da fonte automática, quando origem = manual
+#                   (nota_fonte explica o que foi tentado e quando)
+#   valores_validos (categorico) / situacoes (percentual: informado | sem_amostra)
+#   rotulos_valores (categorico) como exibir cada valor válido
+#   serie           true = um valor por ano (moeda/percentual); false = estado atual
+#   fonte_padrao    fonte a citar nos registros manuais desse campo
+#   kpi             {valor, rotulo} — campo que alimenta um KPI do topo: conta os
+#                   municípios com o `valor` dado, entre os verificados
+#
+# Chave opcional do programa:
+#   modulo_automatico  nome de um bloco que o ETL monta sozinho a partir das fontes
+#                   (hoje só "cnca": PDDE-CNCA por escola, repasse ao Estado, FUNPAES);
+#                   o painel desenha os cards desse bloco ao lado dos campos
+# ---------------------------------------------------------------------------
+esquema: 1
+
+programas:
+  - id: cnca
+    nome: "CNCA — Compromisso Nacional Criança Alfabetizada"
+    descricao: >-
+      Política do MEC (Decreto 11.556/2023), em regime de colaboração com estados
+      e municípios, para garantir a alfabetização de todas as crianças até o fim
+      do 2º ano do ensino fundamental (meta 5 do PNE). Adesão voluntária, pelo
+      SIMEC; implica elaborar e publicar uma Política Municipal de Alfabetização
+      em até 90 dias.
+    fundo_repasse: "FNDE: PDDE às escolas (plano orçamentário 000C) e apoio ao Estado (ação 0509, PO 0014); bolsas da Renalfa aos articuladores (Portaria MEC 1.774/2023); no ES, via PAES/FUNPAES"
+    acesso: hibrido
+    granularidade: municipio
+    modulo_automatico: cnca
+    referencias:
+      - rotulo: "INEP — Avaliação da Alfabetização: resultados e metas por município (edição 2025)"
+        url: "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/avaliacao-da-alfabetizacao/resultados/2025"
+        nota: "Fonte do ICA. A planilha oficial é baixada e verificada por SHA-256 (etl/ica.py); os 78 municípios do ES têm valor em 2023, 2024 e 2025."
+      - rotulo: "painel-alfabetizacao-cgu (Luiz Fernando Maibashi, MIT)"
+        url: "https://github.com/luizmaibashi/painel-alfabetizacao-cgu"
+        nota: "De onde vieram a URL, o SHA-256 e a leitura da planilha do ICA. Licença MIT; crédito no README."
+      - rotulo: "Decreto 11.556/2023 — institui o CNCA"
+        url: "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/decreto/d11556.htm"
+        nota: "Adesão (arts. 6–8), apoio financeiro supletivo (arts. 9 e 11), governança (arts. 13–23), avaliação (arts. 30–33)."
+      - rotulo: "Painel de Monitoramento do CNCA (MEC)"
+        url: "https://www.gov.br/mec/pt-br/centrais-de-conteudo/paineis-de-monitoramento-e-indicadores/painel-monitoramento-cnca"
+        nota: "Acesso manual. O gov.br responde 429/CAPTCHA a acesso automatizado; sem API pública confirmada. Fonte sugerida para a adesão."
+      - rotulo: "Portal da Transparência (CGU) — transferências (fonte do repasse do CNCA)"
+        url: "https://portaldatransparencia.gov.br/download-de-dados/transferencias"
+        nota: "Download mensal em lote, sem token. O CNCA é identificado pelo plano orçamentário (000C às escolas; 0014 ao Estado)."
+      - rotulo: "FNDE — dados abertos (redireciona ao dados.gov.br)"
+        url: "https://www.fnde.gov.br/dadosabertos/"
+        nota: "Testado em 2026-09-22 e 2026-09-23: a API do dados.gov.br exige token (HTTP 401) e não há recorte 'Alfabetização/CNCA' consultável sem credencial. O recorte do PDDE-CNCA vem da CGU, pelo plano orçamentário."
+      - rotulo: "PAES e FUNPAES (SEDU/ES)"
+        url: "https://paes.sedu.es.gov.br/funpaes"
+        nota: "No ES, o CNCA é implementado dentro do Pacto pela Aprendizagem (Lei 10.631/2017); o FUNPAES (Lei 10.787/2017) repassa recursos estaduais aos municípios."
+      - rotulo: "Relatório de levantamento do CNCA — TCE-PB (dez/2024)"
+        url: "https://tce.pb.gov.br/wp-content/uploads/2024/12/RELATRIODELEVANTAMENTOCNCA2.pdf"
+        nota: "Referência metodológica: questionário aos 223 municípios paraibanos (100% de resposta) e matriz com oito riscos priorizados — origem do checklist de governança desta página."
+    indicador_meta:
+      id: ica
+      rotulo: "ICA — Indicador Criança Alfabetizada (% de alunos da rede municipal alfabetizados ao fim do 2º ano)"
+      fonte: "INEP — Avaliação da Alfabetização, planilha oficial de resultados e metas por município"
+      limiar_pontos: 743
+      nota_limiar: >-
+        Corte confirmado na aba "Variáveis" da planilha do INEP: "percentual de
+        alunos acima de 743 pontos na escala Saeb" (Pesquisa Alfabetiza Brasil,
+        Inep/MEC 2023). O ICA é o indicador oficial de meta do CNCA e vem com a
+        meta pactuada de cada município para cada ano até 2030.
+      nota_rodape: >-
+        O ICA não é o Saeb amostral: é publicado município a município, com
+        participação de 90% a 100% dos alunos no ES. Município sem valor na
+        planilha aparece como "sem dado publicado" — nunca como 0%. Comparar
+        municípios de estados diferentes não é recomendado (cada edição tem sua
+        régua); aqui a comparação é só dentro do ES e de cada município com a
+        sua própria meta.
+    criterios_repasse:
+      declarados:
+        - "proporção de crianças não alfabetizadas"
+        - "perfil socioeconômico, étnico-racial e de gênero"
+        - "crianças com deficiência"
+      nota: >-
+        O MEC não detalha publicamente os pesos de cada critério. A página cruza
+        o critério declarado (ICA baixo ou em queda) com o valor recebido e mostra
+        o resultado como achado a investigar — não recalcula nem infere a fórmula
+        do repasse. O TCE-PB apontou o mesmo risco (risco 4: focalização não
+        equitativa, "não aplicação dos critérios estabelecidos no decreto").
+    campos:
+      - id: adesao
+        rotulo: "Adesão municipal"
+        tipo: categorico
+        origem: manual
+        disponibilidade: sem_serie_automatizavel
+        nota_fonte: >-
+          Não há série temporal automatizável. Registrar a partir do Painel de
+          Monitoramento do CNCA (consulta manual), do termo de adesão no SIMEC
+          (cópia obtida do município) ou de ofício à SEDU-ES.
+        valores_validos: [aderido, nao_aderido]
+        rotulos_valores: {aderido: "Aderido", nao_aderido: "Não aderido"}
+        serie: false
+        fonte_padrao: "Painel de Monitoramento do CNCA (MEC)"
+        kpi: {valor: aderido, rotulo: "Municípios aderidos ao CNCA"}
+
+      - id: repasse
+        rotulo: "Repasse do CNCA às escolas do município (PDDE-CNCA)"
+        tipo: moeda
+        origem: api
+        disponibilidade: automatico
+        fonte_automatica: pdde_cnca
+        nota_fonte: >-
+          Automático desde 2026-09-22. O recorte existe: nas transferências
+          federais publicadas pela CGU, o CNCA tem PLANO ORÇAMENTÁRIO próprio —
+          ação 0515 (PDDE), PO 000C "PDDE - Compromisso Nacional Criança
+          Alfabetizada", pago escola a escola às unidades executoras (conselhos
+          escolares). Soma dos repasses às escolas do município no exercício. O
+          antecessor (PO 0007, "PDDE - Alfabetização", 2021–2022) e o repasse do
+          CNCA ao Estado (ação 0509, PO 0014) aparecem à parte. O CKAN do FNDE
+          (dados.gov.br) foi testado em 2026-09-23 e exige token (401): não há
+          recorte "Alfabetização" consultável sem credencial — pendência de ofício
+          ao FNDE se a auditoria precisar da liberação por escola com data.
+        serie: true
+        fonte_padrao: "CGU — transferências do FNDE, ação 0515, plano orçamentário 000C"
+
+      - id: ica
+        rotulo: "ICA — % de alunos alfabetizados (rede municipal, 2º ano)"
+        tipo: percentual
+        origem: api
+        disponibilidade: automatico
+        fonte_automatica: ica
+        nota_fonte: >-
+          Automático desde 2026-09-23. Planilha oficial do INEP da edição 2025,
+          com as taxas de 2023, 2024 e 2025 e as metas 2024–2030, verificada por
+          SHA-256 (etl/ica.py). Substitui o campo manual "Saeb 2º ano" das versões
+          anteriores: o ICA é o indicador oficial de meta do CNCA e já vem por
+          município.
+        situacoes: [informado, sem_dado]
+        serie: true
+        fonte_padrao: "INEP — Avaliação da Alfabetização (planilha oficial)"
+
+      - id: articuladores_bolsa
+        rotulo: "Articuladores municipais com bolsa da Renalfa"
+        tipo: quantidade
+        origem: manual
+        disponibilidade: sem_fonte_carregada
+        nota_fonte: >-
+          Sem fonte de dado aberto identificada (2026-09-23): a designação dos
+          articuladores saiu em portarias SEB/MEC (47, 56 e 62/2023) e as bolsas
+          são regidas pela Portaria MEC 1.774/2023, mas não há base consultável por
+          município. Preencher por ofício à SEDU-ES ou questionário ao município
+          — mesmo caminho do levantamento do TCE-PB. Zero é resposta válida
+          ("verificou e não há"); ausência de registro é "não verificado".
+        serie: true
+        fonte_padrao: "Ofício à SEDU-ES / questionário ao município"
+
+    # Roteiro de verificação em campo. Pré-populado a partir da matriz de oito riscos
+    # priorizados pelo TCE-PB (relatório de levantamento do CNCA, seção 5) e dos
+    # elementos do Decreto 11.556/2023. O auditor marca cada item na página
+    # (atende / não atende / não se aplica); o estado fica no navegador e sai no CSV.
+    checklist_governanca:
+      - id: termo_adesao
+        texto: "Termo de adesão ao CNCA (SIMEC) localizado e arquivado como evidência"
+        referencia: "Decreto 11.556/2023, arts. 6–8; TCE-PB usou cópias do termo como evidência (seção 4.1)"
+      - id: politica_propria
+        texto: "Política Municipal de Alfabetização própria elaborada e publicada (prazo de 90 dias após a adesão)"
+        referencia: "TCE-PB, risco 2 — 52,02% dos municípios paraibanos não a possuíam"
+      - id: articulador_ativo
+        texto: "Articulador municipal da Renalfa designado, com agenda regular com a secretaria e apoio técnico efetivo"
+        referencia: "TCE-PB, risco 1 — governança não consolidada; agenda mensal em 34,08%, semanal em 29,15%, três municípios sem contato"
+      - id: orcamento_identificado
+        texto: "Ações de alfabetização identificadas de forma específica no orçamento (PPA/LOA), sem contingenciamento dos recursos do CNCA"
+        referencia: "TCE-PB, risco 3 — só 18,83% relataram aumento orçamentário de 2023 para 2024 pela adesão"
+      - id: pdde_cnca_regular
+        texto: "Escolas com conselho escolar ativo e adimplentes no PDDE; PDDE-CNCA recebido e com prestação de contas ao FNDE em dia"
+        referencia: "TCE-PB, seção 4.2 — 56,05% relataram receber PDDE no âmbito do CNCA, 50,67% dentro do cronograma; conclusão II.1.c"
+      - id: focalizacao
+        texto: "Recursos e ações distribuídos entre as escolas considerando as diferenças nas taxas de não alfabetizados (critérios do decreto)"
+        referencia: "TCE-PB, risco 4 — focalização não equitativa"
+      - id: avaliacao_alinhada
+        texto: "Sistema próprio de avaliação periódica alinhado à escala do Saeb (corte 743) e cobrindo leitura, escrita, fluência e matemática"
+        referencia: "TCE-PB, risco 6 — 31,39% tinham sistema próprio; leitura 30,49%, escrita 26,91%, fluência 25,11%, matemática 28,70%"
+      - id: avaliacao_gera_acao
+        texto: "Resultados das avaliações formativas desencadeiam recomposição de aprendizagem (reforço, monitoria, retomada de conteúdos)"
+        referencia: "TCE-PB, risco 5 — resultados sem ação de recomposição"
+      - id: plano_formacao
+        texto: "Plano municipal de formação continuada em alfabetização para professores, técnicos e gestores, além do PATE/AVAMEC"
+        referencia: "TCE-PB, risco 7 — só 34,08% declararam possuir plano próprio"
+      - id: comite_intersetorial
+        texto: "Comitê ou grupo de trabalho intersetorial (saúde, assistência, segurança) com foco em alfabetização"
+        referencia: "TCE-PB, risco 8 — apenas 12,56% tinham comitê intersetorial voltado à alfabetização; 39,46% nenhum"

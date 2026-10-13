@@ -1,0 +1,301 @@
+# ---------------------------------------------------------------------------
+# Dados MANUAIS — tudo que não vem de API.
+#
+# Regras (o ETL as aplica e PARA se alguma for violada):
+#   * todo registro com valor ou situação exige `fonte` e `verificado_em`
+#     (AAAA-MM-DD, a data em que VOCÊ consultou a fonte);
+#   * `valor: null` sem situação = marcador "ainda não consultado". Aparece no
+#     dashboard como "sem dado carregado" — nunca como zero;
+#   * campos em série (articuladores_bolsa, MDE) exigem `ano`;
+#   * cod_ibge precisa ser um dos 78 municípios do ES.
+#
+# Nada aqui foi preenchido pelo pipeline: os valores são da fonte, digitados por
+# quem consultou. Os campos e valores aceitos estão em programas.yaml.
+# ---------------------------------------------------------------------------
+esquema: 1
+
+financiamento_geral:
+  # Percentual aplicado em MDE sobre a receita de impostos e transferências
+  # (art. 212 da CF; mínimo 25%). O SICONFI não publica o Anexo 08 por API, então
+  # o dado legal vem do SIOPE (consulta manual) ou do RREO Anexo 08 em PDF.
+  # Registrar UM item por município e ano:
+  #   - {cod_ibge: <7 dígitos>, ano: <AAAA>, valor: <percentual 0-100>,
+  #      fonte: "<onde consultou>", verificado_em: <AAAA-MM-DD>}
+  mde_aplicado_pct: []
+
+programas:
+  cnca:
+    # Adesão ao CNCA: valor `aderido` ou `nao_aderido`.
+    # Fonte sugerida: Painel de Monitoramento do CNCA (MEC) ou ofício à SEDU/ES.
+    adesao:
+      - {cod_ibge: 3200102, valor: null, fonte: null, verificado_em: null}  # Afonso Cláudio
+      - {cod_ibge: 3200136, valor: null, fonte: null, verificado_em: null}  # Águia Branca
+      - {cod_ibge: 3200169, valor: null, fonte: null, verificado_em: null}  # Água Doce do Norte
+      - {cod_ibge: 3200201, valor: null, fonte: null, verificado_em: null}  # Alegre
+      - {cod_ibge: 3200300, valor: null, fonte: null, verificado_em: null}  # Alfredo Chaves
+      - {cod_ibge: 3200359, valor: null, fonte: null, verificado_em: null}  # Alto Rio Novo
+      - {cod_ibge: 3200409, valor: null, fonte: null, verificado_em: null}  # Anchieta
+      - {cod_ibge: 3200508, valor: null, fonte: null, verificado_em: null}  # Apiacá
+      - {cod_ibge: 3200607, valor: null, fonte: null, verificado_em: null}  # Aracruz
+      - {cod_ibge: 3200706, valor: null, fonte: null, verificado_em: null}  # Atilio Vivacqua
+      - {cod_ibge: 3200805, valor: null, fonte: null, verificado_em: null}  # Baixo Guandu
+      - {cod_ibge: 3200904, valor: null, fonte: null, verificado_em: null}  # Barra de São Francisco
+      - {cod_ibge: 3201001, valor: null, fonte: null, verificado_em: null}  # Boa Esperança
+      - {cod_ibge: 3201100, valor: null, fonte: null, verificado_em: null}  # Bom Jesus do Norte
+      - {cod_ibge: 3201159, valor: null, fonte: null, verificado_em: null}  # Brejetuba
+      - {cod_ibge: 3201209, valor: null, fonte: null, verificado_em: null}  # Cachoeiro de Itapemirim
+      - {cod_ibge: 3201308, valor: null, fonte: null, verificado_em: null}  # Cariacica
+      - {cod_ibge: 3201407, valor: null, fonte: null, verificado_em: null}  # Castelo
+      - {cod_ibge: 3201506, valor: null, fonte: null, verificado_em: null}  # Colatina
+      - {cod_ibge: 3201605, valor: null, fonte: null, verificado_em: null}  # Conceição da Barra
+      - {cod_ibge: 3201704, valor: null, fonte: null, verificado_em: null}  # Conceição do Castelo
+      - {cod_ibge: 3201803, valor: null, fonte: null, verificado_em: null}  # Divino de São Lourenço
+      - {cod_ibge: 3201902, valor: null, fonte: null, verificado_em: null}  # Domingos Martins
+      - {cod_ibge: 3202009, valor: null, fonte: null, verificado_em: null}  # Dores do Rio Preto
+      - {cod_ibge: 3202108, valor: null, fonte: null, verificado_em: null}  # Ecoporanga
+      - {cod_ibge: 3202207, valor: null, fonte: null, verificado_em: null}  # Fundão
+      - {cod_ibge: 3202256, valor: null, fonte: null, verificado_em: null}  # Governador Lindenberg
+      - {cod_ibge: 3202306, valor: null, fonte: null, verificado_em: null}  # Guaçuí
+      - {cod_ibge: 3202405, valor: null, fonte: null, verificado_em: null}  # Guarapari
+      - {cod_ibge: 3202454, valor: null, fonte: null, verificado_em: null}  # Ibatiba
+      - {cod_ibge: 3202504, valor: null, fonte: null, verificado_em: null}  # Ibiraçu
+      - {cod_ibge: 3202553, valor: null, fonte: null, verificado_em: null}  # Ibitirama
+      - {cod_ibge: 3202603, valor: null, fonte: null, verificado_em: null}  # Iconha
+      - {cod_ibge: 3202652, valor: null, fonte: null, verificado_em: null}  # Irupi
+      - {cod_ibge: 3202702, valor: null, fonte: null, verificado_em: null}  # Itaguaçu
+      - {cod_ibge: 3202801, valor: null, fonte: null, verificado_em: null}  # Itapemirim
+      - {cod_ibge: 3202900, valor: null, fonte: null, verificado_em: null}  # Itarana
+      - {cod_ibge: 3203007, valor: null, fonte: null, verificado_em: null}  # Iúna
+      - {cod_ibge: 3203056, valor: null, fonte: null, verificado_em: null}  # Jaguaré
+      - {cod_ibge: 3203106, valor: null, fonte: null, verificado_em: null}  # Jerônimo Monteiro
+      - {cod_ibge: 3203130, valor: null, fonte: null, verificado_em: null}  # João Neiva
+      - {cod_ibge: 3203163, valor: null, fonte: null, verificado_em: null}  # Laranja da Terra
+      - {cod_ibge: 3203205, valor: null, fonte: null, verificado_em: null}  # Linhares
+      - {cod_ibge: 3203304, valor: null, fonte: null, verificado_em: null}  # Mantenópolis
+      - {cod_ibge: 3203320, valor: null, fonte: null, verificado_em: null}  # Marataízes
+      - {cod_ibge: 3203346, valor: null, fonte: null, verificado_em: null}  # Marechal Floriano
+      - {cod_ibge: 3203353, valor: null, fonte: null, verificado_em: null}  # Marilândia
+      - {cod_ibge: 3203403, valor: null, fonte: null, verificado_em: null}  # Mimoso do Sul
+      - {cod_ibge: 3203502, valor: null, fonte: null, verificado_em: null}  # Montanha
+      - {cod_ibge: 3203601, valor: null, fonte: null, verificado_em: null}  # Mucurici
+      - {cod_ibge: 3203700, valor: null, fonte: null, verificado_em: null}  # Muniz Freire
+      - {cod_ibge: 3203809, valor: null, fonte: null, verificado_em: null}  # Muqui
+      - {cod_ibge: 3203908, valor: null, fonte: null, verificado_em: null}  # Nova Venécia
+      - {cod_ibge: 3204005, valor: null, fonte: null, verificado_em: null}  # Pancas
+      - {cod_ibge: 3204054, valor: null, fonte: null, verificado_em: null}  # Pedro Canário
+      - {cod_ibge: 3204104, valor: null, fonte: null, verificado_em: null}  # Pinheiros
+      - {cod_ibge: 3204203, valor: null, fonte: null, verificado_em: null}  # Piúma
+      - {cod_ibge: 3204252, valor: null, fonte: null, verificado_em: null}  # Ponto Belo
+      - {cod_ibge: 3204302, valor: null, fonte: null, verificado_em: null}  # Presidente Kennedy
+      - {cod_ibge: 3204351, valor: null, fonte: null, verificado_em: null}  # Rio Bananal
+      - {cod_ibge: 3204401, valor: null, fonte: null, verificado_em: null}  # Rio Novo do Sul
+      - {cod_ibge: 3204500, valor: null, fonte: null, verificado_em: null}  # Santa Leopoldina
+      - {cod_ibge: 3204559, valor: null, fonte: null, verificado_em: null}  # Santa Maria de Jetibá
+      - {cod_ibge: 3204609, valor: null, fonte: null, verificado_em: null}  # Santa Teresa
+      - {cod_ibge: 3204658, valor: null, fonte: null, verificado_em: null}  # São Domingos do Norte
+      - {cod_ibge: 3204708, valor: null, fonte: null, verificado_em: null}  # São Gabriel da Palha
+      - {cod_ibge: 3204807, valor: null, fonte: null, verificado_em: null}  # São José do Calçado
+      - {cod_ibge: 3204906, valor: null, fonte: null, verificado_em: null}  # São Mateus
+      - {cod_ibge: 3204955, valor: null, fonte: null, verificado_em: null}  # São Roque do Canaã
+      - {cod_ibge: 3205002, valor: null, fonte: null, verificado_em: null}  # Serra
+      - {cod_ibge: 3205010, valor: null, fonte: null, verificado_em: null}  # Sooretama
+      - {cod_ibge: 3205036, valor: null, fonte: null, verificado_em: null}  # Vargem Alta
+      - {cod_ibge: 3205069, valor: null, fonte: null, verificado_em: null}  # Venda Nova do Imigrante
+      - {cod_ibge: 3205101, valor: null, fonte: null, verificado_em: null}  # Viana
+      - {cod_ibge: 3205150, valor: null, fonte: null, verificado_em: null}  # Vila Pavão
+      - {cod_ibge: 3205176, valor: null, fonte: null, verificado_em: null}  # Vila Valério
+      - {cod_ibge: 3205200, valor: null, fonte: null, verificado_em: null}  # Vila Velha
+      - {cod_ibge: 3205309, valor: null, fonte: null, verificado_em: null}  # Vitória
+
+    # Repasse do CNCA: AUTOMÁTICO desde 2026-09-22 (CGU, ação 0515, plano orçamentário
+    # 000C — escola a escola). Não se registra aqui: o campo é de API e o ETL recusaria.
+
+    # Crianças alfabetizadas (%), Saeb 2º ano. Um item por município e edição do Saeb:
+    #   - {cod_ibge: <7 dígitos>, ano: <AAAA>, valor: <percentual 0-100>, fonte: "...", verificado_em: <AAAA-MM-DD>}
+    # Município sem resultado publicado por falta de amostra (NÃO é 0%):
+    #   - {cod_ibge: <7 dígitos>, ano: <AAAA>, situacao: sem_amostra, fonte: "...", verificado_em: <AAAA-MM-DD>}
+    # Articuladores municipais da Renalfa com bolsa (Portaria MEC 1.774/2023): QUANTIDADE por
+    # exercício. Sem fonte aberta por município (2026-09-23) — preencher por ofício à SEDU-ES ou
+    # questionário ao município. Zero é resposta válida ("verificou e não há"); marcador com
+    # valor null é "não verificado". Registrar com `ano`, `fonte` e `verificado_em`.
+    articuladores_bolsa:
+      - {cod_ibge: 3200102, ano: null, valor: null, fonte: null, verificado_em: null}  # Afonso Cláudio
+      - {cod_ibge: 3200136, ano: null, valor: null, fonte: null, verificado_em: null}  # Águia Branca
+      - {cod_ibge: 3200169, ano: null, valor: null, fonte: null, verificado_em: null}  # Água Doce do Norte
+      - {cod_ibge: 3200201, ano: null, valor: null, fonte: null, verificado_em: null}  # Alegre
+      - {cod_ibge: 3200300, ano: null, valor: null, fonte: null, verificado_em: null}  # Alfredo Chaves
+      - {cod_ibge: 3200359, ano: null, valor: null, fonte: null, verificado_em: null}  # Alto Rio Novo
+      - {cod_ibge: 3200409, ano: null, valor: null, fonte: null, verificado_em: null}  # Anchieta
+      - {cod_ibge: 3200508, ano: null, valor: null, fonte: null, verificado_em: null}  # Apiacá
+      - {cod_ibge: 3200607, ano: null, valor: null, fonte: null, verificado_em: null}  # Aracruz
+      - {cod_ibge: 3200706, ano: null, valor: null, fonte: null, verificado_em: null}  # Atilio Vivacqua
+      - {cod_ibge: 3200805, ano: null, valor: null, fonte: null, verificado_em: null}  # Baixo Guandu
+      - {cod_ibge: 3200904, ano: null, valor: null, fonte: null, verificado_em: null}  # Barra de São Francisco
+      - {cod_ibge: 3201001, ano: null, valor: null, fonte: null, verificado_em: null}  # Boa Esperança
+      - {cod_ibge: 3201100, ano: null, valor: null, fonte: null, verificado_em: null}  # Bom Jesus do Norte
+      - {cod_ibge: 3201159, ano: null, valor: null, fonte: null, verificado_em: null}  # Brejetuba
+      - {cod_ibge: 3201209, ano: null, valor: null, fonte: null, verificado_em: null}  # Cachoeiro de Itapemirim
+      - {cod_ibge: 3201308, ano: null, valor: null, fonte: null, verificado_em: null}  # Cariacica
+      - {cod_ibge: 3201407, ano: null, valor: null, fonte: null, verificado_em: null}  # Castelo
+      - {cod_ibge: 3201506, ano: null, valor: null, fonte: null, verificado_em: null}  # Colatina
+      - {cod_ibge: 3201605, ano: null, valor: null, fonte: null, verificado_em: null}  # Conceição da Barra
+      - {cod_ibge: 3201704, ano: null, valor: null, fonte: null, verificado_em: null}  # Conceição do Castelo
+      - {cod_ibge: 3201803, ano: null, valor: null, fonte: null, verificado_em: null}  # Divino de São Lourenço
+      - {cod_ibge: 3201902, ano: null, valor: null, fonte: null, verificado_em: null}  # Domingos Martins
+      - {cod_ibge: 3202009, ano: null, valor: null, fonte: null, verificado_em: null}  # Dores do Rio Preto
+      - {cod_ibge: 3202108, ano: null, valor: null, fonte: null, verificado_em: null}  # Ecoporanga
+      - {cod_ibge: 3202207, ano: null, valor: null, fonte: null, verificado_em: null}  # Fundão
+      - {cod_ibge: 3202256, ano: null, valor: null, fonte: null, verificado_em: null}  # Governador Lindenberg
+      - {cod_ibge: 3202306, ano: null, valor: null, fonte: null, verificado_em: null}  # Guaçuí
+      - {cod_ibge: 3202405, ano: null, valor: null, fonte: null, verificado_em: null}  # Guarapari
+      - {cod_ibge: 3202454, ano: null, valor: null, fonte: null, verificado_em: null}  # Ibatiba
+      - {cod_ibge: 3202504, ano: null, valor: null, fonte: null, verificado_em: null}  # Ibiraçu
+      - {cod_ibge: 3202553, ano: null, valor: null, fonte: null, verificado_em: null}  # Ibitirama
+      - {cod_ibge: 3202603, ano: null, valor: null, fonte: null, verificado_em: null}  # Iconha
+      - {cod_ibge: 3202652, ano: null, valor: null, fonte: null, verificado_em: null}  # Irupi
+      - {cod_ibge: 3202702, ano: null, valor: null, fonte: null, verificado_em: null}  # Itaguaçu
+      - {cod_ibge: 3202801, ano: null, valor: null, fonte: null, verificado_em: null}  # Itapemirim
+      - {cod_ibge: 3202900, ano: null, valor: null, fonte: null, verificado_em: null}  # Itarana
+      - {cod_ibge: 3203007, ano: null, valor: null, fonte: null, verificado_em: null}  # Iúna
+      - {cod_ibge: 3203056, ano: null, valor: null, fonte: null, verificado_em: null}  # Jaguaré
+      - {cod_ibge: 3203106, ano: null, valor: null, fonte: null, verificado_em: null}  # Jerônimo Monteiro
+      - {cod_ibge: 3203130, ano: null, valor: null, fonte: null, verificado_em: null}  # João Neiva
+      - {cod_ibge: 3203163, ano: null, valor: null, fonte: null, verificado_em: null}  # Laranja da Terra
+      - {cod_ibge: 3203205, ano: null, valor: null, fonte: null, verificado_em: null}  # Linhares
+      - {cod_ibge: 3203304, ano: null, valor: null, fonte: null, verificado_em: null}  # Mantenópolis
+      - {cod_ibge: 3203320, ano: null, valor: null, fonte: null, verificado_em: null}  # Marataízes
+      - {cod_ibge: 3203346, ano: null, valor: null, fonte: null, verificado_em: null}  # Marechal Floriano
+      - {cod_ibge: 3203353, ano: null, valor: null, fonte: null, verificado_em: null}  # Marilândia
+      - {cod_ibge: 3203403, ano: null, valor: null, fonte: null, verificado_em: null}  # Mimoso do Sul
+      - {cod_ibge: 3203502, ano: null, valor: null, fonte: null, verificado_em: null}  # Montanha
+      - {cod_ibge: 3203601, ano: null, valor: null, fonte: null, verificado_em: null}  # Mucurici
+      - {cod_ibge: 3203700, ano: null, valor: null, fonte: null, verificado_em: null}  # Muniz Freire
+      - {cod_ibge: 3203809, ano: null, valor: null, fonte: null, verificado_em: null}  # Muqui
+      - {cod_ibge: 3203908, ano: null, valor: null, fonte: null, verificado_em: null}  # Nova Venécia
+      - {cod_ibge: 3204005, ano: null, valor: null, fonte: null, verificado_em: null}  # Pancas
+      - {cod_ibge: 3204054, ano: null, valor: null, fonte: null, verificado_em: null}  # Pedro Canário
+      - {cod_ibge: 3204104, ano: null, valor: null, fonte: null, verificado_em: null}  # Pinheiros
+      - {cod_ibge: 3204203, ano: null, valor: null, fonte: null, verificado_em: null}  # Piúma
+      - {cod_ibge: 3204252, ano: null, valor: null, fonte: null, verificado_em: null}  # Ponto Belo
+      - {cod_ibge: 3204302, ano: null, valor: null, fonte: null, verificado_em: null}  # Presidente Kennedy
+      - {cod_ibge: 3204351, ano: null, valor: null, fonte: null, verificado_em: null}  # Rio Bananal
+      - {cod_ibge: 3204401, ano: null, valor: null, fonte: null, verificado_em: null}  # Rio Novo do Sul
+      - {cod_ibge: 3204500, ano: null, valor: null, fonte: null, verificado_em: null}  # Santa Leopoldina
+      - {cod_ibge: 3204559, ano: null, valor: null, fonte: null, verificado_em: null}  # Santa Maria de Jetibá
+      - {cod_ibge: 3204609, ano: null, valor: null, fonte: null, verificado_em: null}  # Santa Teresa
+      - {cod_ibge: 3204658, ano: null, valor: null, fonte: null, verificado_em: null}  # São Domingos do Norte
+      - {cod_ibge: 3204708, ano: null, valor: null, fonte: null, verificado_em: null}  # São Gabriel da Palha
+      - {cod_ibge: 3204807, ano: null, valor: null, fonte: null, verificado_em: null}  # São José do Calçado
+      - {cod_ibge: 3204906, ano: null, valor: null, fonte: null, verificado_em: null}  # São Mateus
+      - {cod_ibge: 3204955, ano: null, valor: null, fonte: null, verificado_em: null}  # São Roque do Canaã
+      - {cod_ibge: 3205002, ano: null, valor: null, fonte: null, verificado_em: null}  # Serra
+      - {cod_ibge: 3205010, ano: null, valor: null, fonte: null, verificado_em: null}  # Sooretama
+      - {cod_ibge: 3205036, ano: null, valor: null, fonte: null, verificado_em: null}  # Vargem Alta
+      - {cod_ibge: 3205069, ano: null, valor: null, fonte: null, verificado_em: null}  # Venda Nova do Imigrante
+      - {cod_ibge: 3205101, ano: null, valor: null, fonte: null, verificado_em: null}  # Viana
+      - {cod_ibge: 3205150, ano: null, valor: null, fonte: null, verificado_em: null}  # Vila Pavão
+      - {cod_ibge: 3205176, ano: null, valor: null, fonte: null, verificado_em: null}  # Vila Valério
+      - {cod_ibge: 3205200, ano: null, valor: null, fonte: null, verificado_em: null}  # Vila Velha
+      - {cod_ibge: 3205309, ano: null, valor: null, fonte: null, verificado_em: null}  # Vitória
+
+nivel3:
+  # Nível 3 — ONDE cada valor foi aplicado no detalhe (qual obra, qual fornecedor,
+  # qual escola). Não existe fonte nacional padronizada e automatizável para isso:
+  # o painel NÃO simula este nível com dados agregados. Ele aponta, por município,
+  # o portal da transparência (heterogêneo, sem padrão de dados) e, como próximo
+  # passo, os sistemas internos do TCE-ES de despesa por empenho/credor.
+  #
+  # Registre só link CONFERIDO (abriu e é o portal oficial do município):
+  #   - {cod_ibge: <7 dígitos>, url: "https://...", verificado_em: AAAA-MM-DD}
+  # `url: null` = ainda não cadastrado (o painel diz isso, sem inventar endereço).
+  #
+  # `api:` é a documentação da API do portal, quando o município publica uma. O
+  # pipeline NÃO a consulta: é um ponteiro para quem for buscar à mão o que o dado
+  # aberto do TCE-ES não traz (item de nota fiscal, lotação do servidor). Registrar
+  # `api` também exige `verificado_em`.
+  portais_transparencia:
+    - {cod_ibge: 3200102, url: null, verificado_em: null}  # Afonso Cláudio
+    - {cod_ibge: 3200136, url: null, verificado_em: null}  # Águia Branca
+    - {cod_ibge: 3200169, url: null, verificado_em: null}  # Água Doce do Norte
+    - {cod_ibge: 3200201, url: null, verificado_em: null}  # Alegre
+    - {cod_ibge: 3200300, url: null, verificado_em: null}  # Alfredo Chaves
+    - {cod_ibge: 3200359, url: null, verificado_em: null}  # Alto Rio Novo
+    - {cod_ibge: 3200409, url: null, verificado_em: null}  # Anchieta
+    - {cod_ibge: 3200508, url: null, verificado_em: null}  # Apiacá
+    - {cod_ibge: 3200607, url: null, verificado_em: null}  # Aracruz
+    - {cod_ibge: 3200706, url: null, verificado_em: null}  # Atilio Vivacqua
+    - {cod_ibge: 3200805, url: null, verificado_em: null}  # Baixo Guandu
+    - {cod_ibge: 3200904, url: null, verificado_em: null}  # Barra de São Francisco
+    - {cod_ibge: 3201001, url: null, verificado_em: null}  # Boa Esperança
+    - {cod_ibge: 3201100, url: null, verificado_em: null}  # Bom Jesus do Norte
+    - {cod_ibge: 3201159, url: null, verificado_em: null}  # Brejetuba
+    - {cod_ibge: 3201209, url: null, verificado_em: null}  # Cachoeiro de Itapemirim
+    - {cod_ibge: 3201308, url: null, verificado_em: null}  # Cariacica
+    - {cod_ibge: 3201407, url: null, verificado_em: null}  # Castelo
+    - {cod_ibge: 3201506, url: null, verificado_em: null}  # Colatina
+    - {cod_ibge: 3201605, url: null, verificado_em: null}  # Conceição da Barra
+    - {cod_ibge: 3201704, url: null, verificado_em: null}  # Conceição do Castelo
+    - {cod_ibge: 3201803, url: null, verificado_em: null}  # Divino de São Lourenço
+    - {cod_ibge: 3201902, url: null, verificado_em: null}  # Domingos Martins
+    - {cod_ibge: 3202009, url: null, verificado_em: null}  # Dores do Rio Preto
+    - {cod_ibge: 3202108, url: null, verificado_em: null}  # Ecoporanga
+    - {cod_ibge: 3202207, url: null, verificado_em: null}  # Fundão
+    - {cod_ibge: 3202256, url: null, verificado_em: null}  # Governador Lindenberg
+    - {cod_ibge: 3202306, url: null, verificado_em: null}  # Guaçuí
+    - {cod_ibge: 3202405, url: null, verificado_em: null}  # Guarapari
+    - {cod_ibge: 3202454, url: null, verificado_em: null}  # Ibatiba
+    - {cod_ibge: 3202504, url: null, verificado_em: null}  # Ibiraçu
+    - {cod_ibge: 3202553, url: null, verificado_em: null}  # Ibitirama
+    - {cod_ibge: 3202603, url: null, verificado_em: null}  # Iconha
+    - {cod_ibge: 3202652, url: null, verificado_em: null}  # Irupi
+    - {cod_ibge: 3202702, url: null, verificado_em: null}  # Itaguaçu
+    - {cod_ibge: 3202801, url: null, verificado_em: null}  # Itapemirim
+    - {cod_ibge: 3202900, url: null, verificado_em: null}  # Itarana
+    - {cod_ibge: 3203007, url: null, verificado_em: null}  # Iúna
+    - {cod_ibge: 3203056, url: null, verificado_em: null}  # Jaguaré
+    - {cod_ibge: 3203106, url: null, verificado_em: null}  # Jerônimo Monteiro
+    - {cod_ibge: 3203130, url: null, verificado_em: null}  # João Neiva
+    - {cod_ibge: 3203163, url: null, verificado_em: null}  # Laranja da Terra
+    - {cod_ibge: 3203205, url: null, verificado_em: null}  # Linhares
+    - {cod_ibge: 3203304, url: null, verificado_em: null}  # Mantenópolis
+    - {cod_ibge: 3203320, url: null, verificado_em: null}  # Marataízes
+    - {cod_ibge: 3203346, url: null, verificado_em: null}  # Marechal Floriano
+    - {cod_ibge: 3203353, url: null, verificado_em: null}  # Marilândia
+    - {cod_ibge: 3203403, url: null, verificado_em: null}  # Mimoso do Sul
+    - {cod_ibge: 3203502, url: null, verificado_em: null}  # Montanha
+    - {cod_ibge: 3203601, url: null, verificado_em: null}  # Mucurici
+    - {cod_ibge: 3203700, url: null, verificado_em: null}  # Muniz Freire
+    - {cod_ibge: 3203809, url: null, verificado_em: null}  # Muqui
+    - {cod_ibge: 3203908, url: null, verificado_em: null}  # Nova Venécia
+    - {cod_ibge: 3204005, url: null, verificado_em: null}  # Pancas
+    - {cod_ibge: 3204054, url: null, verificado_em: null}  # Pedro Canário
+    - {cod_ibge: 3204104, url: null, verificado_em: null}  # Pinheiros
+    - {cod_ibge: 3204203, url: null, verificado_em: null}  # Piúma
+    - {cod_ibge: 3204252, url: null, verificado_em: null}  # Ponto Belo
+    - {cod_ibge: 3204302, url: null, verificado_em: null}  # Presidente Kennedy
+    - {cod_ibge: 3204351, url: null, verificado_em: null}  # Rio Bananal
+    - {cod_ibge: 3204401, url: null, verificado_em: null}  # Rio Novo do Sul
+    - {cod_ibge: 3204500, url: null, verificado_em: null}  # Santa Leopoldina
+    - {cod_ibge: 3204559, url: null, verificado_em: null}  # Santa Maria de Jetibá
+    - {cod_ibge: 3204609, url: null, verificado_em: null}  # Santa Teresa
+    - {cod_ibge: 3204658, url: null, verificado_em: null}  # São Domingos do Norte
+    - {cod_ibge: 3204708, url: null, verificado_em: null}  # São Gabriel da Palha
+    - {cod_ibge: 3204807, url: null, verificado_em: null}  # São José do Calçado
+    - {cod_ibge: 3204906, url: null, verificado_em: null}  # São Mateus
+    - {cod_ibge: 3204955, url: null, verificado_em: null}  # São Roque do Canaã
+    - {cod_ibge: 3205002, url: null, verificado_em: null}  # Serra
+    - {cod_ibge: 3205010, url: null, verificado_em: null}  # Sooretama
+    - {cod_ibge: 3205036, url: null, verificado_em: null}  # Vargem Alta
+    - {cod_ibge: 3205069, url: null, verificado_em: null}  # Venda Nova do Imigrante
+    - {cod_ibge: 3205101, url: null, verificado_em: null}  # Viana
+    - {cod_ibge: 3205150, url: null, verificado_em: null}  # Vila Pavão
+    - {cod_ibge: 3205176, url: null, verificado_em: null}  # Vila Valério
+    - {cod_ibge: 3205200, url: null, verificado_em: null}  # Vila Velha
+    # Vitória: portal com API REST documentada e aberta (sem token). Endpoints que
+    # cobrem lacunas do dado aberto do TCE-ES, conferidos em 22/09/2026:
+    # `api/despesa/fornecedor?exercicio=&nomeCPFCNPJ=` (despesa por favorecido),
+    # `api/Licitacao/{id}/LoteItens` (itens da licitação) e `api/pessoal/lotacao`
+    # (lotação do servidor — o vínculo no TCE-ES não a traz).
+    - {cod_ibge: 3205309, url: "https://transparencia.vitoria.es.gov.br/",
+       api: "https://wstransparencia.vitoria.es.gov.br/help/", verificado_em: 2026-09-22,
+       observacao: "API REST aberta, sem token; traz despesa por favorecido, itens de licitação e lotação de pessoal"}  # Vitória

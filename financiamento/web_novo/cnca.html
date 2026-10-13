@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CNCA — evidências da fiscalização</title>
+<meta name="description" content="Papel de trabalho da fiscalização do financiamento do Compromisso Nacional Criança Alfabetizada nos 78 municípios do Espírito Santo: indícios, não achados, com a fonte de cada evidência.">
+<!--
+  Gerado por `python -m financiamento.build_novo_dashboard` a partir de
+  financiamento/web_novo/ e de dados/processado/dataset_cnca.json.
+  NÃO edite este arquivo: edite os fontes em web_novo/ e gere de novo.
+-->
+<style>__DESIGN_TOKENS_CSS__</style>
+<style>__ESTILO_CSS__</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+<!-- Um só cabeçalho de página (landmark banner): identificação, trilha e título. -->
+<header>
+  <div class="barra-tcees">
+    <div class="wrap linha">
+      <span class="marca">Painel de Controle <span class="orgao">· Tribunal de Contas do Estado do Espírito Santo</span></span>
+      <span class="proto">Protótipo — não integrado ao Painel de Controle</span>
+    </div>
+  </div>
+  <nav class="migalhas" aria-label="Você está em">
+    <ol class="wrap" id="trilha"></ol>
+  </nav>
+  <div class="wrap topo">
+    <h1>CNCA — evidências da fiscalização do financiamento</h1>
+    <p class="lead">O papel de trabalho da fiscalização do Compromisso Nacional Criança Alfabetizada nos 78 municípios do Espírito Santo: as 6 questões da matriz e seus 23 achados, o mapa município × achado, a ficha de cada município e o que o dado público já responde de cada pergunta do questionário.</p>
+    <p class="callout info" role="note"><strong>Nada aqui é achado de auditoria — é indício.</strong> Cada célula leva ao registro que a originou; quem transforma um indício em achado é o auditor, com o documento na mão.</p>
+    <p class="carimbo" id="carimbo"></p>
+  </div>
+</header>
+
+<nav class="visoes" aria-label="Visões do papel de trabalho">
+  <div class="wrap"><ul id="nav-visoes"></ul></div>
+</nav>
+
+<div class="contexto" id="contexto" role="region" aria-label="Recorte e filtros">
+  <div class="wrap" id="contexto-wrap"></div>
+</div>
+
+<main class="wrap" id="conteudo" tabindex="-1">
+  <p class="carregando" role="status">Carregando o papel de trabalho…</p>
+</main>
+
+<footer class="rodape">
+  <div class="wrap"><p>Papel de trabalho da fiscalização do financiamento do CNCA — protótipo, não integrado ao Painel de Controle do TCE-ES. O painel de financiamento da educação fica em <a href="novo_dashboard.html">novo_dashboard.html</a>, na mesma pasta.</p></div>
+</footer>
+
+<dialog id="dialogo-fonte" class="dialogo-fonte" aria-labelledby="fonte-titulo"></dialog>
+<dialog id="dialogo-termo" class="dialogo-fonte pequeno" aria-labelledby="termo-titulo"></dialog>
+
+<!-- Só o que esta página usa do dataset geral: metadados de coleta e a lista de entes. -->
+<script id="dataset" type="application/json">__DATASET_JSON__</script>
+<script id="dataset-cnca" type="application/json">__DATASET_CNCA_JSON__</script>
+<script>__NUCLEO_JS__</script>
+<script>__GLOSSARIO_JS__</script>
+<script>__DADOS_JS__</script>
+<script>__FONTE_JS__</script>
+<script>__CNCA_JS__</script>
+</body>
+</html>

@@ -1,0 +1,458 @@
+/* ===========================================================================
+   Estilo do painel de financiamento — identidade visual do Painel de Controle
+   do TCE-ES.
+   ===========================================================================
+
+   TODOS os valores visuais vêm de `design-tokens.css`, que é concatenado antes
+   deste arquivo na montagem (build_dashboard.py). Nenhum hex, raio, sombra ou
+   família de fonte solto aqui: se faltar um valor, o lugar de acrescentá-lo é
+   o arquivo de tokens, onde cada um traz a evidência de onde foi extraído.
+
+   A ponte no fim de design-tokens.css mapeia os nomes curtos que este arquivo
+   já usava (--ink, --surface, --grid, --accent...) para os tokens do TCE-ES.
+   --------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------- base */
+* { box-sizing: border-box; }
+/* O painel define `html { font-size:14px }` — toda a escala rem daqui parte
+   dessa base, e não dos 16px do navegador, para bater com a página hospedeira. */
+html { -webkit-text-size-adjust: 100%; font-size: var(--tc-base); }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font-family: var(--tc-fonte); font-size: var(--tc-txt-base);
+  font-weight: var(--tc-peso-corpo); line-height: 1.5;
+}
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+h1 { font-size: var(--tc-txt-3xl); line-height: 1.2; margin: 0 0 4px; font-weight: var(--tc-peso-forte); color: var(--tc-marinho); }
+h2 { font-size: var(--tc-txt-xl); margin: 0 0 4px; font-weight: var(--tc-peso-forte); color: var(--tc-marinho); }
+h3 { font-size: var(--tc-txt-lg); margin: 0 0 4px; font-weight: var(--tc-peso-medio); color: var(--tc-ardosia); }
+p { margin: 0 0 8px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+/* O painel marca foco com anel de sombra (--focus-ring do tema). Aqui o anel
+   fica só nos controles: em `#conteudo`, que recebe foco programático a cada
+   troca de visão, um anel de 0.2rem contornaria a página inteira. */
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; border-radius: var(--tc-raio-ctrl); }
+button:focus-visible, select:focus-visible, input:focus-visible,
+a:focus-visible, summary:focus-visible { box-shadow: var(--tc-foco); }
+#conteudo:focus, #conteudo:focus-visible { outline: none; box-shadow: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.muted { color: var(--ink-2); }
+.small { font-size: var(--tc-txt-nota); }
+.skip { position: absolute; left: -999px; top: 0; background: var(--surface); padding: 8px 12px; z-index: 40; }
+.skip:focus { left: 8px; top: 8px; }
+
+/* ------------------------------------------------- barra de identificação
+   Equivalente ao `.menu-topo-container` do painel: fundo branco, 55px, texto
+   no azul-marinho da marca, peso 700. Sem o logo do TCE-ES — o dashboard é
+   autocontido e não redistribui a marca (relatorio.md §6). */
+.barra-tcees { background: var(--tc-superficie); border-bottom: 1px solid var(--tc-borda); }
+.barra-tcees .linha { display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; min-height: var(--tc-menu-alt); }
+.barra-tcees .marca { display: flex; align-items: baseline; gap: 8px;
+  color: var(--tc-marinho); font-weight: var(--tc-peso-forte); font-size: var(--tc-txt-base); }
+.barra-tcees .marca .orgao { color: var(--tc-ardosia); font-weight: var(--tc-peso-corpo); }
+.barra-tcees .proto { color: var(--tc-texto-fraco); font-size: var(--tc-txt-sm);
+  font-weight: var(--tc-peso-medio); white-space: nowrap; }
+
+/* ------------------------------------------------------------ breadcrumb
+   Réplica de `#breadcrumb .breadcrumb` do painel: fundo #f9f9f9, régua
+   inferior de 1px, itens separados por BORDA VERTICAL (não por chevron),
+   14px peso 600, line-height 42px, item de nível já percorrido esmaecido
+   em opacity .4. Fica grudado no topo, como no painel. */
+.migalhas { background: var(--tc-cabecalho); border-bottom: 1px solid var(--tc-borda);
+  position: sticky; top: 0; z-index: 30; }
+.migalhas ol { display: flex; flex-wrap: nowrap; overflow-x: auto;
+  margin: 0; padding: 0; list-style: none; }
+.migalhas li { display: flex; align-items: center; color: var(--tc-marinho);
+  border-right: 1px solid var(--tc-borda); padding: 0 10px; min-width: 20px;
+  font-size: var(--tc-txt-base); font-weight: var(--tc-peso-medio);
+  line-height: var(--tc-crumb-alt); white-space: nowrap; }
+.migalhas li span { color: var(--tc-ardosia); overflow: hidden; text-overflow: ellipsis; }
+.migalhas li.percorrido > * { opacity: .4; }
+.migalhas li.atual span { color: var(--tc-marinho); font-weight: var(--tc-peso-forte); }
+
+/* --------------------------------------------------------------- navegação
+   As visões do dashboard viram as abas do `.widget-abas` do painel: peso 600,
+   indicador inferior no azul-ardósia. */
+nav.visoes { border-bottom: 1px solid var(--tc-borda); background: var(--tc-superficie); }
+nav.visoes .linha { display: flex; gap: 4px; overflow-x: auto; }
+nav.visoes button {
+  appearance: none; border: 0; background: transparent; color: var(--tc-ardosia);
+  font: inherit; font-weight: var(--tc-peso-medio); cursor: pointer; white-space: nowrap;
+  padding: 11px 14px; border-bottom: 3px solid transparent; margin-bottom: -1px; min-height: 44px;
+}
+nav.visoes button:hover { color: var(--tc-marinho); background: var(--tc-hover); }
+nav.visoes button[aria-selected="true"] { color: var(--tc-marinho);
+  border-bottom-color: var(--tc-ardosia); font-weight: var(--tc-peso-forte); }
+nav.visoes .conta { font-weight: var(--tc-peso-corpo); font-size: var(--tc-txt-sm); }
+
+/* ------------------------------------------------------------- cabeçalho
+   Título com a barra amarela à esquerda — o padrão de título de seção do
+   painel (`.titulo-modal { border-left:5px solid #f8d96a }`), visível na home
+   em "Educação", "Destino do dinheiro", "Limites com educação". */
+header.topo { padding: 16px 0 8px; }
+header.topo h1 { border-left: 5px solid var(--tc-amarelo); padding: 2px 0 2px 15px; }
+header.topo .selo { display: inline-block; font-size: var(--tc-txt-sm); color: var(--tc-texto-2);
+  border: 1px solid var(--grid); border-radius: var(--tc-raio-pill); padding: 1px 10px;
+  margin-bottom: 8px; background: var(--surface); }
+header.topo .sub { color: var(--ink-2); max-width: 78ch; padding-left: 20px; }
+header.topo .small { padding-left: 20px; }
+
+/* ------------------------------------------------------------------ filtros */
+.filtros { background: var(--page); border-bottom: 1px solid var(--grid); padding: 10px 0; }
+.filtros .linha { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end; }
+.campo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.campo label { font-size: var(--tc-txt-sm); color: var(--ink-2); font-weight: var(--tc-peso-medio); }
+select, button, input {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis);
+  border-radius: var(--tc-raio-ctrl); padding: 7px 10px; min-height: 40px;
+}
+select { max-width: 100%; }
+button { cursor: pointer; }
+button:hover, select:hover { border-color: var(--ink-2); }
+button.leve { border-color: transparent; background: transparent; color: var(--accent); padding: 7px 8px; }
+button.leve:hover { background: var(--accent-bg); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; min-height: 34px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--grid); background: var(--surface);
+  border-radius: var(--tc-raio-pill); padding: 2px 4px 2px 10px; font-size: var(--tc-txt-nota); }
+.chip .chave { width: 22px; height: 12px; flex: none; }
+.chip button { min-height: 28px; width: 28px; padding: 0; border-radius: var(--tc-raio-pill); border: 0; background: transparent; color: var(--ink-2); }
+.chip button:hover { background: var(--grid); color: var(--ink); }
+.dica { font-size: var(--tc-txt-sm); color: var(--ink-2); }
+
+/* --------------------------------------------------------------------- KPIs
+   Tipografia e cor vêm da `.etiqueta` do painel: rótulo e valor no mesmo
+   cinza-azulado (#607d8b), distinguidos só pelo peso (400 contra 600) — o
+   painel não usa cor de destaque no KPI padrão. A moldura é a do `.widget`
+   (raio 5px, borda #f5f5f5, sombra difusa), porque a `.etiqueta` é solta na
+   página e aqui os KPIs precisam formar uma grade legível. */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.kpis.tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kpi { background: var(--surface); border: 1px solid var(--tc-borda-suave);
+  border-radius: var(--tc-raio); padding: 12px 14px; box-shadow: var(--tc-sombra); min-width: 0; }
+.kpi .rot { font-size: var(--tc-txt-base); color: var(--tc-kpi);
+  font-weight: var(--tc-peso-corpo); margin-bottom: 2px; }
+.kpi .val { font-size: var(--tc-txt-xl); color: var(--tc-kpi);
+  font-weight: var(--tc-peso-medio); line-height: 1.2; overflow-wrap: anywhere; }
+.kpi .val.nd { font-size: var(--tc-txt-lg); color: var(--ink-2); }
+.kpi .det { font-size: var(--tc-txt-sm); color: var(--ink-2); margin-top: 4px; }
+.kpi.prog { border-left: 4px solid var(--prog-rule); background: var(--prog-surface); }
+
+/* -------------------------------------------------------------------- cards */
+section.bloco { margin: 24px 0; }
+.bloco > header { margin-bottom: 12px; }
+.grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grade .largo { grid-column: 1 / -1; }
+/* Moldura do `.widget` do painel: borda de 1px quase branca (#f5f5f5), raio de
+   5px e sombra difusa (0 0 18px). O cabeçalho do card repete o
+   `.widget-heading`: fundo #f9f9f9, régua inferior de 1px, título 14px/600
+   no azul-ardósia. */
+.card { background: var(--surface); border: 1px solid var(--tc-borda-suave);
+  border-radius: var(--tc-raio); box-shadow: var(--tc-sombra); min-width: 0;
+  padding: var(--tc-corpo-pad); }
+.card + .card { margin-top: 16px; }
+/* O cabeçalho sangra até as bordas do card para virar a faixa do
+   `.widget-heading`; a margem negativa cancela o padding do corpo. */
+.card > header { background: var(--tc-cabecalho); border-bottom: 1px solid var(--tc-borda);
+  padding: var(--tc-cab-pad);
+  margin: calc(-1 * var(--tc-corpo-pad)) calc(-1 * var(--tc-corpo-pad)) var(--tc-corpo-pad);
+  border-radius: calc(var(--tc-raio) - 1px) calc(var(--tc-raio) - 1px) 0 0; }
+.card > header h2, .card > header h3 { font-size: var(--tc-txt-base);
+  font-weight: var(--tc-peso-medio); color: var(--tc-ardosia); margin: 0; }
+.card .nota { font-size: var(--tc-txt-sm); color: var(--ink-2); }
+.grafico { position: relative; height: 320px; margin-top: 8px; }
+.legenda { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: var(--tc-txt-nota); }
+.legenda span { display: inline-flex; align-items: center; gap: 6px; }
+.legenda svg { width: 22px; height: 12px; flex: none; }
+.aviso-grafico { border: 1px dashed var(--axis); border-radius: var(--tc-raio); padding: 12px; color: var(--ink-2); font-size: var(--tc-txt-nota); }
+/* Padrão do `#alerta` do painel: barra de 5px à esquerda, fundo claro da mesma
+   matiz, texto escuro, raio 2px, padding 10px. As quatro severidades usam
+   exatamente as cores do painel, para que o mesmo fato tenha a mesma cor nos
+   dois sistemas. */
+.callout { border-left: 5px solid var(--tc-texto-fraco); background: var(--b-none-bg);
+  color: var(--b-none-ink); padding: 10px; border-radius: var(--tc-raio-alerta);
+  margin: 10px 0; font-size: var(--tc-txt-base); }
+.callout.warn { border-left-color: var(--tc-aviso-barra); background: var(--tc-aviso-bg); color: var(--tc-aviso-txt); }
+.callout.erro { border-left-color: var(--tc-erro-barra); background: var(--tc-erro-bg); color: var(--tc-erro-txt); }
+.callout.ok   { border-left-color: var(--tc-ok-barra);   background: var(--tc-ok-bg);   color: var(--tc-ok-txt); }
+.callout.info { border-left-color: var(--tc-info-barra); background: var(--tc-info-bg); color: var(--tc-info-txt); }
+.callout strong { font-weight: var(--tc-peso-forte); }
+
+details.tab { margin-top: 10px; border-top: 1px solid var(--grid); padding-top: 6px; }
+details.tab > summary { cursor: pointer; padding: 6px 0; color: var(--accent); font-weight: var(--tc-peso-medio); font-size: var(--tc-txt-nota); }
+/* Réplica do `.p-datatable.datagrid` do painel: Open Sans 14px, cabeçalho com
+   padding de 10px e peso 700, células de 6px, zebra em #f7f7f7c7, linha
+   selecionada em #cfdae3, rodapé 15px/600. */
+.tabela-wrap { overflow-x: auto; max-height: 420px; border: 1px solid var(--tc-borda);
+  border-radius: var(--tc-raio-ctrl); margin-top: 6px; }
+.tabela-wrap.inteira { max-height: none; }
+table { border-collapse: collapse; width: 100%; font-size: var(--tc-txt-base); }
+th, td { text-align: left; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { padding: var(--tc-th-pad); position: sticky; top: 0; background: var(--surface);
+  color: var(--tc-ardosia); font-weight: var(--tc-peso-forte); white-space: nowrap; z-index: 1; }
+td { padding: var(--tc-td-pad) var(--tc-th-pad); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tbody tr:nth-child(2n) td { background: var(--tc-zebra); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr.destaque td { background: var(--tc-selecionado); }
+tfoot td { font-size: var(--tc-txt-md); font-weight: var(--tc-peso-medio);
+  border-top: 2px solid var(--axis); background: var(--surface); }
+.acoes-tabela { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 6px; }
+
+/* Lista longa que começa curta: o botão e a contagem ficam juntos, alinhados à tabela. */
+.expansivel { display: grid; gap: 2px; }
+.expansivel .acoes-tabela { justify-content: flex-start; }
+button.mostrar-mais { font-size: var(--tc-txt-sm); border: 1px solid var(--grid); }
+/* Nome de credor ou de ação que abre o detalhamento: link, mas dentro da célula. */
+button.link.detalhe { text-decoration-style: dotted; text-decoration-thickness: 1px; }
+button.link.detalhe::after { content: " ›"; text-decoration: none; }
+
+/* ------------------------------------------------------------------ badges */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: var(--tc-txt-xs); font-weight: var(--tc-peso-medio); line-height: 1.3;
+  padding: 1px 8px; border-radius: var(--tc-raio-pill); white-space: nowrap; }
+.badge.manual { background: var(--b-manual-bg); color: var(--b-manual-ink); }
+.badge.nada { background: var(--b-none-bg); color: var(--b-none-ink); }
+.badge.aviso { background: var(--b-warn-bg); color: var(--b-warn-ink); }
+.badge.api { background: var(--b-api-bg); color: var(--b-api-ink); }
+.flag-abaixo { color: var(--crit); font-weight: var(--tc-peso-medio); }
+
+/* --------------------------------------------------------- ficha do município */
+.ficha-topo { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; }
+.ficha-topo h2 { font-size: var(--tc-txt-2xl); }
+.ficha-topo .codigo { color: var(--ink-2); font-size: var(--tc-txt-nota); font-variant-numeric: tabular-nums; }
+.barra-sub { display: grid; grid-template-columns: minmax(120px, 1.4fr) minmax(90px, 3fr) auto; gap: 10px;
+  align-items: center; padding: 7px 0; border-bottom: 1px solid var(--grid); }
+.barra-sub:last-child { border-bottom: 0; }
+.barra-sub .nome { font-size: var(--tc-txt-nota); overflow-wrap: anywhere; }
+.barra-sub .nome .cod { color: var(--ink-2); font-size: var(--tc-txt-xs); font-variant-numeric: tabular-nums; }
+.barra-sub .trilho { background: var(--b-none-bg); border-radius: var(--tc-raio-ctrl); height: 14px; overflow: hidden; }
+.barra-sub .fill { background: var(--s1); height: 100%; border-radius: 0 var(--tc-raio-ctrl) var(--tc-raio-ctrl) 0; min-width: 2px; }
+.barra-sub .valor { font-size: var(--tc-txt-nota); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.barra-sub .valor b { font-weight: var(--tc-peso-medio); }
+.barra-sub .valor .pct { color: var(--ink-2); }
+.barra-sub.atencao .fill { background: var(--s2); }
+
+/* ------------------------------------------------------- módulo de programas */
+.faixa-prog { background: var(--prog-bg); border-top: 4px solid var(--prog-rule); border-bottom: 1px solid var(--grid);
+  margin: 0 0 24px; padding: 20px 0 24px; }
+.faixa-prog .card { background: var(--prog-surface); }
+.faixa { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 6px 0 10px; }
+.faixa .item { font-size: var(--tc-txt-sm); border: 1px solid var(--grid); background: var(--surface); border-radius: var(--tc-raio); padding: 2px 8px; color: var(--ink-2); }
+.abas { display: flex; gap: 6px; margin: 8px 0 12px; flex-wrap: wrap; }
+.abas button[aria-selected="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: var(--tc-peso-medio); }
+.rodape-card { border-top: 1px solid var(--grid); margin-top: 12px; padding-top: 10px; font-size: var(--tc-txt-nota); color: var(--ink-2); }
+ul.lista { margin: 4px 0 8px 1.1em; padding: 0; }
+ul.lista li { margin: 2px 0; }
+.celula-reg + .celula-reg { margin-top: 6px; border-top: 1px dotted var(--grid); padding-top: 6px; }
+.celula-reg .fonte { display: block; font-size: var(--tc-txt-xs); color: var(--ink-2); }
+
+/* ------------------------------------------- faixa de KPIs de conformidade */
+.faixa-conformidade { background: var(--surface); border-top: 1px solid var(--grid); border-bottom: 1px solid var(--grid); }
+.faixa-kpis { margin: 12px 0; }
+.kpi.alerta { border-left: 4px solid var(--crit); }
+.kpi.alerta .val { color: var(--crit); }
+.acoes-kpi { display: flex; flex-wrap: wrap; gap: 2px 6px; margin-top: 6px; }
+.acoes-kpi button { font-size: var(--tc-txt-sm); min-height: 32px; padding: 4px 6px; }
+
+/* ------------------------------------------------------ cabeçalho de card */
+.cab-card { display: flex; gap: 8px 16px; align-items: flex-start; justify-content: space-between; }
+.cab-card > div { min-width: 0; }
+button.ver-fonte { flex: none; font-size: var(--tc-txt-sm); white-space: nowrap; border: 1px solid var(--grid); }
+button.link { border: 0; background: none; padding: 0; min-height: 0; color: var(--accent); text-decoration: underline;
+  text-underline-offset: 2px; font: inherit; text-align: left; }
+h4 { font-size: var(--tc-txt-base); margin: 14px 0 6px; font-weight: var(--tc-peso-medio); }
+.subbloco { border-top: 1px solid var(--grid); margin-top: 14px; padding-top: 4px; }
+
+/* -------------------------------------------------------- "ver fonte" */
+.dialogo-fonte { width: min(1100px, calc(100vw - 32px)); max-height: calc(100vh - 48px); border: 1px solid var(--axis);
+  border-radius: var(--tc-raio); padding: 0 20px 16px; background: var(--surface); color: var(--ink); box-shadow: var(--tc-sombra-modal); }
+.dialogo-fonte::backdrop { background: var(--tc-veu); }
+.dialogo-fonte > header { position: sticky; top: 0; background: var(--surface); display: flex; justify-content: space-between;
+  align-items: center; gap: 12px; padding: 14px 0 8px; border-bottom: 1px solid var(--grid); z-index: 2; }
+.dialogo-fonte > header h2 { margin: 0; font-size: var(--tc-txt-lg); }
+.dialogo-fonte .fechar { font-size: var(--tc-txt-2xl); line-height: 1; min-width: 40px; }
+.dialogo-fonte > footer { display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--grid); margin-top: 12px; padding-top: 12px; }
+.fonte-item { border: 1px solid var(--grid); border-radius: var(--tc-raio); padding: 10px 12px; margin: 12px 0; }
+.fonte-item h3 { margin-bottom: 6px; }
+.fonte-item dl { display: grid; grid-template-columns: minmax(110px, max-content) 1fr; gap: 4px 12px; margin: 0 0 8px; font-size: var(--tc-txt-nota); }
+.fonte-item dt { color: var(--ink-2); font-weight: var(--tc-peso-medio); }
+.fonte-item dd { margin: 0; overflow-wrap: anywhere; }
+table.consultas td { font-size: var(--tc-txt-sm); }
+table.consultas .url { overflow-wrap: anywhere; }
+ul.params { list-style: none; margin: 4px 0 0; padding: 0; }
+ul.params li { font-size: var(--tc-txt-xs); overflow-wrap: anywhere; }
+code { font-family: var(--tc-fonte-mono); font-size: .9em; }
+code.arquivo { overflow-wrap: anywhere; }
+.badge.fonte-siconfi { background: var(--b-api-bg); color: var(--b-api-ink); }
+.badge.fonte-siope { background: var(--b-warn-bg); color: var(--b-warn-ink); }
+.badge.fonte-fnde { background: var(--b-manual-bg); color: var(--b-manual-ink); }
+.badge.fonte-inep { background: var(--tc-info-bg); color: var(--tc-info-txt); }
+.badge.fonte-tce-es { background: var(--tc-hover); color: var(--tc-ardosia); }
+
+/* ------------------------------------------------------ tabelas de alerta */
+tbody tr.alerta td { background: var(--crit-bg); }
+tbody tr.alerta td:first-child { box-shadow: inset 4px 0 0 var(--crit); }
+tbody tr.atencao td:first-child { box-shadow: inset 4px 0 0 var(--tc-aviso-txt); }
+.ok { color: var(--ok-ink); font-weight: var(--tc-peso-medio); }
+
+/* ------------------------------------------------------------ gráficos SVG */
+.grafico-svg { margin-top: 8px; overflow-x: auto; }
+svg.sankey text, svg.regua text { font-family: var(--tc-fonte); font-size: var(--tc-txt-nota); }
+svg.sankey .aresta { cursor: default; transition: fill-opacity .1s; }
+svg.sankey .aresta:hover, svg.sankey .aresta:focus { fill-opacity: .75; outline: none; }
+svg.sankey rect:focus, svg.regua circle:focus { outline: none; stroke: var(--focus); stroke-width: 2; }
+.tooltip-svg { position: fixed; display: none; z-index: 50; pointer-events: none; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--axis); border-radius: var(--tc-raio); padding: 8px 10px; font-size: var(--tc-txt-sm); max-width: 340px; box-shadow: var(--tc-sombra-flut); }
+.tooltip-svg .valor { font-weight: var(--tc-peso-medio); font-size: var(--tc-txt-base); }
+.tooltip-svg .rotulo { color: var(--ink-2); }
+.reguas h4 { margin-top: 10px; }
+.barra100 { display: flex; gap: 2px; height: 18px; border-radius: var(--tc-raio-ctrl); overflow: hidden; margin: 10px 0 4px; }
+.barra100 .seg { display: block; height: 100%; min-width: 2px; }
+.chave-ret { display: inline-block; width: 12px; height: 12px; border-radius: var(--tc-raio-alerta); flex: none; }
+.comparacao-barras .linha-barra { display: grid; grid-template-columns: minmax(120px, 220px) 1fr; gap: 10px; align-items: center; }
+.comparacao-barras .linha-barra .barra100 { margin: 6px 0; }
+.comparacao-barras .nome { font-size: var(--tc-txt-nota); overflow-wrap: anywhere; }
+.cat-natureza { border-bottom: 1px solid var(--grid); padding-bottom: 4px; }
+.nivel3 { border-left: 4px solid var(--neutral-mark); }
+
+/* -------------------------------------------- Nível 3, obras e escolas (TCE-ES) */
+.badge.crit { background: var(--crit-bg); color: var(--crit); font-weight: var(--tc-peso-medio); }
+.mini-exec { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.mini-exec .trilho { display: inline-block; width: 64px; height: 8px; background: var(--b-none-bg); border-radius: var(--tc-raio-ctrl); overflow: hidden; }
+.mini-exec .fill { display: block; height: 100%; background: var(--s1); }
+.lista-obras { display: grid; gap: 6px; margin: 8px 0; }
+details.obra { border: 1px solid var(--grid); border-radius: var(--tc-raio); padding: 8px 10px; background: var(--surface); }
+details.obra.parada { border-left: 4px solid var(--crit); }
+details.obra summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+details.obra .obra-tit { flex: 1 1 320px; font-weight: var(--tc-peso-medio); overflow-wrap: anywhere; }
+details.obra .obra-valor { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.obra-dl { display: grid; grid-template-columns: minmax(96px, max-content) 1fr; gap: 4px 12px; margin: 8px 0; font-size: var(--tc-txt-nota); }
+.obra-dl dt { color: var(--ink-2); }
+.obra-dl dd { margin: 0; overflow-wrap: anywhere; }
+.destaque-escola { border-top: 4px solid var(--accent); }
+
+/* ------------------------------------------ CNCA: papel de trabalho em campo
+   Só compõe o que já existe (card, tabela, badges, callout); o que é novo aqui é
+   o controle que o auditor preenche: select por item do checklist e a caixa de
+   observações, no mesmo desenho dos demais controles (raio de 3px do tema). */
+textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis);
+  border-radius: var(--tc-raio-ctrl); padding: 7px 10px; width: 100%; min-height: 110px; resize: vertical; }
+textarea:hover { border-color: var(--ink-2); }
+.sinais { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+.sinais .fonte { flex-basis: 100%; }
+.checklist td select { min-height: 32px; padding: 3px 6px; }
+.checklist .ref { display: block; font-size: var(--tc-txt-xs); color: var(--ink-2); margin-top: 2px; }
+.acoes-trabalho { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin: 8px 0; }
+.estado-salvo { font-size: var(--tc-txt-sm); color: var(--ink-2); }
+.ficha-trabalho .grade-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 20px; }
+.ficha-trabalho .grade-2 h4:first-child { margin-top: 4px; }
+@media (max-width: 1000px) { .ficha-trabalho .grade-2 { grid-template-columns: 1fr; } }
+
+footer.rodape { padding: 24px 0 40px; font-size: var(--tc-txt-nota); color: var(--ink-2); }
+footer.rodape h2 { color: var(--ink); font-size: var(--tc-txt-md); }
+footer.rodape ul { margin: 4px 0 12px 1.1em; padding: 0; }
+footer.rodape li { margin: 3px 0; }
+
+/* -------------------------------------------------------------- responsivo */
+@media (max-width: 1000px) {
+  .kpis, .kpis.tres { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grade { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .kpis, .kpis.tres { grid-template-columns: 1fr; }
+  h1 { font-size: var(--tc-txt-2xl); }
+  .campo, .campo select { width: 100%; }
+  .grafico { height: 280px; }
+  .barra-sub { grid-template-columns: 1fr auto; }
+  .barra-sub .trilho { grid-column: 1 / -1; order: 3; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media print { details.tab { display: block; } nav.visoes { display: none; } }
+
+/* ===========================================================================
+   CNCA — Evidências da fiscalização
+   ---------------------------------------------------------------------------
+   Só consome tokens: nenhum hex, raio ou sombra solto aqui, como no resto do
+   arquivo. As quatro cores de status reusam as severidades do `#alerta` do
+   Painel de Controle, para que o mesmo tipo de fato tenha a mesma cor nos dois
+   sistemas — e cada uma vem acompanhada de SÍMBOLO e TEXTO, porque informação
+   codificada só por cor não é legível para todo mundo.
+   =========================================================================== */
+.card > h3 { font-size: var(--tc-txt-base); font-weight: var(--tc-peso-medio);
+  color: var(--tc-ardosia); margin: 0 0 8px; }
+.card > h4 { font-size: var(--tc-txt-base); font-weight: var(--tc-peso-medio);
+  color: var(--tc-ardosia); margin: 16px 0 4px; }
+
+nav.cn-abas { display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  border-bottom: 1px solid var(--tc-borda); margin-bottom: 16px; padding-bottom: 6px; }
+nav.cn-abas button { border: 0; background: transparent; color: var(--ink-2);
+  font-weight: var(--tc-peso-medio); border-bottom: 3px solid transparent; border-radius: 0; }
+nav.cn-abas button[aria-selected="true"] { color: var(--tc-marinho); border-bottom-color: var(--tc-amarelo); }
+nav.cn-abas .cn-ano { margin-left: auto; font-size: var(--tc-txt-sm); color: var(--ink-2); }
+
+/* Estados. A ordem aqui é a de gravidade, e não a alfabética. */
+.st-risco   { background: var(--tc-erro-bg);   color: var(--tc-erro-txt);   border-color: var(--tc-erro-barra); }
+.st-inconc  { background: var(--tc-aviso-bg);  color: var(--tc-aviso-txt);  border-color: var(--tc-aviso-barra); }
+.st-semdado { background: var(--tc-hover);     color: var(--ink-2);         border-color: var(--tc-borda); }
+.st-ok      { background: var(--tc-ok-bg);     color: var(--tc-ok-txt);     border-color: var(--tc-ok-barra); }
+
+.cn-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px;
+  border: 1px solid transparent; border-radius: var(--tc-raio-pill);
+  font-size: var(--tc-txt-nota); white-space: nowrap; }
+.cn-ev-direta      { background: var(--tc-ok-bg);    color: var(--tc-ok-txt); }
+.cn-ev-proxy       { background: var(--tc-aviso-bg); color: var(--tc-aviso-txt); }
+.cn-ev-parcial     { background: var(--tc-info-bg);  color: var(--tc-info-txt); }
+.cn-ev-indisponivel{ background: var(--tc-hover);    color: var(--ink-2); }
+
+.cn-legenda { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline;
+  margin-bottom: 12px; font-size: var(--tc-txt-nota); }
+.cn-legenda .cn-aviso { flex-basis: 100%; margin: 4px 0 0; color: var(--ink-2); max-width: 90ch; }
+.cn-tipo { font-size: var(--tc-txt-nota); color: var(--ink-2); white-space: nowrap; }
+.cn-nota { font-size: var(--tc-txt-sm); color: var(--ink-2); max-width: 60ch; }
+.cn-nota-const { font-size: var(--tc-txt-xs); color: var(--ink-2); }
+.cn-forte { font-weight: var(--tc-peso-forte); }
+.cn-riscado td { text-decoration: line-through; color: var(--ink-2); }
+
+/* Barra de distribuição: as fatias somam 100% da largura e cada uma tem title. */
+.cn-barra { display: flex; height: 14px; width: 100%; min-width: 120px;
+  border-radius: var(--tc-raio-alerta); overflow: hidden; background: var(--grid); }
+.cn-fatia { display: block; height: 100%; }
+
+/* Mapa município × achado. A primeira coluna fica fixa na rolagem horizontal —
+   sem isso, perde-se de vista de que município é a linha. */
+.cn-rolagem { overflow: auto; max-height: 70vh; border: 1px solid var(--tc-borda);
+  border-radius: var(--tc-raio-ctrl); }
+table.cn-mapa { font-size: var(--tc-txt-sm); }
+table.cn-mapa th.cn-mun { position: sticky; left: 0; z-index: 2; background: var(--surface);
+  text-align: left; min-width: 180px; }
+table.cn-mapa thead th { z-index: 3; }
+table.cn-mapa th.cn-vert { min-width: 42px; text-align: center; font-size: var(--tc-txt-xs); }
+table.cn-mapa td.cn-cel { text-align: center; padding: 4px 2px; font-size: var(--tc-txt-nota); }
+table.cn-mapa tbody tr:nth-child(2n) td.cn-cel { background-image: none; }
+
+.cn-filtros { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;
+  font-size: var(--tc-txt-sm); }
+
+.cn-constatacao { border-left: 5px solid var(--tc-info-barra); background: var(--tc-info-bg);
+  border-radius: var(--tc-raio-alerta); padding: 10px 12px; margin: 10px 0; }
+.cn-constatacao h4 { margin: 0 0 6px; color: var(--tc-info-txt); font-size: var(--tc-txt-md); }
+.cn-constatacao p { margin: 4px 0; }
+.cn-medida, .cn-consequencia { max-width: 95ch; }
+
+.cn-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;
+  margin-top: 10px; }
+.cn-kpi { border: 1px solid var(--tc-borda-suave); border-radius: var(--tc-raio);
+  padding: 10px; background: var(--surface); }
+.cn-kpi-valor { display: block; font-size: var(--tc-txt-2xl); font-weight: var(--tc-peso-forte);
+  color: var(--tc-kpi); font-variant-numeric: tabular-nums; }
+.cn-kpi-rotulo { display: block; font-size: var(--tc-txt-nota); color: var(--tc-kpi); }
+
+.cn-limite { border-left: 5px solid var(--tc-aviso-barra); background: var(--tc-aviso-bg);
+  color: var(--tc-aviso-txt); border-radius: var(--tc-raio-alerta); padding: 10px;
+  margin: 8px 0; max-width: 95ch; }
+
+@media (max-width: 560px) {
+  nav.cn-abas .cn-ano { margin-left: 0; flex-basis: 100%; }
+  table.cn-mapa th.cn-mun { min-width: 120px; }
+}

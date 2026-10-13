@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financiamento da Educação no ES</title>
+<meta name="description" content="De onde vem e onde é aplicado o recurso da educação nos municípios do Espírito Santo — SICONFI, SIOPE e FNDE, com a fonte exata de cada número, para auditoria do TCE-ES.">
+<!--
+  Gerado por `python -m financiamento.build_dashboard` a partir dos arquivos em
+  financiamento/web/ e de dados/processado/dataset.json.
+  NÃO edite este arquivo: edite os fontes em web/ e gere de novo.
+  O navegador nunca chama API — todos os dados estão embutidos abaixo.
+-->
+<style>__DESIGN_TOKENS_CSS__</style>
+<style>__ESTILO_CSS__</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+<!-- Barra de identificação: equivalente ao `.menu-topo-container` do Painel de
+     Controle (55px, fundo branco, texto no azul-marinho da marca). Sem o logo
+     do TCE-ES — este arquivo é autocontido e não redistribui a marca. -->
+<div class="barra-tcees">
+  <div class="wrap linha">
+    <span class="marca">Painel de Controle <span class="orgao">· Tribunal de Contas do Estado do Espírito Santo</span></span>
+    <span class="proto">Protótipo — não integrado ao painel</span>
+  </div>
+</div>
+
+<!-- Trilha replicando a observada na área de Educação do painel
+     ("Áreas temáticas › Educação › Visão geral"), com o nível corrente
+     trocado por "Financiamento". Os níveis acima ficam esmaecidos, como lá. -->
+<nav class="migalhas" aria-label="Trilha de navegação">
+  <ol class="wrap">
+    <li class="percorrido"><span>Painel de Controle</span></li>
+    <li class="percorrido"><span>Áreas temáticas</span></li>
+    <li class="percorrido"><span>Educação</span></li>
+    <li class="atual" aria-current="page"><span>Financiamento</span></li>
+  </ol>
+</nav>
+
+<div class="wrap">
+  <header class="topo">
+    <span class="selo">Painel de apoio à auditoria · cada número com a sua fonte · sem chamada de API no navegador</span>
+    <h1>Financiamento da educação — municípios do Espírito Santo</h1>
+    <p class="sub" id="subtitulo"></p>
+    <p class="small muted" id="carimbo"></p>
+  </header>
+</div>
+
+<section class="faixa-conformidade" aria-label="Indicadores de conformidade">
+  <div class="wrap" id="faixa-kpis"></div>
+</section>
+
+<nav class="visoes" aria-label="Visões do painel">
+  <div class="wrap"><div class="linha" id="nav-visoes" role="tablist"></div></div>
+</nav>
+
+<div class="filtros" role="region" aria-label="Filtros">
+  <div class="wrap" id="filtros"></div>
+</div>
+
+<main class="wrap" id="conteudo" tabindex="-1"></main>
+
+<footer class="rodape">
+  <div class="wrap" id="rodape"></div>
+</footer>
+
+<dialog id="dialogo-fonte" class="dialogo-fonte" aria-labelledby="fonte-titulo"></dialog>
+<dialog id="dialogo-detalhe" class="dialogo-fonte" aria-labelledby="detalhe-titulo"></dialog>
+
+<script id="dataset" type="application/json">__DATASET_JSON__</script>
+<!-- Dataset da matriz de evidências do CNCA, gerado por `python -m financiamento.etl.evidencias`.
+     Fica separado do dataset geral de propósito: o painel do CNCA é papel de trabalho de uma
+     fiscalização específica, com seu próprio ciclo de atualização. -->
+<script id="dataset-cnca" type="application/json">__DATASET_CNCA_JSON__</script>
+<!-- Os PDFs do RREO Anexo 8 (SIOPE) em base64, por caminho no cache bruto, e um índice
+     com o tamanho de cada um. A fonte original é ftp://ftp.fnde.gov.br, esquema que
+     navegador nenhum abre desde 2021 e que o FNDE não espelha em HTTP anônimo — sem o
+     documento aqui dentro, o número do MDE ficaria sem a evidência que o sustenta.
+     O índice é leve e lido no carregamento; o bloco de base64 (~23 MB) só é parseado
+     no primeiro clique em "abrir PDF". Ver `pdfs_embutidos` em build_dashboard.py. -->
+<script id="pdfs-indice" type="application/json">__PDFS_INDICE_JSON__</script>
+<script id="pdfs" type="application/json">__PDFS_JSON__</script>
+<script src="__CHARTJS_URL__" integrity="__CHARTJS_SRI__" crossorigin="anonymous" defer></script>
+<script>__COMUM_JS__</script>
+<script>__FONTE_JS__</script>
+<script>__SANKEY_JS__</script>
+<script>__NIVEL3_JS__</script>
+<script>__VISAO_CONFORMIDADE_JS__</script>
+<script>__VISAO_FLUXO_JS__</script>
+<script>__VISAO_PANORAMA_JS__</script>
+<script>__VISAO_MUNICIPIO_JS__</script>
+<script>__VISAO_ESCOLAS_JS__</script>
+<script>__VISAO_PROGRAMAS_JS__</script>
+<script>__VISAO_CNCA_JS__</script>
+<script>
+"use strict";
+/* ------------------------------------------------------------------ orquestra */
+const VISOES = [
+  { id: "conformidade", rotulo: "Conformidade", filtros: conformidadeFiltros, render: renderConformidade,
+    sub: "Mínimos legais (MDE 25%, FUNDEB 70%) por duas apurações (SIOPE e TCE-ES), prazos de prestação de contas ao Tesouro e ao TCE-ES, obras paradas e conciliação entre fontes. Abaixo do mínimo aparece em vermelho, com símbolo e texto." },
+  { id: "fluxo", rotulo: "Receita → aplicação", filtros: fluxoFiltros, render: renderFluxo,
+    sub: "De onde vem o recurso da Educação e onde é aplicado: origem da receita, fluxo fonte → subfunção, natureza econômica e, no Nível 3, credor, ação, conselho escolar e obra (TCE-ES)." },
+  { id: "panorama", rotulo: "Panorama do ES", filtros: panoramaFiltros, render: renderPanorama,
+    sub: "Despesa em Educação (função 12) e receita do FUNDEB a partir do SICONFI. Nada é estimado: onde a fonte não traz o dado, o painel diz que não há." },
+  { id: "municipio", rotulo: "Ficha do município", filtros: municipioFiltros, render: renderMunicipio,
+    sub: "Tudo de um ente num lugar só: no que a Educação foi gasta (por subfunção), evolução, execução no ano, FUNDEB, MDE e programas." },
+  { id: "escolas", rotulo: "Escolas", filtros: escolasFiltros, render: renderEscolas,
+    sub: "O dinheiro que chega a cada escola (PDDE por plano orçamentário, incluindo o CNCA; repasse do município ao conselho escolar; obra no prédio), ao lado de matrículas, infraestrutura, IDEB e PAEBES do Censo." },
+  { id: "programas", rotulo: "Programas federais", filtros: null, render: renderProgramas,
+    sub: "Compliance e adesão a políticas federais. Repasse do CNCA (PDDE, plano orçamentário 000C, escola a escola) e ICA (INEP) automáticos; adesão e bolsa de articulador são registros manuais com fonte e data de verificação." },
+  { id: "cnca", rotulo: "CNCA — Evidências", filtros: null, render: renderCnca,
+    sub: "Papel de trabalho da fiscalização do financiamento do CNCA: as 6 questões da matriz e seus 23 achados, o mapa município × achado, a ficha de cada ente, o que o dado responde de cada uma das 49 perguntas do questionário e o painel de cobertura. Cada célula leva ao registro bruto que a originou. Nada aqui é achado de auditoria — é indício." },
+];
+
+function irPara(visao) {
+  estado.visao = visao;
+  render();
+  const alvo = document.getElementById("conteudo");
+  alvo.focus({ preventScroll: true });
+  alvo.scrollIntoView({ block: "start", behavior: "auto" });
+}
+
+function renderNavegacao() {
+  const nav = limpar($("#nav-visoes"));
+  for (const v of VISOES) {
+    const ativa = v.id === estado.visao;
+    const btn = h("button", { type: "button", role: "tab", "aria-selected": String(ativa),
+      onclick: () => irPara(v.id) }, v.rotulo);
+    if (v.id === "programas") {
+      const p = D.programas[0];
+      const n = p ? municipiosComRegistro(p).size : 0;
+      btn.append(h("span", { class: "conta" }, n ? "  " + n + "/" + MUNICIPIOS.length + " verificados" : "  sem registro"));
+    }
+    if (v.id === "cnca" && typeof cncaResumo === "function") {
+      const r = cncaResumo(null);
+      btn.append(h("span", { class: "conta" },
+        r.municipios ? "  " + r.risco + "/" + r.municipios + " com indício" : "  matriz não gerada"));
+    }
+    if ((v.id === "municipio" || v.id === "fluxo" || v.id === "escolas") && estado.municipio) btn.append(h("span", { class: "conta" }, "  " + ENTES.get(estado.municipio).nome));
+    nav.append(btn);
+  }
+}
+
+function renderRodape() {
+  const r = limpar($("#rodape")), por = META.extraido_em_por_fonte || {}, st = META.fontes_status || {};
+  const situacao = f => { const s = st[f] || {}; return s.ok === false ? "FALHOU nesta execução — " + s.erro : s.modo === "offline" ? "lida do cache (sem nova coleta nesta execução)" : "coletada nesta execução ou no cache"; };
+  r.append(h("h2", {}, "Extração de cada fonte"),
+    h("div", { class: "tabela-wrap inteira" }, h("table", {}, h("thead", {}, h("tr", {}, ["Fonte", "Primeira coleta", "Última coleta", "Consultas", "Situação"].map(t => h("th", { scope: "col" }, t)))),
+      h("tbody", {}, ["SICONFI", "SIOPE", "FNDE", "TCE-ES", "Censo", "INEP"].map(f => { const e = por[f] || {}; return h("tr", {},
+        h("td", {}, f), h("td", { class: "num" }, dataHoraBR(e.primeira)), h("td", { class: "num" }, dataHoraBR(e.ultima)),
+        h("td", { class: "num" }, nf(e.consultas || 0)), h("td", {}, situacao(f))); })))),
+    h("p", {}, "Horário local do navegador. Dataset processado em " + dataHoraBR(META.gerado_em) + (META.versao ? " (versão " + META.versao + ")" : "") +
+      ". Exercícios: " + ANOS.join(", ") + ". Cada número tem o botão “ver fonte” com a consulta exata; o dataset consolidado, com a proveniência em cada linha, está em dados/processado/consolidado.csv."),
+    h("h2", {}, "Documentação das fontes"),
+    h("ul", {}, (META.documentacao || []).map(d => h("li", {}, d.fonte + ": ", h("a", { href: d.url, target: "_blank", rel: "noopener noreferrer" }, d.rotulo)))),
+    h("h2", {}, "Fontes e uso"),
+    h("ul", {}, META.fontes.map(f => h("li", {}, h("a", { href: f.url, target: "_blank", rel: "noopener noreferrer" }, f.rotulo), " — " + f.usado_para))),
+    h("h2", {}, "Limitações dos dados"), h("ul", {}, META.limitacoes.map(l => h("li", {}, l))));
+  const mun = linhasMun(estado.ano), sem = mun.filter(x => x.status_dca !== "ok");
+  r.append(h("p", {}, h("strong", {}, "Municípios sem DCA em " + estado.ano + ": "),
+    sem.length ? sem.map(x => x.ente).join(", ") + "." : "nenhum (DCA em " + mun.length + " de " + mun.length + ")."));
+}
+
+function render() {
+  gravarHash();
+  esconderDica();
+  const v = VISOES.find(x => x.id === estado.visao) || VISOES[0];
+  $("#subtitulo").textContent = v.sub;
+  renderFaixaKPIs(limpar($("#faixa-kpis")));
+  renderNavegacao();
+  const filtros = limpar($("#filtros"));
+  filtros.hidden = !v.filtros;
+  if (v.filtros) v.filtros(filtros);
+  const conteudo = limpar($("#conteudo"));
+  if (v.id === "programas") {
+    // A faixa própria é o que separa visualmente o módulo do financiamento geral.
+    const faixa = h("div", { class: "faixa-prog" }, h("div", { class: "wrap" }, h("div", { id: "corpo-prog" })));
+    conteudo.append(faixa);
+    v.render($("#corpo-prog", faixa));
+  } else {
+    v.render(conteudo);
+  }
+  renderRodape();
+}
+
+function iniciar() {
+  lerHash();
+  if (!estado.sel.length && !location.hash.includes("e=")) {
+    // Os três municípios mais populosos do exercício mais recente: partida neutra.
+    MUNICIPIOS.map(e => LINHA.get(e.cod_ibge + "|" + META.ano_mais_recente))
+      .filter(r => r && !nulo(r.populacao)).sort((a, b) => b.populacao - a.populacao)
+      .slice(0, 3).forEach(r => adicionar(r.cod_ibge));
+  }
+  if (!estado.municipio) estado.municipio = estado.sel.find(c => ENTES.get(c).esfera === "M") || MUNICIPIOS[0].cod_ibge;
+  const por = META.extraido_em_por_fonte || {};
+  $("#carimbo").textContent = "Coleta: SICONFI até " + dataHoraBR((por.SICONFI || {}).ultima) + " · SIOPE até " + dataHoraBR((por.SIOPE || {}).ultima) +
+    " · FNDE/CGU até " + dataHoraBR((por.FNDE || {}).ultima) + " · INEP (ICA) " + dataHoraBR((por.INEP || {}).ultima) + " · exercícios " + ANOS[0] + "–" + ANOS[ANOS.length - 1] + " · " + META.n_municipios + " municípios + Estado";
+  for (const id of ["#dialogo-fonte", "#dialogo-detalhe"]) {
+    const dlg = $(id);
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });  // clique fora fecha
+  }
+  render();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+  addEventListener("resize", (() => { let t; return () => { clearTimeout(t); t = setTimeout(render, 250); }; })());
+}
+
+// `defer` não vale para <script> inline: sem isto, este código rodaria antes do Chart.js
+// (externo, adiado). DOMContentLoaded dispara depois dos scripts adiados — e dispara mesmo
+// se o CDN falhar, caso em que os gráficos mostram o aviso e as tabelas seguem completas.
+function arrancar() {
+  try { iniciar(); } catch (e) {
+    document.body.prepend(h("pre", { style: "color:#b3261e;padding:16px;white-space:pre-wrap" }, "Falha ao montar o painel: " + e.message + "\n" + (e.stack || "")));
+    throw e;
+  }
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arrancar); else arrancar();
+</script>
+</body>
+</html>

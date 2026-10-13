@@ -1,0 +1,254 @@
+/* ===========================================================================
+   Tokens de design — identidade visual do Painel de Controle do TCE-ES
+   ===========================================================================
+
+   Cada token traz a FONTE EXATA de onde o valor veio. As fontes são:
+
+     [tema]   variável CSS lida de :root no painel renderizado
+              (getComputedStyle — PrimeReact tema saga-blue)
+     [css]    regra lida do CSS-fonte do painel, baixado de
+              https://paineldecontrole.tcees.tc.br/css/index-C8qlcENs.css
+     [dom]    estilo computado medido num elemento real da página renderizada
+     [nosso]  NÃO observado no painel — derivado ou mantido do dashboard.
+              Todo token [nosso] traz o motivo. Estes são os que valem
+              confirmar com o usuário / com a equipe do painel.
+
+   Captura: 2026-09-23, painel versão 2026.9.7.1.8.
+   Evidência completa e reprodução: docs/identidade_tcees/relatorio.md
+   --------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* ------------------------------------------------------------ marca ---
+     O azul-marinho é a cor da marca: 36 ocorrências no CSS do painel e a
+     cor de texto mais frequente do DOM (21 elementos, todos do menu). */
+  --tc-marinho:      #112b54;  /* [css] .menu-item .title, #breadcrumb .items */
+  --tc-azul:         #1b5f9d;  /* [css] links do rodapé, #backToTop, indicador IEGM */
+  --tc-ardosia:      #364b60;  /* [css] .widget-title, texto do breadcrumb */
+  --tc-primaria:     #2196f3;  /* [tema] --primary-color (saga-blue) */
+  --tc-primaria-txt: #ffffff;  /* [tema] --primary-color-text */
+  --tc-amarelo:      #f8d96a;  /* [css] .titulo-modal border-left (barra de título) */
+
+  /* ------------------------------------------------------- superfícies --- */
+  --tc-fundo:        #f9f9f9;  /* [css] html,body background-color */
+  --tc-superficie:   #ffffff;  /* [tema] --surface-card / --surface-a */
+  --tc-cabecalho:    #f9f9f9;  /* [css] .widget .widget-heading background-color */
+  --tc-painel-cab:   #f8f9fa;  /* [tema] --surface-b; [dom] .p-panel-header */
+  --tc-hover:        #e9ecef;  /* [tema] --surface-hover / --surface-c */
+  --tc-realce:       #e3f2fd;  /* [tema] --highlight-bg */
+  --tc-selecionado:  #cfdae3;  /* [css] .p-datatable tr.municipio-selecionado */
+  --tc-zebra:        #f7f7f7c7;/* [css] .p-datatable-striped tr:nth-child(2n) */
+
+  /* ------------------------------------------------------------ bordas --- */
+  --tc-borda:        #e4e4e4;  /* [css] .widget-heading e breadcrumb border-bottom */
+  --tc-borda-suave:  #f5f5f5;  /* [css] .widget border */
+  --tc-borda-campo:  #dee2e6;  /* [tema] --surface-border / --surface-d */
+
+  /* ------------------------------------------------------------- texto --- */
+  --tc-texto:        #495057;  /* [tema] --text-color */
+  --tc-texto-2:      #6c757d;  /* [tema] --text-color-secondary */
+  --tc-texto-fraco:  #aaacae;  /* [css] .widget-popover, links do rodapé mobile */
+  --tc-texto-forte:  #212121;  /* [tema] --surface-900 */
+  --tc-kpi:          #607d8b;  /* [css] .etiqueta .valor/.descricao/.icone */
+
+  /* ------------------------------------------------- estados de alerta ---
+     O painel JÁ tem semântica de alerta própria (#alerta). "Abaixo do
+     mínimo" neste dashboard usa exatamente o .danger do painel, para que o
+     mesmo fato tenha a mesma cor nos dois sistemas. Padrão do componente:
+     barra de 5px à esquerda + fundo claro + texto escuro da mesma matiz. */
+  --tc-erro-txt:     #a94442;  /* [css] #alerta.danger color */
+  --tc-erro-bg:      #f2dede;  /* [css] #alerta.danger background-color */
+  --tc-erro-barra:   #ebccd1;  /* [css] #alerta.danger border-left */
+  --tc-aviso-txt:    #ad741b;  /* [css] #alerta.warning color */
+  --tc-aviso-bg:     #fcf8e3;  /* [css] #alerta.warning background-color */
+  --tc-aviso-barra:  #ad741b99;/* [css] #alerta.warning border-left */
+  --tc-ok-txt:       #3c763d;  /* [css] #alerta.success color */
+  --tc-ok-bg:        #dff0d8;  /* [css] #alerta.success background-color */
+  --tc-ok-barra:     #d6e9c6;  /* [css] #alerta.success border-left */
+  --tc-info-txt:     #315f8f;  /* [css] #alerta.info color */
+  --tc-info-bg:      #ddeefa;  /* [css] #alerta.info background-color */
+  --tc-info-barra:   #83b0d1;  /* [css] #alerta.info border-left */
+
+  /* ------------------------------------------- escala de conformidade ---
+     Notas ISP/IEGM do painel (.circuloNotasIEG, .circuloNotasISP, .label-*).
+
+     ATENÇÃO — vocabulário documentado, ainda NÃO consumido pelo estilo.css.
+     O dashboard classifica conformidade como binário (atende / não atende ao
+     mínimo legal), e graduar isso numa escala A→D seria inventar um juízo que
+     os dados não sustentam. Ficam aqui porque são a escala real do painel e
+     quem for integrar vai precisar dela para casar as duas leituras. */
+  --tc-nota-a:       #2f9e23;  --tc-nota-a-borda:  #26801c;  /* [css] .nota-a */
+  --tc-nota-bmais:   #a7d489;  --tc-nota-bmais-borda: #2f9e23;/* [css] .nota-b-mais */
+  --tc-nota-b:       #fff8b8;  --tc-nota-b-borda:  #ced05f;  /* [css] .nota-b */
+  --tc-nota-c:       #f4b350;  --tc-nota-c-borda:  #d09844;  /* [css] .nota-c-mais */
+  --tc-nota-d:       #e68364;  --tc-nota-d-borda:  #d44242;  /* [css] .nota-c / notaD */
+
+  /* --------------------------------------------------- receita/despesa ---
+     Convenção do painel para dinheiro que entra e dinheiro que sai.
+
+     ATENÇÃO — vocabulário documentado, ainda NÃO consumido pelo estilo.css.
+     No Sankey daqui a cor codifica a ORIGEM do recurso (fonte), não o lado
+     receita/despesa; pintar os dois lados de verde e vermelho trocaria o
+     significado da cor e apagaria a distinção entre fontes. Aplicar só se a
+     equipe do painel quiser uniformizar com o "Destino do dinheiro" dela. */
+  --tc-receita:      #486d19;  /* [css] #indicadoresConsolidados .secao-receita */
+  --tc-receita-forte:#459d49;  /* [css] .conteudo-td.destaque-total-verde */
+  --tc-despesa:      #872424;  /* [css] #indicadoresConsolidados .secao-despesa */
+  --tc-despesa-forte:#c0392b;  /* [css] .conteudo-td.destaque-total-vermelho */
+
+  /* --------------------------------------------------------- tipografia ---
+     O painel serve Open Sans (Google Fonts, pesos 300/400/600/700/800) e a
+     declara em html,body. Este dashboard é um HTML autocontido que roda de
+     file:// e não chama rede para dado, então NÃO importamos a fonte: a
+     pilha resolve para Open Sans onde ela existe (o caso no TCE-ES, e o caso
+     se o dashboard for embutido no painel) e degrada para a fonte do sistema
+     fora disso. Decisão registrada em docs/identidade_tcees/relatorio.md §8. */
+  --tc-fonte: "Open Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --tc-base: 14px;             /* [css] html { font-size:14px } */
+  --tc-peso-corpo:  400;       /* [css] html,body font-weight */
+  --tc-peso-medio:  600;       /* [css] .widget-title, #breadcrumb .items */
+  --tc-peso-forte:  700;       /* [css] .menu-item, .p-datatable-thead th */
+
+  /* Escala derivada da base de 14px. Os degraus marcados [dom]/[css] são os
+     tamanhos que o painel de fato usa — medidos por frequência no DOM:
+     14px (26×), 13px (7×), 16px (3×), 15px (2×), 22px (1×). Os dois extremos
+     são [nosso]: este dashboard tem nota de proveniência e título de página
+     que o painel resolve com ilustração. */
+  --tc-txt-xs:   0.786rem;     /* 11px — [nosso] nota de proveniência */
+  --tc-txt-sm:   0.857rem;     /* 12px — [nosso] texto auxiliar */
+  --tc-txt-nota: 0.929rem;     /* 13px — [dom] 2º tamanho mais frequente */
+  --tc-txt-base: 1rem;         /* 14px — [css] corpo, menu, breadcrumb, tabela */
+  --tc-txt-md:   1.071rem;     /* 15px — [css] .p-datatable-tfoot */
+  --tc-txt-lg:   1.143rem;     /* 16px — [dom] 3º tamanho mais frequente */
+  --tc-txt-xl:   1.3rem;       /* 18px — [css] .valor-etiqueta (1.3em) */
+  --tc-txt-2xl:  1.571rem;     /* 22px — [dom] maior tamanho medido na página */
+  --tc-txt-3xl:  2rem;         /* 28px — [nosso] título da página */
+
+  /* -------------------------------------------------- forma e elevação --- */
+  --tc-raio:        5px;       /* [css] .widget; raio mais frequente (18×) */
+  --tc-raio-ctrl:   3px;       /* [tema] --border-radius */
+  --tc-raio-alerta: 2px;       /* [css] #alerta */
+  --tc-raio-pill: 999px;       /* [nosso] badges; o painel usa 30px/50% em contextos distintos */
+  --tc-sombra:      0 0 18px #aaacae73;  /* [css] .widget box-shadow */
+  --tc-sombra-elev: 0 2px 1px -1px #aaacae33, 0 1px 1px #aaacae24, 0 1px 3px #aaacae1f;
+                               /* [css] MUI elevation 1, tintada com #aaacae */
+  --tc-sombra-modal: 0 3px 3px -2px #0003, 0 3px 4px #00000024, 0 1px 8px #0000001f;
+                               /* [css] MUI elevation 3 — diálogo "ver fonte" */
+  --tc-sombra-flut: 0 4px 8px #21212114;  /* [css] .card-ccs-inner — tooltip flutuante */
+  --tc-foco:        0 0 0 0.2rem #a6d5fa; /* [tema] --focus-ring */
+  --tc-veu:         rgba(0, 0, 0, 0.4);   /* [tema] --maskbg — fundo do diálogo */
+
+  /* Fonte monoespaçada: não observada no painel (nenhum bloco de código lá).
+     [nosso] — necessária aqui para URL de consulta e código de conta. */
+  --tc-fonte-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  /* ------------------------------------------------------- espaçamento --- */
+  --tc-esp:         1rem;      /* [tema] --content-padding (14px na base do painel) */
+  --tc-esp-inline:  0.5rem;    /* [tema] --inline-spacing */
+  --tc-cab-pad:     5px 10px;  /* [css] .widget .widget-heading padding */
+  --tc-corpo-pad:   10px;      /* [css] .widget .widget-body padding */
+  --tc-th-pad:      10px;      /* [css] .p-datatable-thead th padding */
+  --tc-td-pad:      6px;       /* [css] .p-datatable-tbody td padding */
+  --tc-menu-alt:    55px;      /* [css] .menu-item height */
+  --tc-crumb-alt:   42px;      /* [css] #breadcrumb .items line-height */
+
+  /* ------------------------------------------------ séries de gráfico ---
+     [nosso] — e é a lacuna consciente desta adaptação. Nenhuma das 4 rotas
+     medidas renderizou gráfico com dados, então NÃO há paleta de séries
+     observada no painel (relatorio.md §7). Mantivemos a paleta de dados que
+     o dashboard já tinha, validada em contraste e adjacência, apenas
+     realinhando a 1ª série ao azul do painel. Trocar por tokens reais assim
+     que a equipe do painel informar a paleta dos gráficos dela. */
+  --tc-s1: #1b5f9d;            /* alinhada a --tc-azul */
+  --tc-s2: #eb6834;
+  --tc-s3: #1baf7a;
+  --tc-s4: #eda100;
+}
+
+/* ---------------------------------------------------------------- escuro ---
+   [nosso] por inteiro. O Painel de Controle tem só o tema claro (saga-blue);
+   não há modo escuro a copiar. Mantemos o do dashboard porque ele já existia
+   e serve auditor que trabalha à noite, derivando os tons dos da marca:
+   o marinho vira o fundo, e as cores de texto clareiam até passar contraste.
+   Se a equipe do painel preferir um protótipo estritamente claro, basta
+   remover este bloco e o [data-theme="dark"] abaixo. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { color-scheme: dark;
+    --tc-marinho: #cddffa; --tc-azul: #6fa9e0; --tc-ardosia: #b6c4d4;
+    --tc-fundo: #0f141d; --tc-superficie: #171d27; --tc-cabecalho: #1c2430;
+    --tc-painel-cab: #1c2430; --tc-hover: #232c3a; --tc-realce: #1b2a40;
+    --tc-selecionado: #2a3a4d; --tc-zebra: #1b222d;
+    --tc-borda: #2c3542; --tc-borda-suave: #222b36; --tc-borda-campo: #39434f;
+    --tc-texto: #e6e9ee; --tc-texto-2: #b3bcc8; --tc-texto-fraco: #8b94a1;
+    --tc-texto-forte: #ffffff; --tc-kpi: #a8bac6;
+    --tc-erro-txt: #f3a6a3; --tc-erro-bg: #3a1d1c; --tc-erro-barra: #8c4a46;
+    --tc-aviso-txt: #f0c97a; --tc-aviso-bg: #3a2e14; --tc-aviso-barra: #8c6a22;
+    --tc-ok-txt: #9ed3a0; --tc-ok-bg: #1c3320; --tc-ok-barra: #4a7a4d;
+    --tc-info-txt: #9cc4ea; --tc-info-bg: #16293c; --tc-info-barra: #46718f;
+    --tc-receita: #9ed3a0; --tc-receita-forte: #7fc383;
+    --tc-despesa: #f0a9a0; --tc-despesa-forte: #e88b7e;
+    --tc-sombra: none; --tc-sombra-elev: none; --tc-foco: 0 0 0 0.2rem #2d5f95;
+    --tc-s1: #5aa3e8; --tc-s2: #f08050; --tc-s3: #35c795; --tc-s4: #f0b93a;
+  }
+}
+:root[data-theme="dark"] { color-scheme: dark;
+  --tc-marinho: #cddffa; --tc-azul: #6fa9e0; --tc-ardosia: #b6c4d4;
+  --tc-fundo: #0f141d; --tc-superficie: #171d27; --tc-cabecalho: #1c2430;
+  --tc-painel-cab: #1c2430; --tc-hover: #232c3a; --tc-realce: #1b2a40;
+  --tc-selecionado: #2a3a4d; --tc-zebra: #1b222d;
+  --tc-borda: #2c3542; --tc-borda-suave: #222b36; --tc-borda-campo: #39434f;
+  --tc-texto: #e6e9ee; --tc-texto-2: #b3bcc8; --tc-texto-fraco: #8b94a1;
+  --tc-texto-forte: #ffffff; --tc-kpi: #a8bac6;
+  --tc-erro-txt: #f3a6a3; --tc-erro-bg: #3a1d1c; --tc-erro-barra: #8c4a46;
+  --tc-aviso-txt: #f0c97a; --tc-aviso-bg: #3a2e14; --tc-aviso-barra: #8c6a22;
+  --tc-ok-txt: #9ed3a0; --tc-ok-bg: #1c3320; --tc-ok-barra: #4a7a4d;
+  --tc-info-txt: #9cc4ea; --tc-info-bg: #16293c; --tc-info-barra: #46718f;
+  --tc-receita: #9ed3a0; --tc-receita-forte: #7fc383;
+  --tc-despesa: #f0a9a0; --tc-despesa-forte: #e88b7e;
+  --tc-sombra: none; --tc-sombra-elev: none; --tc-foco: 0 0 0 0.2rem #2d5f95;
+  --tc-s1: #5aa3e8; --tc-s2: #f08050; --tc-s3: #35c795; --tc-s4: #f0b93a;
+}
+
+/* ====================================================================== ponte
+   Os nomes que o estilo.css já consumia, agora apontando para os tokens do
+   TCE-ES. Manter esta ponte evita reescrever 400 linhas de regras e deixa
+   visível, num lugar só, a correspondência entre o vocabulário do dashboard
+   e o do painel.
+   -------------------------------------------------------------------------- */
+:root {
+  --page: var(--tc-fundo);
+  --surface: var(--tc-superficie);
+  --ink: var(--tc-texto);
+  --ink-2: var(--tc-texto-2);
+  --grid: var(--tc-borda);
+  --axis: var(--tc-borda-campo);
+  --neutral-mark: var(--tc-texto-fraco);
+
+  --s1: var(--tc-s1);
+  --s2: var(--tc-s2);
+  --s3: var(--tc-s3);
+  --s4: var(--tc-s4);
+
+  --accent: var(--tc-azul);
+  --accent-bg: var(--tc-realce);
+
+  /* faixa de programas federais: o painel destaca bloco com fundo claro
+     e regra superior — aqui a regra usa o azul da marca */
+  --prog-bg: var(--tc-painel-cab);
+  --prog-surface: var(--tc-superficie);
+  --prog-rule: var(--tc-marinho);
+
+  /* badges de proveniência: reusam as matizes de alerta do painel, porque
+     é a mesma pergunta ("isto é confiável?") com outra granularidade */
+  --b-manual-bg: var(--tc-info-bg);  --b-manual-ink: var(--tc-info-txt);
+  --b-none-bg:   var(--tc-hover);    --b-none-ink:   var(--tc-texto-2);
+  --b-warn-bg:   var(--tc-aviso-bg); --b-warn-ink:   var(--tc-aviso-txt);
+  --b-api-bg:    var(--tc-ok-bg);    --b-api-ink:    var(--tc-ok-txt);
+
+  --crit: var(--tc-erro-txt);
+  --crit-bg: var(--tc-erro-bg);
+  --ok-ink: var(--tc-ok-txt);
+  --focus: var(--tc-primaria);
+  --shadow: var(--tc-sombra-elev);
+}
