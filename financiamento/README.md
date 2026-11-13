@@ -13,6 +13,9 @@ rodapé de um papel de trabalho.
 * **`novo_dashboard.html`** e **`novo_cnca_evidencias.html`** — o painel refeito a partir
   da auditoria de UX de 30/09/2026, com o papel de trabalho do CNCA num arquivo à parte.
   Convive com o `dashboard.html`, que não mudou — ver [o painel novo](#o-painel-novo-novo_dashboardhtml).
+* **`redes_financiamento.html`** — as **redes** (grafos) do mesmo dado: quem fornece a quem,
+  que municípios compram dos mesmos fornecedores e quem executa as obras. Arquivo único,
+  offline, ~4 MB — ver [as redes](#as-redes-redes_financiamentohtml).
 * **`dados/processado/consolidado.csv`** — o dataset consolidado: **um número por
   linha, com a proveniência na própria linha** (170.141 registros hoje).
 * **`dados/bruto/`** — a resposta original de cada consulta, por fonte e exercício.
@@ -20,7 +23,8 @@ rodapé de um papel de trabalho.
 
 Fontes: **SICONFI** (API do Tesouro), **SIOPE** (FNDE; Anexo 8 em PDF), **FNDE**
 (repasses publicados pela CGU), **TCE-ES** (dados abertos do Tribunal: empenhos, obras,
-MDE apurado, prazos) e o **Censo Escolar** do banco local do NEDUC. O navegador nunca
+MDE apurado, prazos) e o **Censo Escolar**, numa tabela fixa anual versionada com o código
+(`referencia/censo_escolar/`, extraída do banco local do NEDUC). O navegador nunca
 chama API: o ETL em Python gera o dataset e o HTML o embute (Chart.js vem de CDN, com
 versão e hash fixados).
 
@@ -33,6 +37,13 @@ python -m pip install -r financiamento/requirements.txt
 python -m financiamento.etl.pipeline            # as seis fontes; usa o cache e só consulta o que falta
 python -m financiamento.build_dashboard         # monta financiamento/dashboard.html
 python -m financiamento.build_novo_dashboard    # monta novo_dashboard.html e novo_cnca_evidencias.html
+python -m financiamento.etl.simplificado        # dataset do simplificado: SÓ dados abertos do TCE-ES (+ 2 tabelas fixas)
+python -m financiamento.build_simplificado      # monta financiamento-simplificado.html (página contínua, menu à esquerda)
+python -m financiamento.etl.grafos              # as redes: lê o cache do TCE-ES (só o IBGE vai à rede, uma vez)
+python -m financiamento.etl.insights            # fatos dos insights; com --com-ia, a redação pelo Claude (credencial Anthropic)
+python -m financiamento.build_grafos            # monta redes_financiamento.html
+python -m financiamento.etl.instrumentos       # contratos do TCE-ES (todos os setores) dos fornecedores das redes, para o dossiê
+python -m financiamento.servidor_redes --abrir  # servidor local do protótipo: página + Análise profunda + Análise com IA
 python -m pytest financiamento/tests            # sem rede
 ```
 
@@ -45,6 +56,7 @@ python -m financiamento.etl.siope   --anos 2021-2025    # só o SIOPE (PDFs do F
 python -m financiamento.etl.fnde    --anos 2021-2025    # só os repasses do FNDE (CGU)
 python -m financiamento.etl.tcees   --anos 2021-2025    # só o TCE-ES (MDE, prazos, obras, medições, empenhos, dotação, itens)
 python -m financiamento.etl.ica                         # só o ICA do INEP (planilha oficial, hash SHA-256 conferido)
+python -m financiamento.etl.escolas --gerar-retrato     # 1x por ano, onde o banco do NEDUC existe: regera a tabela fixa do Censo
 python -m financiamento.etl.comparar                    # o que mudou entre as duas últimas extrações
 ```
 
@@ -150,6 +162,373 @@ CNCA nem links para ele, e mascara CPF e telefone de pessoa física nos campos d
 documento (o dado aberto do TCE-ES traz CPF digitado no nome do credor e no lugar do CNPJ
 da contratada). A proveniência — consultas, SHA-256, valores — é a mesma. Para atualizar o
 site: regerar com `--site` e commitar só `docs/`.
+
+## O painel simplificado (`financiamento-simplificado.html`)
+
+Versão enxuta do painel novo (28/10/2026, a pedido do usuário), montada por
+[`build_simplificado.py`](build_simplificado.py) a partir de
+[`web_simplificado/`](web_simplificado/) — que traz **só o leiaute e as seções**: os
+módulos de dados, gráficos, "ver fonte", Nível 3 e metodologia são lidos de `web_novo/`
+sem cópia, então uma correção no painel novo vale para os dois. `web_novo/` e os
+montadores existentes não foram tocados.
+
+**Só dados do TCE-ES** (13/11/2026, a pedido da TI do órgão, que prefere os dados do
+próprio Tribunal a APIs externas). O dataset do simplificado sai de um pipeline próprio,
+[`etl/simplificado.py`](etl/simplificado.py) → `dados/processado/dataset_simplificado.json`,
+que NÃO consulta SICONFI, SIOPE nem CGU:
+
+| No painel | Recurso do TCE-ES em dados.es.gov.br | Conferido contra (11/2026) |
+|---|---|---|
+| Despesa em Educação, subfunção, natureza, fonte × subfunção | "Despesas dos municípios" (recorte da função 12) | DCA I-E: 386/390; subfunções 1.635/1.649; natureza 6.065/6.071; fluxo 2023–25 5.268/5.274 pares |
+| % da despesa total | "Despesas dos municípios" (todas as funções, somadas por município e mês) | — |
+| Receita total, impostos, transferências, FUNDEB, FNDE | "Receitas dos municípios" (natureza da receita) | RREO A01 ~99%; FUNDEB 389/390; FNDE ≈ CGU (exato em ~60%) |
+| Matrículas (por matrícula) | "Educação" — coluna "Alunos" | (já era TCE-ES) |
+| Nível 3 (credores, conselhos, itens) | empenhos e contratações | (já era TCE-ES) |
+
+Completam só duas **tabelas fixas** versionadas: `referencia/municipios_es.csv` (os 78
+municípios e o código IBGE — o Tribunal publica o nome) e `referencia/censo_escolar/` (o
+nome da escola de cada conselho, decisão do usuário: manter a do INEP). Consequências,
+aceitas pelo usuário: o **fluxo fonte → subfunção começa em 2023** (em 2021–2022 o TCE-ES
+publica os códigos de fonte anteriores à padronização); os repasses do FNDE passam a ser **o
+que o município registrou** como receita (a CGU mostrava o que a União pagou); sai o **per
+capita** (população não é dado do TCE-ES). O **exercício corrente entra parcial** (pedido do
+usuário), até o último mês que cada município enviou: fica fora das séries anuais, a variação
+compara com o mesmo período do ano anterior e o ranking só junta municípios com os mesmos
+meses. A cada execução o catálogo do portal, os arquivos do ano corrente e os sem ano que o
+Tribunal regrava todo mês são baixados de novo (`ClienteRenovaAno`); os anos fechados vêm do
+cache (`--atualizar tudo` refaz tudo). A única mudança no código compartilhado é o parâmetro
+opcional `cliente` de `tcees.executar`.
+
+O que muda em relação ao painel novo:
+
+* **Uma página contínua, menu fixo à esquerda.** Sem abas: o dossiê do município inteiro
+  numa rolagem só (Resumo → Receita → Despesa → Quem recebeu → metodologia), com o menu
+  sempre visível marcando a seção em que o leitor está. No celular, o menu vira uma barra
+  compacta no topo.
+* **Só o município.** Ficaram de fora Conformidade, Panorama, Obras, Escolas e Programas
+  federais — e tudo de MDE, mínimo do FUNDEB, relatórios ao Tesouro, remessas ao TCE-ES e
+  SICONFI × SIOPE (a documentação da metodologia, compartilhada, continua íntegra).
+* **O fluxo fonte → subfunção abre o Resumo**, e uma fonte do grupo "outras" que pese ao
+  menos 5% da despesa do ano aparece **nomeada** (em Presidente Kennedy, 2025: 573 —
+  royalties vinculados à educação, 35%; 720 — participações do petróleo/FEP, 12%). Os
+  nomes fora do catálogo do dataset vêm da tabela padronizada da STN (Portaria STN
+  nº 710/2021, atualizada), transcritos em `web_simplificado/municipio-simplificado.js`.
+* **"Outras receitas" abertas quando pesam** (≥20% da receita): as parcelas que o RREO
+  Anexo 01 permite separar sem estimativa — transferências correntes além de FUNDEB/FNDE,
+  transferências de capital e receitas próprias fora de impostos, cada uma com "como foi
+  separada" e "ver fonte".
+* **Subfunção sem estágios** (só o empenhado) e sem a execução bimestral; repasses a
+  conselhos escolares em card de destaque, com gráfico e a escola do Censo.
+* **Gráficos em primeiro, tabelas dobradas** (29/10/2026, 2ª rodada do pedido): toda
+  tabela fica recolhida sob "Valores por trás do gráfico"; a matriz subfunção × exercício
+  ganhou um gráfico de linhas (as 4 maiores séries), o detalhe de "outras receitas" e as
+  ações do orçamento ganharam barras. As tabelas dos cards compartilhados do Nível 3 são
+  dobradas pelo próprio painel simplificado (`priorizarGrafico`), sem tocar `web_novo/`.
+* **Sem Insights por IA** (03/11/2026, decisão para o envio à TI): a seção que chamava a
+  API da Anthropic do navegador, com a chave digitada pela pessoa, saiu desta versão — e
+  com ela o `insights-simplificado.js` e a tabela `ica`. A página não faz nenhuma chamada
+  à internet além do Chart.js.
+* **Sem seção de metodologia, textos enxutos** (03/11/2026, preparando o envio à TI como
+  protótipo): a seção "Como ler e metodologia" saiu. No lugar do `metodologia.js` do painel
+  novo entra `web_simplificado/glossario-simplificado.js`, que restringe o glossário
+  clicável aos termos desta versão e põe a ressalva de cada card dentro do "Como é
+  calculado" do próprio card (`cabecalhoEnxuto`, `anexarLimitacao`) — sem links para uma
+  seção que não existe. Saíram também as frases de introdução dos cards, o card "O que
+  ainda não chega ao painel", as conferências que batem (só a divergência vira sinal) e as
+  menções a arquivos do conjunto de dados; o Resumo ficou com três números-chave (total,
+  por matrícula, variação). Não há rodapé nem nota no menu — só uma linha discreta no topo
+  com a data da última atualização dos dados (`meta.gerado_em`); a nota do
+  RREO em "outras receitas" e a de "como estas linhas entraram" nos itens contratados
+  (esta, do `nivel3.js` compartilhado, sai por pós-processamento) também saíram.
+* **Conselhos escolares pela escola**: o rótulo de cada barra é o nome da escola no Censo
+  (o do conselho, que em geral o repete, fica só na tabela dobrada; aparece no gráfico
+  apenas com a marca "escola não identificada"). O gráfico abre com os 10 maiores, a soma
+  dos demais numa linha de texto (uma barra "demais" achataria as outras) e o botão
+  "Mostrar todos" / "Mostrar menos" (`graficoComMais`). A escola vem da **tabela fixa do
+  Censo** (`referencia/censo_escolar/`, 06/11/2026): o pipeline não precisa do PostgreSQL
+  do NEDUC, então roda igual no servidor do órgão; a tabela é regerada uma vez por ano.
+* **Sem o card de ações do orçamento** (orçado × executado): saiu da seção "Quem recebeu",
+  e com ele as tabelas `acoes` e `dotacao` do arquivo. O detalhe de cada credor
+  continua mostrando as ações em que ele aparece (tabela `credor_acao`).
+* **Arquivo menor** (~11,7 MB, ~2,4 MB com gzip no servidor, contra ~41 MB): não embute
+  os PDFs do SIOPE nem as tabelas das seções excluídas (`TABELAS_FORA` no montador).
+* **CPF no nome do credor não é mascarado** nesta versão (decisão do usuário: é dado
+  público do TCE-ES), ao contrário da versão do Farol Capixaba.
+
+Testes em [`tests/test_build_simplificado.py`](tests/test_build_simplificado.py), incluindo
+a garantia de que os módulos compartilhados não têm cópia, de que nada do que o pedido
+excluiu é chamado e de que a página não chama a internet.
+
+## As redes (`redes_financiamento.html`)
+
+O mesmo dado do painel, lido como **grafo**: um painel de tabelas responde "quanto"; uma
+rede responde "quem está ligado a quem" — e é nas ligações que aparecem os padrões que
+interessam ao controle externo. Fontes próprias em [`web_grafos/`](web_grafos/), montador
+próprio ([`build_grafos.py`](build_grafos.py)), ETL próprio ([`etl/grafos.py`](etl/grafos.py)).
+Reusa do painel novo a identidade, as tabelas e a exportação CSV/Excel (`web_novo/`); o motor
+do grafo é um `<canvas>` próprio (`web_grafos/motor.js`), **sem biblioteca de CDN** — a página
+abre sem internet. Nenhum dos painéis anteriores foi tocado.
+
+| Visão | Responde |
+|---|---|
+| **Fornecedores** (abre aqui) | Grafo bipartido **município × fornecedor** (raiz do CNPJ, que junta matriz e filiais) com os empenhos da função 12, 2021–2025. Filtros: **mercado** (13, ver abaixo), exercício, **origem do recurso** (impostos/MDE, FUNDEB, FNDE, Estado, outras), alcance mínimo, tipo de credor e disposição (no mapa do ES ou por afinidade). Clicar num município mostra os fornecedores dele, o **HHI** e a parcela de quem atende outros municípios; clicar num fornecedor, os municípios, o perfil por ano e por origem e os mercados. Tabelas: fornecedores na rede e **concentração por município** |
+| **Municípios conectados** | A projeção: município ligado a município pelos fornecedores em comum, com **peso de Newman** (cada fornecedor de k municípios soma 1/(k−1) a cada par). **Comunidades** (Louvain, semente fixa) sobre o mapa, com as divisas das regiões **intermediárias** ou **imediatas** do IBGE por cima, e a concordância medida (índice de Rand ajustado, informação mútua). Clicar num município lista com quem ele mais divide fornecedores — e quais. Tabelas: comunidades × regiões, pares mais ligados e fornecedores que atravessam comunidades |
+| **Obras** | **Contratada × município** nos 765 contratos de obra da Educação declarados ao TCE-ES, com a situação no traço da linha. ⚑ na contratada com obra **parada em 2+ municípios** (paralisação presumida pelo TCE-ES ou declarada), cruzada com o que ela recebeu nos empenhos |
+| **Como ler e metodologia** | Regras de mercado, tipo de credor e origem; as medidas; a conferência; as limitações; e outras redes que os dados permitem |
+
+**O que entra.** Função 12, sem a modalidade 91 (intraorçamentária). O grupo de natureza 1
+(pessoal) fica fora — o credor da folha é banco, RPPS ou o próprio ente. Pessoa física (CPF)
+fica fora da rede e aparece somada por município, sem identificar ninguém. **Conferência:** a
+soma de tudo o que a rede lê (pessoas jurídicas + físicas + outros identificadores + pessoal)
+bate com `tcees_empenhos_total.csv` — o total do painel — nos **390 município-anos, com
+diferença zero**. Os 25 municípios sem dezembro de 2023 no arquivo do TCE-ES aparecem na
+metodologia da página.
+
+**Mercado** de cada linha: pela natureza (elemento e subelemento) e, quando a natureza é
+genérica, pelo nome do programa/ação (regra completa em `MERCADOS`, `etl/grafos.py`, e na
+própria página). **Origem**: pelo *nome* da fonte reduzida, porque o código mudou em 2023 e o
+nome não. **Tipo de credor**: pelo nome (conselho escolar, concessionária, órgão público,
+terceiro setor, empresa); a projeção usa só empresas e terceiro setor.
+
+**O que as redes mostram (2021–2025):**
+
+| Mercado | Fornecedores com 2+ municípios | Comunidades | Modularidade | Rand aj. × intermediárias | Rand aj. × imediatas |
+|---|---:|---:|---:|---:|---:|
+| Todos os mercados | 2208 | 3 | 0,15 | 0,49 | 0,28 |
+| Transporte escolar | 248 | 4 | 0,34 | 0,26 | 0,15 |
+| Alimentação escolar | 282 | 4 | 0,29 | 0,45 | 0,28 |
+| Obras e manutenção de prédios | 211 | 6 | 0,36 | 0,40 | 0,45 |
+| Uniformes e kits distribuídos aos alunos | 63 | 7 | 0,31 | 0,04 | 0,05 |
+| Material didático e serviços pedagógicos | 195 | 5 | 0,19 | 0,04 | 0,08 |
+| Mão de obra terceirizada | 22 | 7 | 0,57 | 0,08 | 0,06 |
+| Tecnologia da informação | 144 | 6 | 0,25 | 0,10 | 0,08 |
+| Equipamentos e mobiliário | 448 | 5 | 0,11 | 0,26 | 0,25 |
+| Material de consumo e expediente | 754 | 3 | 0,15 | 0,49 | 0,27 |
+| Cartões de benefício e vale-transporte | 20 | 5 | 0,57 | 0,49 | 0,38 |
+| Energia, água e telefonia | 11 | 2 | 0,50 | 1,00 | 0,57 |
+| Subvenções, contribuições e auxílios | 5 | 4 | 0,42 | −0,04 | 0,18 |
+| Outros serviços e despesas | 541 | 5 | 0,25 | 0,56 | 0,44 |
+
+* Com todos os mercados, o ES se divide em **três bacias de fornecedores** — Sul (com a
+  serrana do sul), Norte/Noroeste e Grande Vitória com a serrana central —, que coincidem
+  em boa parte com as regiões intermediárias do IBGE (0,49).
+* Obras, alimentação e material de consumo seguem a geografia; **material didático, kits e
+  TIC não** (≈ 0): editoras, sistemas de ensino e fornecedores de kits vendem ao estado
+  inteiro, sem respeitar região — o mercado que mais interessa ao CNCA é estadual.
+* 42 contratadas têm obra da Educação parada em dois ou mais municípios; a de maior alcance,
+  em seis.
+
+Nada disso é achado: ligação, alcance e concentração são **padrões para escolher onde olhar**
+(preço, competitividade das licitações, capacidade da contratada). A disposição e as
+comunidades usam semente fixa — a mesma figura a cada execução —, e a escolha da repulsão do
+ForceAtlas2 (`kr = 1`) foi feita comparando variantes desenhadas: com repulsão maior a rede
+vira um disco uniforme e as comunidades somem.
+
+O ETL grava também `dados/processado/grafos_arestas.csv` (município × fornecedor × mercado ×
+ano × origem, com o id da consulta), `grafos_fornecedores.csv` e `grafos_projecao.csv` (os
+pares com peso e comunidade), em `;` e vírgula decimal. A malha e as regiões do IBGE ficam em
+`dados/bruto/ibge/`, com SHA-256 e instante da coleta (`--atualizar-ibge` baixa de novo).
+
+### Auditoria de UX das redes (26/10/2026)
+
+Avaliação medida no Chromium (Playwright), não só visual: notebook de 1366 × 768, celular de
+390 × 844, teclado, leitor de tela e os dois temas. Mesmas decisões de fundo do painel novo
+(D1 identidade do Painel de Controle, D2 contraste AA acima da fidelidade, D3 cidadão também
+é público, D6 estados com significado fixo, D8 arquivo único).
+
+| Problema medido | Antes | Depois |
+|---|---|---|
+| Início da figura no notebook (1366 × 768) | 980 px — nada na 1ª tela | 546 px — 222 px visíveis |
+| Barra fixa de filtros | 177 px (23% da tela) | 100 px |
+| Roda do mouse sobre a figura | aproximava: a página "prendia" | rola a página; aproxima com Ctrl/⌘ ou depois de um clique |
+| Dedo sobre a figura no celular (`touch-action`) | `none`: 523 px que não rolavam | `pan-y`: um dedo rola, dois movem e aproximam |
+| Figura no celular | começava em 1.635 px | 855 px |
+| Trocar um filtro lá embaixo | a rolagem saltava de 2.983 para 1.010 px | fica onde estava; o zoom também |
+| Busca com parte do nome + Enter | não selecionava | sugestões sem acento, por nome ou dígitos do CNPJ, com setas e Enter |
+| Caixa de tipos de credor | fechava a cada marcação | continua aberta; fecha com Esc ou clique fora |
+| "Ir para o conteúdo" | zerava os filtros (âncora no endereço que é o estado) | só leva o foco |
+
+O que mudou além disso:
+* **Os indicadores foram para o painel lateral**, que é o estado "nada selecionado" (*Visão
+  geral do recorte*); acima da figura fica **uma frase em linguagem simples** gerada do dado
+  (D3). O painel inicial traz também **seis perguntas de partida** — cada uma é um link para o
+  recorte que a responde.
+* **Barra da figura**: busca, disposição (alternador *Mapa do ES / Afinidade*, rádios nativos),
+  "todas as ligações" e o "ver fonte". A barra fixa ficou só com o que muda o **dado**; o
+  seletor de mercado mostra o valor de cada mercado.
+* **Navegação é link** (`<a href>`): abre em nova aba, entra no histórico, o leitor de tela anuncia
+  como link. A seleção é anunciada numa região viva curta, em vez de o leitor ler o painel inteiro.
+* **Celular**: faixa sobre a figura com o selecionado e "Ver detalhes ↓"; recorte curto na
+  barra fixa (53 px); rótulos limitados aos maiores quando a figura é estreita.
+* **Figura**: transição curta ao focar a seleção (desligada com `prefers-reduced-motion`);
+  rótulos nunca saem da borda; estado vazio com a saída em um clique; município em grafite
+  neutro (o marinho ficava igual ao azul "estadual" no tema escuro); o azul mais claro ganhou
+  contorno de 4,4:1 (WCAG 1.4.11 pede 3:1 para objeto gráfico).
+* Componentes comuns às três visões em [`web_grafos/componentes.js`](web_grafos/componentes.js).
+
+### Aba Insights (26/10/2026)
+
+Observações curtas sobre as três redes, em linguagem simples, cada uma com os fatos de
+onde saiu, o link para vê-la na figura e o "ver fonte" de cada número. Duas camadas, com
+papéis separados ([`etl/insights.py`](etl/insights.py)):
+
+1. **Fatos, sem IA** (`calcular_fatos`): 37 hoje — comunidades × regiões do IBGE, mercados
+   regionais × estaduais, concentração (HHI) por mercado e os municípios em que um fornecedor
+   fica com 80% ou mais, alcance e valor dos maiores, quem atravessa as comunidades, crescimento
+   de 2021 a 2025 e novos fornecedores, dinheiro do FNDE, obras paradas. Determinísticos (mesma
+   entrada, mesmos fatos), com os números brutos e como são escritos, o link do recorte e os ids
+   das consultas. A aba mostra os fatos mesmo sem a etapa de IA.
+2. **Redação pelo Claude** (`--com-ia`, opcional): uma chamada ao `claude-opus-5-5` com saída
+   estruturada (`output_config.format`, JSON Schema) e fallback de recusa do lado do servidor
+   (`fallbacks: "default"`), que recebe **só a lista de fatos** e devolve 6 a 10 observações
+   citando os fatos usados. Grava modelo, id da requisição, hash do prompt, hash dos fatos e
+   tokens. **A página nunca chama a API**: a chave fica na máquina de quem roda o ETL
+   (`ANTHROPIC_API_KEY` ou `ant auth login`). CPF digitado em nome de credor é mascarado antes
+   de sair da máquina.
+
+**Verificação antes de publicar** (`verificar`): todo número do texto tem de bater com um
+número dos fatos **citados**, com a tolerância do arredondamento escrito ("R$ 6,4 mi" vale para
+6.431.403,43; "R$ 9,1 mi" não); fato citado tem de existir; texto que afirma fraude,
+irregularidade, superfaturamento, conluio ou direcionamento é recusado. O que não passa não
+aparece — fica listado, com o motivo, em "Observações recusadas". Um teste confere que o texto
+determinístico de **cada fato passa no próprio verificador** (foi ele que mostrou dois fatos
+escrevendo números que não declaravam). Se os dados mudarem, o hash dos fatos muda e a página
+avisa que a redação ficou velha.
+
+Estado em 26/10/2026: **a redação ainda não foi gerada** — este ambiente não tem credencial da
+Anthropic. Para gerar: `python -m financiamento.etl.insights --com-ia` e depois
+`python -m financiamento.build_grafos`. A chamada usa da ordem de 10 mil tokens de entrada; os
+testes simulam o cliente (`tests/test_insights.py`), sem rede.
+
+### Análise profunda e Análise com IA (27/10/2026, protótipo com servidor local)
+
+No painel lateral de um fornecedor (e no de uma contratada de obras), o botão **Análise
+profunda** abre o **dossiê da empresa**; dentro dele, o botão **Análise com IA**. As duas ações
+rodam num servidor local ([`servidor_redes.py`](servidor_redes.py)), que serve a própria página:
+
+```powershell
+$env:ANTHROPIC_API_KEY = "..."                  # só para a Análise com IA
+python -m financiamento.servidor_redes --abrir   # http://127.0.0.1:8765/
+```
+
+* **Dossiê** ([`etl/dossie.py`](etl/dossie.py)), sem IA: contratos no TCE-ES (recurso
+  "Instrumentos contratuais", recortado por [`etl/instrumentos.py`](etl/instrumentos.py)) com
+  modalidade, base legal e os sinais estruturados — adesão a ata, emergência, dispensa,
+  inexigibilidade, sem modalidade —; preço unitário comparado com o mesmo item em outros
+  municípios; obras; empenhos das redes; cadastro na Receita (BrasilAPI/minhareceita); CEIS e
+  CNEP (arquivo do dia da CGU); certidão do TCU; PNCP; Querido Diário; e o **inventário de
+  documentos** (links específicos de contrato, publicação e edital; o link do DOM-ES com página
+  vira o PDF só daquela página). Cada fonte é isolada — uma que falha vira aviso, e "Tentar de
+  novo as que falharam" refaz só essas. Uma recusa do órgão (o firewall do TCU recusou a consulta
+  em 27/10) fica registrada como "bloqueado", com o link para emitir à mão; não se contorna.
+* **Análise com IA** ([`etl/analise_ia.py`](etl/analise_ia.py)): baixa os documentos, extrai o
+  texto (PDF escaneado vai como página), monta o pedido num orçamento (24 mil caracteres por
+  documento, 300 mil no total, até 36 páginas escaneadas) e **mostra a estimativa de tokens e de
+  custo antes de chamar** — contada pela API (`count_tokens`, sem custo) quando há credencial.
+  Só com a confirmação chama o `claude-opus-5-5` (saída estruturada, `fallbacks: "default"`).
+  Cada constatação cita documento, página e um trecho literal; a conferência procura o trecho no
+  documento e os números no dossiê e nos documentos citados, e recusa texto que afirma
+  irregularidade. A etiqueta diz o resultado: conferida, com ressalvas, não conferível (escaneado).
+
+**Nada é descartado, nada é refeito sem pedido.** O dossiê fica em
+`dados/analises/<raiz>/dossie.json`; cada análise, em `dados/analises/<raiz>/ia/` com nome que
+nunca se repete (data até o microssegundo + hash do pedido), modelo, id da requisição, tokens e
+custo. Abrir de novo devolve o gravado — sem coleta e sem tokens. "Atualizar dossiê" vai às
+fontes outra vez; "Refazer análise" é uma nova chamada paga, e a anterior fica no histórico. As
+respostas cruas e os documentos baixados ficam em `dados/bruto/analises/<raiz>/`, com URL,
+instante e SHA-256 (tudo dentro de `financiamento/dados/`, fora do git: há nome de sócio e
+dado pessoal de documento).
+
+O servidor escuta só em 127.0.0.1 e recusa chamada sem o cabeçalho `X-Redes` ou com outro Host,
+para uma página de fora aberta no navegador não disparar uma análise paga. A chave da API fica
+no ambiente do servidor; a página nunca a vê. Com o arquivo aberto direto (sem servidor), o
+dossiê mostra a parte local e explica como subir o servidor.
+
+#### Base normativa de cada sinal (27/10/2026)
+
+Cada constatação da Análise com IA mostra o **dispositivo legal** a confrontar com o caso concreto. É
+obrigatório para os sinais a verificar e opcional para padrões e contexto. A IA **não escreve texto de
+lei**: ela escolhe dispositivos de um catálogo fechado ([`etl/normas.py`](etl/normas.py), 37
+dispositivos), e o esquema da saída só aceita esses ids. Para cada um, informa a data do fato
+(assinatura do contrato ou do aditivo) e explica, em "No caso:", o que verificar. O texto mostrado vem
+da fonte oficial, **na redação em vigor naquela data**:
+
+| Fonte | Leis | Versões |
+|---|---|---|
+| normas.leg.br (Congresso, JSON-LD, CC BY 4.0) | 14.133/2021, 14.113/2020 (Fundeb), 12.527/2011 (LAI) | cada dispositivo com a data de cada redação |
+| Câmara, legin, "texto atualizado" | 8.666/1993, 9.394/1996 (LDB), 9.503/1997 (CTB) | só a redação atual (a página diz isso) |
+
+O planalto.gov.br não responde deste ambiente. O normas.leg.br não traz o texto estruturado das
+leis da segunda linha.
+
+O exemplo que justifica o trabalho é o art. 86, § 3º, da Lei 14.133, sobre a adesão à ata. Até
+22/12/2023 ele limitava a adesão às atas federais, estaduais e distritais. Desde a Lei 14.770 ele
+admite município aderindo à ata de outro município, "desde que o sistema de registro de preços tenha
+sido formalizado mediante licitação". No contrato 240/2024 de Presidente Kennedy (27/12/2024, adesão à
+ata de Vila Velha), vale a redação nova, e é o que a página mostra.
+
+A conferência também cobre a base normativa:
+
+* a data de referência tem de aparecer no dossiê ou num documento, porque uma data inventada mostraria a
+  redação errada;
+* um dispositivo que não estava em vigor naquela data é apontado;
+* um sinal sem dispositivo fica "com ressalvas";
+* o texto de "No caso:" passa pelas mesmas regras dos números e das palavras proibidas.
+
+O catálogo deixa de fora o art. 193, II, da Lei 14.133 (revogação da 8.666). Na fonte, a restauração do
+texto após a MP 1.167 convive com as alíneas da LC 198, e não se corrige dado oficial de memória. A
+transição fica com o art. 191 e com a nota da Lei 8.666. As versões de "supressão de aplicabilidade"
+(MP 1.221/2024, calamidade pública) são ignoradas, porque não mudam o texto.
+
+**Análises anteriores ao catálogo** não são refeitas. O botão **Indicar a base normativa** lê só as
+constatações já escritas, os contratos e o catálogo, sem reler os documentos. Mostra antes o custo
+(US$ 0,16 estimados para as 9 constatações da DC Transportes) e grava o resultado em
+`ia/normas/<arquivo da análise>`, ao lado da análise, que não muda e continua sendo a única no
+histórico. Pedir de novo devolve o gravado. Leis em `dados/bruto/normas/` (SHA-256) e catálogo montado
+em `dados/processado/normas.json` (`python -m financiamento.etl.normas`). Os testes usam um catálogo
+sintético e não vão à rede.
+
+#### Documentos faltantes (27/10/2026)
+
+O link do contrato no TCE-ES é preenchido pelo município, e muitos põem o endereço do portal, não
+o do documento: Presidente Kennedy informa link específico em 18 de 1.186 contratos (2%);
+Vitória e Cachoeiro, em mais de 93%. Sem o documento, a IA não vê objeto, cláusulas nem aditivos.
+Por isso o dossiê tem a seção **Documentos faltantes** (os links genéricos aparecem na tabela como
+"contrato: portal"), e o botão **Procurar documentos faltantes**
+([`etl/documentos_faltantes.py`](etl/documentos_faltantes.py)), sem IA, para os 6 maiores
+contratos sem link de contrato nem de publicação:
+
+| Rota | Como | Resultado |
+|---|---|---|
+| PNCP por órgão | contratos publicados pelo CNPJ da prefeitura de 15 dias antes a 60 dias depois da assinatura, casados pelo CNPJ da empresa; se casar, os arquivos do contrato | automática |
+| DOM-ES, varredura | baixa as edições do Diário Oficial dos Municípios de 3 dias antes a 21 dias depois da assinatura e procura, nas páginas que citam o município, a empresa (CNPJ ou nome) com o número **ou** o valor do contrato; a página achada vira o PDF só dela, endereço público do DOM-ES | automática |
+| Portal do município | caminho no menu e filtros (portaltp: Compras › Contratos e Aditivos (Documentos); Atas de Adesão) | guiada, manual |
+| Site com CAPTCHA | só manual: não se contorna | manual |
+| Lei de Acesso à Informação | modelo de pedido pronto (contrato, edital, processo de origem, aditivos, publicações, medições), para o e-SIC ou para a requisição de auditoria | manual |
+
+O que é achado entra no inventário, e a Análise com IA passa a ler. O resumo enviado à IA diz quais
+contratos ficaram sem documento e o que cada rota achou. A instrução manda nomear em "limites" o
+que falta e o que pedir, e lembrar que o extrato do Diário não substitui o contrato. Se a busca
+achar documentos depois de uma análise gravada, o cartão da IA avisa que vale refazer.
+
+A busca fica gravada no dossiê. "Atualizar dossiê" não a descarta; "Procurar de novo" refaz.
+Cada edição do DOM-ES é baixada e lida uma vez: guarda-se o texto das páginas
+(`dados/bruto/dioes/edicoes/<id>.paginas.json.gz`) e o `.meta.json` com o SHA-256 do PDF
+original, e o PDF é apagado. Assim a edição serve às outras empresas.
+
+Medido com a DC Transportes: o contrato 000240/2024 de Presidente Kennedy (R$ 60,4 mi) não
+estava no PNCP, porque a prefeitura publicou 10 contratos na janela, nenhum com a empresa. A
+varredura leu 17 edições (5,3 MB de texto guardado; minutos na primeira vez, segundos depois) e achou duas páginas:
+
+* a homologação no DOM-ES de 27/12/2024, p. 524, com R$ 29.666.994,00 e a empresa;
+* o **extrato do contrato** no DOM-ES de 02/01/2025, p. 141, que revela o que o TCE-ES não diz:
+  "adesão à ata de registro de preços nº 009/2024, advinda do pregão eletrônico nº 164/2023,
+  gerenciada pelo Município de Vila Velha".
+
+Medido com a DC Transportes (22.332.830): dossiê em 45 s na primeira vez e instantâneo depois;
+8 contratos no TCE-ES em 6 municípios, 4 deles adesões a ata; 11 documentos no inventário, 7
+legíveis; estimativa da Análise com IA de ~40 mil tokens, **US$ 0,40**. A chamada à IA em si foi
+testada com cliente simulado (`tests/test_dossie_ia.py`): este ambiente não tem a credencial.
 
 ## Identidade visual: alinhada ao Painel de Controle do TCE-ES
 
@@ -580,7 +959,8 @@ irregularidade**:
   inteiros e, dos grandes (empenhos, despesas, medições, contratações e itens), o
   **recorte da Educação** com o
   SHA-256 e o tamanho do arquivo original no `.json` ao lado, mais as linhas lidas ×
-  mantidas; Censo em `censo/*.csv.gz` + o instante e as consultas SQL. Resposta vazia
+  mantidas. O Censo NÃO é cache: é a tabela fixa `referencia/censo_escolar/` (versionada,
+  regerada uma vez por ano com `python -m financiamento.etl.escolas --gerar-retrato`). Resposta vazia
   também é cacheada: "não publicou" é um fato, diferente de "a consulta falhou".
 
 ## Como o dado foi conferido (2021–2025, 22/09/2026)
@@ -657,6 +1037,12 @@ financiamento/
 │   ├── visao_programas.js      visão Programas
 │   └── visao_cnca.js           visão CNCA — Evidências: matriz, mapa, ficha, perguntas, cobertura, exportação
 ├── build_dashboard.py          junta web/ + os dois datasets + os PDFs do SIOPE num HTML autocontido
+├── redes_financiamento.html    as redes (GERADO): fornecedores, municípios conectados, obras
+├── web_grafos/                 fontes das redes: redes.html, redes.css, motor.js (canvas próprio: zoom,
+│                               arraste, seleção, malha do IBGE), dados_redes.js (somas no navegador),
+│                               componentes.js, fornecedores.js, municipios.js, obras.js, insights.js,
+│                               metodologia.js, app.js
+├── build_grafos.py             junta web_grafos/ + identidade e tabelas de web_novo/ + grafos.json
 ├── etl/                        pipeline, uma fonte por módulo (ver etl/README.md): siconfi, siope, fnde,
 │                               tcees, escolas (Censo), ica (INEP), cnca, composicao, indicadores…
 │                               e a matriz do CNCA: matriz (carrega o YAML), execucao (agregados),
@@ -670,10 +1056,11 @@ financiamento/
 ├── docs/fiscalizacao-cnca/     os insumos da fiscalização: matriz de planejamento e questionário
 ├── docs/                       PROMPT.md (escopo), mapeamento_dados_tcees.md (levantamento do TCE-ES)
 │                               e fase0…fase4 (o que cada fase mediu, e o que não conseguiu)
-├── dados/bruto/                resposta original de cada consulta (cache versionado); inep/ica/ tem a planilha + .json com o hash
+├── dados/bruto/                resposta original de cada consulta (cache versionado); inep/ica/ tem a planilha + .json com o hash;
+│                               ibge/ tem a malha e as regiões dos 78 municípios (as redes)
 ├── dados/processado/           CSVs, dataset.json, dataset_cnca.json, consolidado.csv, historico/
 ├── dados/evidencias/           a tabela longa do papel de trabalho do CNCA (CSV e parquet) e as de cobertura
-└── tests/                      360 testes; fixtures são respostas reais das fontes
+└── tests/                      477 testes (89 das redes, insights, dossiê e IA); fixtures são respostas reais das fontes
 ```
 
 O Sankey e a régua são SVG próprio, e não um plugin do Chart.js, para funcionarem sem
@@ -857,7 +1244,7 @@ O detalhe de cada fase está em [`docs/fase0_reconhecimento.md`](docs/fase0_reco
 * [SIOPE — relatórios municipais (FNDE)](https://www.fnde.gov.br/siope/relatoriosMunicipais.jsp) e o FTP `ftp://ftp.fnde.gov.br/web/siope/RREO/`
 * [Portal da Transparência (CGU) — download de dados de transferências](https://portaldatransparencia.gov.br/download-de-dados/transferencias)
 * [Dados abertos do TCE-ES (dados.es.gov.br)](https://dados.es.gov.br/organization/tcees-tribunal-de-contas-do-estado-do-espirito-santo) — API CKAN `package_show`; mapeamento em [`docs/mapeamento_dados_tcees.md`](docs/mapeamento_dados_tcees.md)
-* [Censo Escolar (INEP)](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar) — via o PostgreSQL local do NEDUC (`educacao_dw`)
+* [Censo Escolar (INEP)](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar) — tabela fixa anual em `referencia/censo_escolar/`, extraída do PostgreSQL local do NEDUC (`educacao_dw`)
 * [PAES e FUNPAES (SEDU/ES)](https://paes.sedu.es.gov.br/funpaes)
 * [Painel de Monitoramento do CNCA (MEC)](https://www.gov.br/mec/pt-br/centrais-de-conteudo/paineis-de-monitoramento-e-indicadores/painel-monitoramento-cnca)
 * [INEP — Avaliação da Alfabetização: resultados e metas por município (ICA), edição 2025](https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/avaliacao-da-alfabetizacao/resultados/2025) — planilha oficial verificada por SHA-256 `709c7eeb…`; lógica de download e verificação reaproveitada de [luizmaibashi/painel-alfabetizacao-cgu](https://github.com/luizmaibashi/painel-alfabetizacao-cgu) (MIT License, © 2026 Luiz Fernando Maibashi)

@@ -1,0 +1,5 @@
+# HTML gerados pelos montadores ficam fora do git, como dashboard.html e
+# novo_dashboard.html (ver o .gitignore da raiz): regere com build_simplificado
+# e build_grafos. O do simplificado traz CPF sem máscara no nome de credores.
+financiamento-simplificado.html
+redes_financiamento.html

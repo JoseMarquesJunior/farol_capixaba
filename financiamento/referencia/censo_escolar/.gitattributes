@@ -1,0 +1,3 @@
+# O retrato.json guarda o SHA-256 de cada CSV, e o pipeline recusa o arquivo que não bate.
+# Sem conversão de fim de linha (core.autocrlf), o arquivo baixado é byte a byte o gerado.
+* -text

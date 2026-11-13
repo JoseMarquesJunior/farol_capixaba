@@ -27,14 +27,14 @@ from .config import BRUTO
 #: e atribuir o dado ao Tribunal seria erro de proveniência. "Diário Oficial" cobre o
 #: Querido Diário e o DOM-ES/AMUNES.
 FONTES_VALIDAS = ("SICONFI", "SIOPE", "FNDE", "TCE-ES", "Censo", "INEP",
-                  "Governo do ES", "Diário Oficial")
+                  "Governo do ES", "Diário Oficial", "IBGE")
 
 
 @dataclass(frozen=True, slots=True)
 class Consulta:
     """Uma requisição a uma fonte, como foi feita e quando."""
 
-    fonte: str        # SICONFI | SIOPE | FNDE | TCE-ES | Censo | INEP
+    fonte: str        # SICONFI | SIOPE | FNDE | TCE-ES | Censo | INEP | IBGE
     recurso: str      # dca, rreo, msc_orcamentaria, extrato_entregas, siope_rreo_anexo8, cgu_transferencias, ica_resultados_municipios
     descricao: str    # "DCA-Anexo I-E, exercício 2024" — para gente ler
     url: str          # reproduz a consulta (sem paginação)

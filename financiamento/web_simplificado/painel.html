@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financiamento da educação no ES — simplificado</title>
+<meta name="description" content="Versão simplificada do painel do financiamento da educação nos municípios do Espírito Santo: receita, despesa e quem recebeu, numa página contínua com a fonte de cada número.">
+<!--
+  Gerado por `python -m financiamento.build_simplificado` a partir de
+  financiamento/web_simplificado/ (leiaute e seções), financiamento/web_novo/
+  (módulos compartilhados, sem alteração) e dados/processado/dataset.json.
+  NÃO edite este arquivo: edite os fontes e gere de novo.
+  A página não consulta nada na internet além da biblioteca de gráficos: todos
+  os dados estão embutidos abaixo.
+-->
+<style>__DESIGN_TOKENS_CSS__</style>
+<style>__ESTILO_CSS__</style>
+<style>__ESTILO_SIMPLIFICADO_CSS__</style>
+</head>
+<body class="simplificado">
+<a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+<div class="leiaute">
+  <!-- O menu fica à esquerda, visível o tempo todo: as seções da página inteira
+       de uma vez, enquanto o conteúdo rola de forma contínua à direita. -->
+  <aside class="menu-lateral" aria-label="Menu do painel">
+    <div class="marca-area">
+      <span class="marca">Painel de Controle <span class="orgao">· TCE-ES</span></span>
+      <span class="proto">Protótipo — versão simplificada</span>
+    </div>
+    <div class="seletores" id="seletores"></div>
+    <nav id="nav-secoes" aria-label="Seções da página"><ul></ul></nav>
+  </aside>
+
+  <div class="coluna-conteudo">
+    <header class="topo">
+      <h1>Financiamento da educação — municípios do Espírito Santo</h1>
+      <p class="lead">De onde vem e onde é aplicado o dinheiro da educação do município: receita, despesa por etapa de ensino, quem recebeu e o que foi comprado — com a fonte oficial de cada número.</p>
+      <p class="carimbo" id="carimbo"></p>
+      <details class="como-ler"><summary>Como ler este painel</summary><div id="como-ler-topo"></div></details>
+    </header>
+
+    <main id="conteudo" tabindex="-1">
+      <p class="carregando" role="status">Carregando os dados do painel… A página traz todos os dados embutidos e pode levar alguns segundos para abrir.</p>
+    </main>
+  </div>
+</div>
+
+<dialog id="dialogo-fonte" class="dialogo-fonte" aria-labelledby="fonte-titulo"></dialog>
+<dialog id="dialogo-detalhe" class="dialogo-fonte" aria-labelledby="detalhe-titulo"></dialog>
+<dialog id="dialogo-termo" class="dialogo-fonte pequeno" aria-labelledby="termo-titulo"></dialog>
+
+<script id="dataset" type="application/json">__DATASET_JSON__</script>
+<script src="__CHARTJS_URL__" integrity="__CHARTJS_SRI__" crossorigin="anonymous" defer></script>
+<script>__NUCLEO_JS__</script>
+<script>__GLOSSARIO_JS__</script>
+<script>__DADOS_JS__</script>
+<script>__FONTE_JS__</script>
+<script>__GRAFICOS_JS__</script>
+<script>__NIVEL3_JS__</script>
+<script>__GLOSSARIO_SIMPLIFICADO_JS__</script>
+<script>__MUNICIPIO_SIMPLIFICADO_JS__</script>
+<script>__PAINEL_SIMPLIFICADO_JS__</script>
+</body>
+</html>

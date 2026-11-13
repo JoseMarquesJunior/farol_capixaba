@@ -134,13 +134,23 @@ arquivo original** e as linhas lidas × mantidas — prova de onde ele saiu sem 
 10 GB. Os CSVs vêm com `;`, latin-1 (bens vinculadores em UTF-16) e vírgula decimal.
 HTTP 403/405/429 para a coleta na hora (`ServidorRecusou`); o que já está no cache vale.
 
-### Censo Escolar — `escolas.py` (PostgreSQL local do NEDUC)
+### Censo Escolar — `escolas.py` (tabela fixa em `referencia/censo_escolar/`)
 
-Lê `dw.dim_escola` + `dw.fato_escola_ano` (escolas municipais e estaduais ativas desde
-2021, com matrículas e infraestrutura), `stg.v_ideb_censo` e `stg.v_paebes_escola`, e
-guarda o retrato em `dados/bruto/censo/*.csv.gz` + `censo_escolas.json` (instante e as
-consultas SQL). Sem banco, usa o retrato; sem os dois, a visão Escolas diz que não há
-cadastro — e o resto do painel sai normalmente.
+O pipeline **não abre banco**: lê a tabela fixa versionada com o código — `escolas.csv`
+(escolas municipais e estaduais ativas desde 2021, com matrículas e infraestrutura),
+`ideb.csv`, `paebes.csv`, `matriculas_etapa.csv` e o `retrato.json` (ano do Censo,
+instante da extração, SQL, linhas e SHA-256 de cada CSV). CSV com SHA-256 diferente do
+registrado é recusado, e a pasta tem `.gitattributes` `* -text` para o git não trocar os
+fins de linha. Sem a tabela, a visão Escolas diz que não há cadastro — e o resto do
+painel sai normalmente.
+
+Uma vez por ano, quando um Censo novo é carregado no PostgreSQL do NEDUC
+(`dw.dim_escola`, `dw.fato_escola_ano`, `stg.v_ideb_censo`, `stg.v_paebes_escola`,
+`stg.escola` × `stg.matricula`), regere a tabela onde o banco existe e versione o resultado:
+
+```
+python -m financiamento.etl.escolas --gerar-retrato
+```
 
 **Recorte da Educação nos itens.** Três regras, todas da própria fonte: a **unidade gestora**
 da linha é secretaria ou fundo municipal de educação; a **contratação** tem

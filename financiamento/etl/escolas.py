@@ -19,13 +19,19 @@ o segundo candidato (``FOLGA``). Nas obras há também a distância entre o cent
 do bem e a coordenada da escola no Censo. Nada é ligado "no escuro": o que não
 casa aparece como "não identificada no Censo", com o nome original.
 
-Fonte Censo = banco local; o retrato usado fica em ``dados/bruto/censo/`` (CSV +
-``.json`` com o instante e as consultas SQL), para a execução ser reproduzível
-sem o banco.
+Fonte Censo = **tabela fixa** em ``referencia/censo_escolar/``, versionada com o
+código: um CSV por consulta e o ``retrato.json`` (ano do Censo, instante, SQL,
+linhas e SHA-256 de cada CSV). O pipeline só lê esse retrato — não abre banco
+nenhum, e roda igual num servidor sem o PostgreSQL do NEDUC. O retrato é trocado
+uma vez por ano, quando um Censo novo é carregado no NEDUC::
+
+    python -m financiamento.etl.escolas --gerar-retrato
 """
 
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
 import logging
 import math
@@ -38,14 +44,16 @@ from typing import Any, Iterable
 
 import pandas as pd
 
-from .config import BRUTO
+from .config import BRUTO, PASTA
 from .parsing import norm
 from .proveniencia import Consulta, Registro, caminho_relativo, juntar_ids
 
 log = logging.getLogger(__name__)
 
-PASTA_CACHE = BRUTO / "censo"
+PASTA_CACHE = BRUTO / "censo"  # só o retrato da alfabetização (censo_alfabetizacao.py) ainda fica aqui
 URL_BANCO = "postgresql://localhost:5432/educacao_dw"
+PASTA_RETRATO = PASTA / "referencia" / "censo_escolar"
+URL_MICRODADOS = "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar"
 LIMIAR = 0.75     # fração dos termos distintivos do nome de origem achados no nome do Censo
 FOLGA = 0.25      # vantagem mínima sobre o segundo melhor candidato
 RAIO_OBRA_M = 400.0
@@ -88,45 +96,66 @@ CANAIS = {"pdde": "PDDE — FNDE direto à unidade executora da escola (CGU)",
 # ------------------------------------------------------------ Censo (fonte)
 
 
-def extrair_censo(*, atualizar: str = "nao") -> tuple[dict[str, pd.DataFrame], Consulta | None, str | None]:
-    """Retrato do Censo (escolas, IDEB, PAEBES) — do banco, ou do cache se o banco não estiver acessível.
+def _sha256(arquivo: Path) -> str:
+    return hashlib.sha256(arquivo.read_bytes()).hexdigest()
 
-    Devolve (tabelas, consulta, aviso). Sem banco e sem cache: tabelas vazias e aviso.
+
+def extrair_censo(*, atualizar: str = "nao", pasta: Path = PASTA_RETRATO) -> tuple[dict[str, pd.DataFrame], Consulta | None, str | None]:
+    """Retrato fixo do Censo (escolas, IDEB, PAEBES, matrículas por etapa), lido de `referencia/censo_escolar/`.
+
+    Não consulta banco: `atualizar` existe só pela interface comum das fontes. Devolve
+    (tabelas, consulta, aviso). Retrato ausente, incompleto ou com um CSV alterado fora do
+    gerador (SHA-256 diferente do `retrato.json`): tabelas vazias e aviso — nenhuma escola
+    é ligada com dado não conferido.
     """
-    meta = PASTA_CACHE / "censo_escolas.json"
-    arquivos = {k: PASTA_CACHE / f"{k}.csv.gz" for k in SQL}
-    usar_cache = atualizar in {"nao", "offline", "vazios"} and meta.exists() and all(a.exists() for a in arquivos.values())
-    aviso = None
-    if not usar_cache:
-        if atualizar == "offline":
-            return {k: pd.DataFrame() for k in SQL}, None, "Censo não coletado (modo offline, sem retrato em cache)"
-        try:
-            from educacao.config.database import get_connection  # o banco do NEDUC; opcional para o painel
-            with get_connection() as conn:
-                tabelas = {k: pd.read_sql_query(q, conn) for k, q in SQL.items()}
-        except Exception as exc:  # noqa: BLE001 — banco indisponível não derruba o painel
-            if meta.exists():
-                aviso = f"banco do Censo indisponível ({type(exc).__name__}); usado o retrato em cache"
-                usar_cache = True
-            else:
-                return {k: pd.DataFrame() for k in SQL}, None, f"banco do Censo indisponível e sem retrato em cache: {exc}"
-        else:
-            PASTA_CACHE.mkdir(parents=True, exist_ok=True)
-            for k, df in tabelas.items():
-                df.to_csv(arquivos[k], index=False, encoding="utf-8", compression={"method": "gzip", "mtime": 0})
-            meta.write_text(json.dumps({"obtido_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                                        "banco": URL_BANCO, "consultas": {k: " ".join(q.split()) for k, q in SQL.items()},
-                                        "linhas": {k: len(v) for k, v in tabelas.items()}}, ensure_ascii=False, indent=1),
-                            encoding="utf-8")
-    if usar_cache:
-        tabelas = {k: pd.read_csv(a, dtype={"co_entidade": "int64"} if k != "matriculas_etapa" else None)
-                   for k, a in arquivos.items()}
-    d = json.loads(meta.read_text(encoding="utf-8"))
-    consulta = Consulta(fonte="Censo", recurso="educacao_dw", metodo="SQL (PostgreSQL local do NEDUC)",
-                        descricao="Censo Escolar (INEP) carregado no NEDUC: dw.dim_escola, dw.fato_escola_ano, "
-                                  "stg.v_ideb_censo, stg.v_paebes_escola e stg.escola × stg.matricula (matrículas por etapa)",
-                        url=URL_BANCO + "#dw.dim_escola", obtido_em=d["obtido_em"], arquivo=caminho_relativo(meta))
-    return tabelas, consulta, aviso
+    vazio = {k: pd.DataFrame() for k in SQL}
+    arq_meta = pasta / "retrato.json"
+    if not arq_meta.exists():
+        return vazio, None, f"retrato fixo do Censo ausente ({caminho_relativo(arq_meta, PASTA)})"
+    meta = json.loads(arq_meta.read_text(encoding="utf-8"))
+    tabelas = {}
+    for k in SQL:
+        arq = pasta / f"{k}.csv"
+        if not arq.exists():
+            return vazio, None, f"retrato fixo do Censo incompleto: falta {arq.name}"
+        if _sha256(arq) != meta["sha256"].get(arq.name):
+            return vazio, None, f"retrato fixo do Censo: {arq.name} difere do registrado no retrato.json (alterado fora do gerador)"
+        tabelas[k] = pd.read_csv(arq, dtype={"co_entidade": "int64"} if k != "matriculas_etapa" else None)
+    consulta = Consulta(fonte="Censo", recurso="censo_escolar_retrato", metodo="tabela fixa (retrato anual, versionado com o código)",
+                        descricao=f"Censo Escolar (INEP) até {meta['ano_censo']}, extraído em {meta['gerado_em'][:10]} do banco do "
+                                  "NEDUC (microdados do INEP): escolas públicas, IDEB, PAEBES e matrículas da rede municipal por etapa",
+                        url=URL_MICRODADOS, obtido_em=meta["gerado_em"], arquivo=caminho_relativo(arq_meta, PASTA),
+                        sha256=_sha256(arq_meta))
+    return tabelas, consulta, None
+
+
+def gravar_retrato(tabelas: dict[str, pd.DataFrame], pasta: Path = PASTA_RETRATO, *, origem: str = URL_BANCO,
+                   gerado_em: str | None = None) -> dict[str, Any]:
+    """Grava o retrato fixo: um CSV por consulta e o `retrato.json` com ano do Censo, instante da
+    extração, origem, SQL, linhas e o SHA-256 de cada CSV. Tabela vazia não é gravada."""
+    faltam = [k for k in SQL if k not in tabelas or tabelas[k].empty]
+    if faltam:
+        raise ValueError(f"retrato do Censo sem {', '.join(faltam)}: nada foi gravado")
+    pasta.mkdir(parents=True, exist_ok=True)
+    sha = {}
+    for k in SQL:
+        arq = pasta / f"{k}.csv"
+        tabelas[k].to_csv(arq, index=False, encoding="utf-8", lineterminator="\n")
+        sha[arq.name] = _sha256(arq)
+    meta = {"ano_censo": int(max(tabelas["escolas"]["ano_censo"].max(), tabelas["matriculas_etapa"]["ano"].max())),
+            "gerado_em": gerado_em or datetime.now(timezone.utc).isoformat(timespec="seconds"), "origem": origem,
+            "consultas": {k: " ".join(q.split()) for k, q in SQL.items()},
+            "linhas": {k: len(tabelas[k]) for k in SQL}, "sha256": sha}
+    (pasta / "retrato.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return meta
+
+
+def gerar_retrato(pasta: Path = PASTA_RETRATO) -> dict[str, Any]:
+    """Uma vez por ano, onde o banco do NEDUC existe: lê o Censo carregado e regrava o retrato fixo."""
+    from educacao.config.database import get_connection  # só aqui: o pipeline não depende do banco
+    with get_connection() as conn:
+        tabelas = {k: pd.read_sql_query(q, conn) for k, q in SQL.items()}
+    return gravar_retrato(tabelas, pasta)
 
 
 def cadastro_escolas(t: dict[str, pd.DataFrame]) -> pd.DataFrame:
@@ -419,3 +448,15 @@ def compor(pdde: pd.DataFrame, conselhos: pd.DataFrame, obras: pd.DataFrame, *, 
     status = {"fonte": "Censo", "ok": not escolas.empty, "escolas": len(escolas), "vinculos": taxa, "avisos": len(avisos),
               "matriculas_etapa": len(matriculas_etapa), "extraido_em": reg.extraido_em("Censo")}
     return ResultadoEscolas(escolas, vinculos, dinheiro_df, reg, avisos, status, q, matriculas_etapa)
+
+
+if __name__ == "__main__":
+    p = argparse.ArgumentParser(description="Retrato fixo do Censo Escolar lido pelo pipeline (referencia/censo_escolar/).")
+    p.add_argument("--gerar-retrato", action="store_true",
+                   help="lê o banco do NEDUC e regrava o retrato — uma vez por ano, quando um Censo novo é carregado")
+    if p.parse_args().gerar_retrato:
+        m = gerar_retrato()
+        print(f"retrato do Censo até {m['ano_censo']} gravado em {PASTA_RETRATO}: "
+              + ", ".join(f"{k} {n}" for k, n in m["linhas"].items()))
+    else:
+        p.print_help()

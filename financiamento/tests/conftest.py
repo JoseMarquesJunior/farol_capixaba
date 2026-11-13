@@ -84,6 +84,35 @@ def pdf_siope():
             for p in FIXTURES.glob("siope_RREO_Municipal_*.pdf")}
 
 
+#: O art. 86, § 3º, da Lei 14.133 como o normas.leg.br o descreve: redação original e a de 22/12/2023.
+ART86_PAR3 = {
+    "art86_par3": {"versoes": [("2021-04-01", "Original_Version", "A faculdade estará limitada a ata de gerenciadora federal, estadual ou distrital."),
+                               ("2023-12-22", "Text_Change_Version", "A faculdade de aderir à ata poderá ser exercida:")]},
+    "art86_par3_inc1": {"versoes": [("2023-12-22", "Insertion_Version", "relativamente a ata de gerenciadora federal, estadual ou distrital; ou")]},
+    "art86_par3_inc2": {"versoes": [("2023-12-22", "Insertion_Version", "por municípios, relativamente a ata de gerenciadora municipal, desde que formalizada mediante licitação.")]},
+}
+
+
+@pytest.fixture(autouse=True)
+def catalogo_normas(monkeypatch):
+    """Catálogo de normas sintético: nenhum teste lê o normas.json baixado nem vai à rede."""
+    import re
+    from financiamento.etl import normas as N
+    itens = {}
+    for ident, lei, partes, quando in N.CATALOGO:
+        if ident == "14133.art86.§3":
+            nos = ART86_PAR3
+        else:
+            data = "2021-04-01" if N.LEIS[lei]["fonte"] == "normas" else None
+            nos = {}
+            for p in partes:
+                cam = p.rstrip("!")
+                cam = cam + "_cpt" if re.fullmatch(r"art\d+", cam) else cam
+                nos[cam] = {"versoes": [(data, "Original_Version", f"Texto de {ident}: até 25% (vinte e cinco por cento) do valor inicial.")]}
+        itens[ident] = N.item(ident, lei, partes, quando, nos)
+    monkeypatch.setattr(N, "carregar", lambda: {"gerado_em": "2026-10-27T00:00:00+00:00", "fontes": {}, "itens": itens})
+
+
 def linha(conta: str, coluna: str, valor: float, *, cod_conta: str = "X", anexo: str = "A",
           rotulo: str = "R", populacao: int | None = 1000) -> dict:
     """Linha sintética no formato de `/dca` e `/rreo`."""

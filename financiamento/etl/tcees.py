@@ -902,11 +902,14 @@ def recurso_itens(cliente: ClienteTcees, ano: int) -> dict[str, Any] | None:
 
 
 def executar(nomes_ibge: dict[int, str], anos: Iterable[int], *, atualizar: str = "nao", com_empenhos: bool = True,
-             com_medicoes: bool = True, com_itens: bool = True, hoje: datetime | None = None) -> ResultadoTcees:
-    """Coleta (ou lê do cache) e extrai tudo do TCE-ES. Cada recurso que falha vira aviso."""
+             com_medicoes: bool = True, com_itens: bool = True, hoje: datetime | None = None,
+             cliente: ClienteTcees | None = None) -> ResultadoTcees:
+    """Coleta (ou lê do cache) e extrai tudo do TCE-ES. Cada recurso que falha vira aviso.
+
+    `cliente` permite outra política de cache (o pipeline do simplificado renova o ano corrente)."""
     hoje = hoje or datetime.now(timezone.utc)
     anos = list(anos)
-    cliente = ClienteTcees(atualizar=atualizar)
+    cliente = cliente or ClienteTcees(atualizar=atualizar)
     mun = Municipios(nomes_ibge)
     reg = Registro()
     avisos: list[dict[str, Any]] = []

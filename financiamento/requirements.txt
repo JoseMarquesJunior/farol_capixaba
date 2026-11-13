@@ -6,6 +6,8 @@ pypdf==6.19.0        # SIOPE: Anexo 8 em PDF (o HTML do SIOPE exige reCAPTCHA; v
 openpyxl==3.1.5      # INEP: planilha oficial do ICA (etl/ica.py) — leitura via pandas.read_excel
 pyarrow==22.0.0      # tabela de evidências do CNCA em parquet (etl/evidencias.py); o CSV
                      # ao lado é o contrato — sem pyarrow o pipeline avisa e segue só com ele
+networkx==3.7        # as redes (etl/grafos.py): comunidades de Louvain na projeção município–município
+anthropic==1.12.1    # opcional: só `python -m financiamento.etl.insights --com-ia` (redação dos insights pelo Claude)
 pytest==9.1.1        # só para os testes
 playwright==1.63.0   # só para docs/identidade_tcees/: extrai a identidade visual do Painel
                      # de Controle e confere o dashboard gerado. Precisa de

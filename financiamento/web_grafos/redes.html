@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redes do financiamento da educação no ES</title>
+<meta name="description" content="Quem fornece a quem na Educação dos 78 municípios capixabas, que municípios compram dos mesmos fornecedores e quem executa as obras — em grafos, com a fonte de cada número.">
+<!--
+  Gerado por `python -m financiamento.build_grafos` a partir de financiamento/web_grafos/,
+  de financiamento/web_novo/ (identidade, tabelas e exportação) e de dados/processado/grafos.json.
+  NÃO edite este arquivo: edite os fontes e gere de novo.
+  A página não consulta nada na internet: dados e código estão embutidos abaixo.
+-->
+<style>__DESIGN_TOKENS_CSS__</style>
+<style>__ESTILO_CSS__</style>
+<style>__REDES_CSS__</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Ir para o conteúdo</a>
+<header>
+  <div class="barra-tcees">
+    <div class="wrap linha">
+      <span class="marca">Painel de Controle <span class="orgao">· Tribunal de Contas do Estado do Espírito Santo</span></span>
+      <span class="proto">Protótipo — não integrado ao Painel de Controle</span>
+    </div>
+  </div>
+  <div class="wrap topo">
+    <h1>Redes do financiamento da educação — municípios do Espírito Santo</h1>
+    <p class="lead">Quem fornece a quem na Educação dos 78 municípios capixabas, que municípios compram das mesmas empresas e quem executa as obras — desenhado como rede, com a fonte oficial de cada número.</p>
+    <p class="carimbo" id="carimbo"></p>
+    <details class="como-ler"><summary>Como ler esta página</summary><div id="como-ler-topo"></div></details>
+  </div>
+</header>
+
+<nav class="visoes" aria-label="Visões da página">
+  <div class="wrap"><ul id="nav-visoes"></ul></div>
+</nav>
+
+<div class="contexto" id="contexto" role="region" aria-label="Recorte e filtros">
+  <div class="wrap" id="contexto-wrap"></div>
+</div>
+
+<main class="wrap" id="conteudo" tabindex="-1">
+  <p class="carregando" role="status">Carregando as redes… A página traz todos os dados embutidos e pode levar alguns segundos para abrir.</p>
+</main>
+
+<footer class="rodape">
+  <div class="wrap" id="rodape"></div>
+</footer>
+
+<dialog id="dialogo-fonte" class="dialogo-fonte" aria-labelledby="fonte-titulo"></dialog>
+<div id="anuncio" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+<script type="application/json" id="config-redes">__CONFIG_JSON__</script>
+<script type="application/json" id="dados-redes">__DATASET_JSON__</script>
+<script>__NUCLEO_JS__</script>
+<script>__DADOS_REDES_JS__</script>
+<script>__MOTOR_JS__</script>
+<script>__COMPONENTES_JS__</script>
+<script>__FORNECEDORES_JS__</script>
+<script>__MUNICIPIOS_JS__</script>
+<script>__OBRAS_JS__</script>
+<script>__INSIGHTS_JS__</script>
+<script>__EMPRESA_JS__</script>
+<script>__METODOLOGIA_JS__</script>
+<script>__APP_JS__</script>
+</body>
+</html>

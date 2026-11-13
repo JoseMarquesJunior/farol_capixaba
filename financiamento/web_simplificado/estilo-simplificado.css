@@ -1,0 +1,87 @@
+/* ===========================================================================
+   Leiaute do painel simplificado: menu fixo à esquerda, conteúdo contínuo à
+   direita. Entra DEPOIS de design-tokens.css e estilo.css e só muda o leiaute:
+   cards, tabelas, estados e diálogos continuam os do painel novo.
+   --------------------------------------------------------------------------- */
+
+/* Sem barra de contexto fixa no desktop: a variável que estilo.css usa para o
+   scroll-padding fica em zero e sobe no celular, quando o menu gruda no topo
+   (medida no JS, em medirMenu). */
+:root { --altura-contexto: 0px; }
+
+body.simplificado .leiaute {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------ menu lateral */
+.menu-lateral {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 16px 14px 24px;
+  background: var(--tc-superficie);
+  border-right: 1px solid var(--tc-borda);
+}
+.menu-lateral .marca-area { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.menu-lateral .marca { color: var(--tc-marinho); font-weight: var(--tc-peso-forte); }
+.menu-lateral .marca .orgao { color: var(--tc-ardosia); font-weight: var(--tc-peso-corpo); }
+.menu-lateral .proto { color: var(--st-sinal-txt); background: var(--st-sinal-bg); border: 1px solid var(--st-sinal-barra);
+  border-radius: var(--tc-raio-pill); padding: 1px 10px; font-size: var(--tc-txt-sm); font-weight: var(--tc-peso-medio); }
+.menu-lateral .seletores { display: flex; flex-direction: column; gap: 8px; }
+.menu-lateral .seletores select { width: 100%; }
+.menu-lateral nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.menu-lateral nav a {
+  display: block; padding: 9px 12px; color: var(--tc-ardosia); text-decoration: none;
+  font-weight: var(--tc-peso-medio); font-size: var(--tc-txt-nota);
+  border-left: 3px solid transparent; border-radius: 0 var(--tc-raio-ctrl) var(--tc-raio-ctrl) 0;
+}
+.menu-lateral nav a:hover { color: var(--tc-marinho); background: var(--tc-hover); }
+.menu-lateral nav a[aria-current="true"] {
+  color: var(--tc-marinho); font-weight: var(--tc-peso-forte);
+  border-left-color: var(--tc-ardosia); background: var(--tc-hover);
+}
+/* ------------------------------------------------------- coluna de conteúdo */
+.coluna-conteudo { min-width: 0; padding: 0 24px 24px; }
+.coluna-conteudo .topo { padding-top: 18px; }
+.coluna-conteudo main { display: block; }
+
+/* Cada seção é um trecho da MESMA página: o menu leva até ela por âncora e a
+   rolagem segue contínua. O scroll-margin-top acompanha o menu fixo do celular. */
+.secao-pagina { margin: 8px 0 44px; scroll-margin-top: calc(var(--altura-contexto) + 12px); }
+.titulo-secao { font-size: var(--tc-txt-xl); color: var(--tc-marinho); border-left: 5px solid var(--tc-amarelo);
+  padding: 2px 0 2px 12px; margin: 26px 0 4px; }
+.secao-pagina > .descricao { color: var(--ink-2); max-width: 95ch; margin-bottom: 12px; }
+.secao-pagina .cab-visao h2 { border-left: 5px solid var(--tc-amarelo); padding: 2px 0 2px 12px; }
+
+/* O card do repasse a conselhos escolares ganha destaque (pedido do leiaute). */
+#card-conselhos-simp { border-top: 4px solid var(--accent); }
+
+/* ------------------------------------------------------------- responsivo */
+@media (max-width: 900px) {
+  body.simplificado .leiaute { display: block; }
+  .menu-lateral {
+    position: sticky; height: auto; max-height: none; overflow: visible; z-index: 40;
+    flex-direction: column; gap: 8px; padding: 8px 14px 10px;
+    border-right: 0; border-bottom: 1px solid var(--tc-borda);
+    box-shadow: 0 2px 6px #0000000d;
+  }
+  /* Compacto: marca e selo numa linha, seletores lado a lado — o menu fixo não
+     pode comer a tela do celular. */
+  .menu-lateral .marca-area { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 2px 10px; }
+  .menu-lateral .marca { font-size: var(--tc-txt-sm); }
+  .menu-lateral .proto { font-size: var(--tc-txt-xs); }
+  .menu-lateral .seletores { flex-direction: row; flex-wrap: wrap; gap: 6px 10px; }
+  .menu-lateral .seletores .campo { flex: 1 1 140px; }
+  .menu-lateral .seletores select { min-height: 36px; padding: 4px 8px; }
+  .menu-lateral nav ul { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .menu-lateral nav a { border-left: 0; border-bottom: 3px solid transparent; border-radius: var(--tc-raio-ctrl);
+    padding: 6px 10px; }
+  .menu-lateral nav a[aria-current="true"] { border-left-color: transparent; border-bottom-color: var(--tc-ardosia); }
+  .coluna-conteudo { padding: 0 16px 16px; }
+}
+@media print {
+  .menu-lateral { display: none !important; }
+  body.simplificado .leiaute { display: block; }
+}

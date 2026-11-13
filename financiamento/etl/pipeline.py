@@ -83,7 +83,7 @@ FONTES = [
                    "contratos de obra da Educação (com prédio, situação e medições), empenhos da função 12 (credor, ação, "
                    "fonte, conselhos escolares, FUNPAES), dotação por ação e os ITENS contratados na Educação (descrição, "
                    "unidade, quantidade, preço unitário e o que foi medido)"},
-    {"id": "censo", "rotulo": "Censo Escolar (INEP) e avaliações — banco local do NEDUC",
+    {"id": "censo", "rotulo": "Censo Escolar (INEP) e avaliações — tabela fixa anual (referencia/censo_escolar)",
      "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar",
      "usado_para": "Cadastro das escolas públicas (nome, rede, localização, matrículas, infraestrutura), IDEB e PAEBES — "
                    "a ponta onde o recurso chega; e as matrículas da rede municipal por etapa (ensino fundamental e "
@@ -176,8 +176,7 @@ DOCUMENTACAO = [
     {"fonte": "FNDE", "rotulo": "Portal da Transparência (CGU) — download de dados de transferências", "url": mod_fnde.URL_DOC},
     {"fonte": "TCE-ES", "rotulo": "Dados abertos do TCE-ES (organização no portal dados.es.gov.br)", "url": mod_tcees.PORTAL},
     {"fonte": "TCE-ES", "rotulo": "API CKAN do portal (package_show)", "url": mod_tcees.CKAN + "/api/3/action/package_show?id=tcees-empenho"},
-    {"fonte": "Censo", "rotulo": "Censo Escolar — microdados (INEP)",
-     "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar"},
+    {"fonte": "Censo", "rotulo": "Censo Escolar — microdados (INEP)", "url": mod_escolas.URL_MICRODADOS},
     {"fonte": "INEP", "rotulo": "Avaliação da Alfabetização — resultados e metas por município (edição 2025)", "url": mod_ica.PAGINA},
     {"fonte": "INEP", "rotulo": "Planilha oficial baixada (SHA-256 " + mod_ica.SHA256[:16] + "…)", "url": mod_ica.URL},
 ]

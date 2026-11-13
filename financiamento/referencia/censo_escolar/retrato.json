@@ -1,0 +1,23 @@
+{
+ "ano_censo": 2025,
+ "gerado_em": "2026-10-13T16:52:56+00:00",
+ "origem": "postgresql://localhost:5432/educacao_dw",
+ "consultas": {
+  "escolas": "select e.co_entidade, e.no_entidade, e.co_municipio, e.latitude, e.longitude, e.ultimo_ano, f.ano as ano_censo, f.tp_dependencia, f.tp_situacao_funcionamento, f.qt_mat_bas, f.qt_doc_bas, f.in_internet, f.in_biblioteca, f.in_laboratorio_informatica, f.in_quadra_esportes, f.in_agua_potavel, f.in_esgoto_rede_publica, f.in_acessibilidade_rampas from dw.dim_escola e left join dw.fato_escola_ano f on f.co_entidade = e.co_entidade and f.ano = e.ultimo_ano where f.tp_dependencia in (2, 3) and e.ultimo_ano >= 2021",
+  "ideb": "select co_entidade, etapa, ano, ideb_observado from stg.v_ideb_censo where ideb_observado is not null and etapa in ('anos_iniciais', 'anos_finais')",
+  "paebes": "select co_entidade, ano, etapa, disciplina, proficiencia_media from stg.v_paebes_escola where proficiencia_media is not null",
+  "matriculas_etapa": "select e.nu_ano_censo as ano, e.co_municipio, sum(m.qt_mat_bas) as qt_mat_bas, sum(m.qt_mat_fund) as qt_mat_fund, sum(m.qt_mat_med) as qt_mat_med from stg.escola e join stg.matricula m on m.co_entidade = e.co_entidade and m.nu_ano_censo = e.nu_ano_censo where e.tp_dependencia = 3 and e.co_uf = 32 and e.nu_ano_censo >= 2021 group by 1, 2"
+ },
+ "linhas": {
+  "escolas": 3440,
+  "ideb": 14772,
+  "paebes": 6568,
+  "matriculas_etapa": 390
+ },
+ "sha256": {
+  "escolas.csv": "1ba2bfd3190c9ecb1ca347dd71945ecc7961c8c42ccf64c125931dc0042bdf59",
+  "ideb.csv": "665117d1ef8239cbce394e4dafbf0ce450f5531f30860b489919883c27667803",
+  "paebes.csv": "4d3dfe894373aa86b1a1396c47d15cfe8fd0a50acf85b03d42bf26bdafa718ab",
+  "matriculas_etapa.csv": "5221f1d2118955933e7df32666873cb77eb285c9b81d1507e707de6ab8ce4a50"
+ }
+}
